@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CommList>
+  <!-- type 1, single year contract -->
+  <Comm type="1" value="0.05" tier1="0.007" tier2="0.002" tier3="0.001"></Comm>
+  <!-- type 2, 1st year -->
+  <Comm type="2" value="0.1" tier1="0.01" tier2="0.003" tier3="0.0015"></Comm>
+  <!-- type 3, subsequent year -->
+  <Comm type="3" value="0.05" tier1="0.004" tier2="0.0015" tier3="0.001"></Comm>
+</CommList>

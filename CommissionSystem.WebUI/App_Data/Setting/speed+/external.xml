@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CommList>
+  <!-- case 1 to 10 -->
+  <Comm type="1" value="1.2" tier1="0.15" tier2="0.08" tier3="0.05"></Comm>
+  <!-- case 11 to 20 -->
+  <Comm type="2" value="1.5" tier1="0.15" tier2="0.08" tier3="0.05"></Comm>
+  <!-- case 21 & above -->
+  <Comm type="3" value="1.8" tier1="0.15" tier2="0.08" tier3="0.05"></Comm>
+</CommList>

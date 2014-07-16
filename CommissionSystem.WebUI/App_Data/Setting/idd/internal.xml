@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<IDDList>
+  <IDD value="18" comm="0.02" tier1="0.005" tier2="0.001"></IDD>
+  <IDD value="17" comm="0.02" tier1="0.005" tier2="0.001"></IDD>
+  <IDD value="16" comm="0.02" tier1="0.005" tier2="0.001"></IDD>
+  <IDD value="15" comm="0.02" tier1="0.005" tier2="0.001"></IDD>
+  <IDD value="14" comm="0.01" tier1="0.003" tier2="0.001"></IDD>
+  <IDD value="13" comm="0.01" tier1="0.003" tier2="0.001"></IDD>
+  <IDD value="12" comm="0.01" tier1="0.003" tier2="0.001"></IDD>
+  <IDD value="11" comm="0.005" tier1="0" tier2="0"></IDD>
+  <IDD value="10" comm="0.005" tier1="0" tier2="0"></IDD>
+</IDDList>
