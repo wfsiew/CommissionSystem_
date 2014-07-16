@@ -39,7 +39,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Ninject">
+      <HintPath>..\packages\Ninject.3.2.2.0\lib\net40\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Web.Common">
+      <HintPath>..\packages\Ninject.Web.Common.3.2.2.0\lib\net40-full\Ninject.Web.Common.dll</HintPath>
+    </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.3.1.0.0\lib\net40\NLog.dll</HintPath>
     </Reference>
@@ -154,7 +166,64 @@
     <Content Include="App_Data\Setting\speed+\internal.xml" />
     <Content Include="App_Data\Setting\vsat\external.xml" />
     <Content Include="App_Data\Setting\vsat\internal.xml" />
+    <Content Include="css\app.css" />
+    <Content Include="css\bootstrap\css\bootstrap-theme.css" />
+    <Content Include="css\bootstrap\css\bootstrap-theme.min.css" />
+    <Content Include="css\bootstrap\css\bootstrap.css" />
+    <Content Include="css\bootstrap\css\bootstrap.min.css" />
+    <Content Include="css\bootstrap\css\select2.css" />
+    <Content Include="css\bootstrap\css\select2.png" />
+    <Content Include="css\bootstrap\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="css\lib\loading-bar.css" />
+    <Content Include="css\lib\toastr-icon.png" />
+    <Content Include="css\lib\toastr.min.css" />
     <Content Include="Global.asax" />
+    <Content Include="css\lib\toastr.less" />
+    <Content Include="js\app.js" />
+    <Content Include="js\controllers.js" />
+    <Content Include="js\directives.js" />
+    <Content Include="js\filters.js" />
+    <Content Include="js\lib\angular-animate.min.js" />
+    <Content Include="js\lib\angular-resource.min.js" />
+    <Content Include="js\lib\angular-route.min.js" />
+    <Content Include="js\lib\angular-sanitize.min.js" />
+    <Content Include="js\lib\angular-strap.min.js" />
+    <Content Include="js\lib\angular-strap.tpl.min.js" />
+    <Content Include="js\lib\angular.min.js" />
+    <Content Include="js\lib\bootbox.min.js" />
+    <Content Include="js\lib\bootstrap.js" />
+    <Content Include="js\lib\bootstrap.min.js" />
+    <Content Include="js\lib\jquery.blockUI.js" />
+    <Content Include="js\lib\select2.js" />
+    <Content Include="js\lib\select2.min.js" />
+    <Content Include="js\lib\toastr.min.js.map" />
+    <Content Include="css\bootstrap\css\bootstrap-theme.css.map" />
+    <Content Include="css\bootstrap\css\bootstrap.css.map" />
+    <Content Include="css\bootstrap\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="css\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="css\bootstrap\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="js\lib\angular-animate.min.js.map" />
+    <Content Include="js\lib\angular-resource.min.js.map" />
+    <Content Include="js\lib\angular-route.min.js.map" />
+    <Content Include="js\lib\angular-sanitize.min.js.map" />
+    <Content Include="js\lib\angular.min.js.map" />
+    <None Include="Scripts\jquery-2.1.1.intellisense.js" />
+    <Content Include="js\lib\jquery-1.10.2.min.js" />
+    <Content Include="js\lib\jquery-ui.min.js" />
+    <Content Include="js\lib\loading-bar.js" />
+    <Content Include="js\lib\toastr.min.js" />
+    <Content Include="js\lib\ui-bootstrap-tpls-0.11.0.min.js" />
+    <Content Include="js\lib\ui-utils.min.js" />
+    <Content Include="js\lib\underscore-min.js" />
+    <Content Include="js\services.js" />
+    <Content Include="js\utils.js" />
+    <Content Include="Scripts\jquery-2.1.1.js" />
+    <Content Include="Scripts\jquery-2.1.1.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -163,6 +232,9 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <Content Include="Views\Web.config" />
+    <Content Include="Scripts\jquery-2.1.1.min.map" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\_ViewStart.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
