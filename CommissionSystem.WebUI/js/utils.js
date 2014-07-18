@@ -2,7 +2,7 @@
     var alertTimeout = 5000;
 
     function getUrl(a) {
-        //var app = '/FibreSystem';
+        //var app = '/CommissionSystem';
         var app = "";
         return app + a;
     }
@@ -55,100 +55,12 @@
         return null;
     }
 
-    function isValidInstallDate(dt) {
-        var b = true;
-
-        if (dt != null) {
-            var d = dt.getDay();
-            if (d == 0 || d == 6)
-                b = false;
-        }
-
-        return b;
-    }
-
-    function isValidInstallTime(s) {
-        var b = true;
-
-        try {
-            if (s != null && s != '') {
-                var h;
-                var m;
-                var k = 0;
-
-                if (s.indexOf('PM') >= 0)
-                    k = 12;
-
-                var a = s.replace(' AM', '');
-                a = a.replace(' PM', '');
-
-                var t = a.split(':');
-                h = parseInt(t[0]);
-                m = parseInt(t[1]);
-
-                if (h < 12)
-                    h += k;
-
-                if (h < 9 || h > 17)
-                    b = false;
-
-                if (h == 17 && m > 0)
-                    b = false;
-            }
-        }
-
-        catch (e) {
-
-        }
-
-        return b;
-    }
-
     function blockUI() {
         $.blockUI({ message: '<h3>Loading...</h3>' });
     }
 
     function unblockUI() {
         $.unblockUI();
-    }
-
-    function initDrop() {
-        $(document).bind('dragover', function (e) {
-            var dropZone = $('#dropzone'),
-                timeout = window.dropZoneTimeout;
-
-            if (!timeout) {
-                dropZone.addClass('in');
-            }
-
-            else {
-                clearTimeout(timeout);
-            }
-
-            var found = false,
-                node = e.target;
-
-            do {
-                if (node === dropZone[0]) {
-                    found = true;
-                    break;
-                }
-                node = node.parentNode;
-            } while (node != null);
-
-            if (found) {
-                dropZone.addClass('hover');
-            }
-
-            else {
-                dropZone.removeClass('hover');
-            }
-
-            window.dropZoneTimeout = setTimeout(function () {
-                window.dropZoneTimeout = null;
-                dropZone.removeClass('in hover');
-            }, 100);
-        });
     }
 
     function initToastr() {
@@ -164,11 +76,8 @@
         getDateStr: getDateStr,
         getTimeStr: getTimeStr,
         getDate: getDate,
-        isValidInstallDate: isValidInstallDate,
-        isValidInstallTime: isValidInstallTime,
         blockUI: blockUI,
         unblockUI: unblockUI,
-        initDrop: initDrop,
         initToastr: initToastr
     };
 }());

@@ -8,13 +8,80 @@ using System.Data;
 
 namespace CommissionSystem.WebUI.Helpers
 {
-    public class DbHelper
+    public class DbHelper : IDisposable
     {
         public string ConnectionString { get; set; }
         public SqlConnection Connection { get; private set; }
         public SqlCommand Command { get; private set; }
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
+
+        public DbHelper()
+        {
+        }
+
+        public DbHelper(string c)
+        {
+            ConnectionString = c;
+            OpenConnection();
+            CreateCommand();
+        }
+
+        public void OpenConnection()
+        {
+            try
+            {
+                Connection = new SqlConnection(ConnectionString);
+                Connection.Open();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+        }
+
+        public void CloseConnection()
+        {
+            try
+            {
+                Connection.Close();
+            }
+
+            catch (Exception)
+            {
+            }
+        }
+
+        public void CreateCommand()
+        {
+            try
+            {
+                Command = new SqlCommand();
+                Command.Connection = Connection;
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+        }
+
+        public void AddParameter(SqlParameter p)
+        {
+            try
+            {
+                Command.Parameters.Add(p);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+        }
 
         public void BeginTransaction()
         {
@@ -158,6 +225,24 @@ namespace CommissionSystem.WebUI.Helpers
             }
 
             return ds;
+        }
+
+        public static string GetConStr(string db)
+        {
+            string constr = string.Format("Server=192.168.138.120; Database={0}; User Id=CallBilling; Password=CBPWD12345", db);
+            return constr;
+        }
+
+        public void Dispose()
+        {
+            if (Command != null)
+                Command.Dispose();
+
+            if (Connection != null)
+            {
+                CloseConnection();
+                Connection.Dispose();
+            }   
         }
     }
 }

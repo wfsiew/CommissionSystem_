@@ -61,5 +61,4 @@ var app = angular.module('mvcapp', ['ngRoute', 'ngSanitize', 'mvcappFilters', 'u
 //    };
 //});
 
-utils.initDrop();
 utils.initToastr();
