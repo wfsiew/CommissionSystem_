@@ -150,6 +150,19 @@ namespace CommissionSystem.Domain.Models
             }
         }
 
+        public static int GetCommissionType(int n)
+        {
+            int i = 1;
+
+            if (n >= 11 && n <= 20)
+                i = 2;
+
+            else if (i >= 21)
+                i = 3;
+
+            return i;
+        }
+
         private static SpeedPlusExternal Load(XmlNode n)
         {
             try

@@ -10,9 +10,9 @@ using CommissionSystem.WebUI.Helpers;
 using CommissionSystem.Domain.Models;
 using NLog;
 
-namespace CommissionSystem.WebUI.Models.FibrePlus
+namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
-    public class FibrePlusCommission : IDisposable
+    public class FibrePlusCommission : IDisposable, ICommission
     {
         public DbHelper Db { get; set; }
         public int AgentID { get; set; }
@@ -21,7 +21,6 @@ namespace CommissionSystem.WebUI.Models.FibrePlus
         public DateTime DateTo { get; set; }
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
-        private const int CUSTOMER_TYPE = 1;
 
         public FibrePlusCommission()
         {
@@ -45,7 +44,7 @@ namespace CommissionSystem.WebUI.Models.FibrePlus
                     AgentLevel = 3;
 
                 if (!external)
-                    comm = f.FibrePlusInternalSetting.GetCommission(amt, 4 - AgentLevel);
+                    comm = f.FibrePlusInternalSetting.GetCommission(amt, 3 - AgentLevel);
 
                 else
                 {
@@ -62,6 +61,12 @@ namespace CommissionSystem.WebUI.Models.FibrePlus
             }
 
             return comm;
+        }
+
+        public void Dispose()
+        {
+            if (Db != null)
+                Db.Dispose();
         }
 
         private double GetAmount()
@@ -151,12 +156,6 @@ namespace CommissionSystem.WebUI.Models.FibrePlus
                 a = true;
 
             return a;
-        }
-
-        public void Dispose()
-        {
-            if (Db != null)
-                Db.Dispose();
         }
     }
 }

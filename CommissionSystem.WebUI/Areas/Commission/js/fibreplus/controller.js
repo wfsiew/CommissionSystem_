@@ -33,13 +33,13 @@
         var a = _.find($scope.agents, function (x) { return x.AgentID == $scope.agentID; });
 
         var o = {
-            agentID: $scope.agentID,
-            agentLevel: a.AgentLevel,
-            from: _dateFrom,
-            to: _dateTo
+            AgentID: $scope.agentID,
+            AgentLevel: a.AgentLevel,
+            DateFrom: _dateFrom,
+            DateTo: _dateTo
         };
 
-        var url = utils.getUrl('/FibrePlus/Commission');
+        var url = route.fibreplus.commission;
         utils.blockUI();
         $http.post(url, o).success(function (data) {
             utils.unblockUI();
@@ -52,7 +52,7 @@
     }
 
     $scope.init = function () {
-        var url = utils.getUrl('/FibrePlus/Agents');
+        var url = route.fibreplus.agents;
         $http.get(url).success(function (data) {
             $scope.agents = data;
         });

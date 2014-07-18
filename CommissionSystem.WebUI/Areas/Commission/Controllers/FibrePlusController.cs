@@ -7,38 +7,42 @@ using System.Text;
 using System.Data;
 using System.Data.SqlClient;
 using CommissionSystem.WebUI.Models;
-using CommissionSystem.WebUI.Models.FibrePlus;
+using CommissionSystem.WebUI.Areas.Commission.Models;
 using CommissionSystem.WebUI.Helpers;
 using NLog;
 
-namespace CommissionSystem.WebUI.Controllers
+namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 {
     public class FibrePlusController : Controller
     {
         private static Logger Logger = LogManager.GetCurrentClassLogger();
-        private const int CUSTOMER_TYPE = 1;
         private const string DB = "HSBB_Billing";
 
+        //
+        // GET: /Commission/FibrePlus/
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+
         [HttpPost]
-        public ActionResult Commission(int agentID, string from, string to, int agentLevel = -1)
+        public ActionResult Commission(FibrePlusRequest req)
         {
             FibrePlusCommission o = null;
             Dictionary<string, object> r = new Dictionary<string, object>();
 
             try
             {
-                DateTime dateFrom = Utils.GetDateTimeFMT(from);
-                DateTime dateTo = Utils.GetDateTimeFMT(to);
+                DateTime dateFrom = req.DateFrom;
+                DateTime dateTo = req.DateTo;
 
                 o = new FibrePlusCommission();
-                o.DateFrom = new DateTime(dateFrom.Year, dateFrom.Month, dateFrom.Day);
+                o.DateFrom = req.DateFrom;
+                o.DateTo = req.DateTo.AddDays(1);
 
-                DateTime _dateTo = new DateTime(dateTo.Year, dateTo.Month, dateTo.Day);
-                _dateTo = _dateTo.AddDays(1);
-                o.DateTo = _dateTo;
-
-                o.AgentID = agentID;
-                o.AgentLevel = agentLevel;
+                o.AgentID = req.AgentID;
+                o.AgentLevel = req.AgentLevel == null ? -1 : req.AgentLevel.Value;
                 double comm = o.GetCommission();
 
                 r["success"] = 1;
@@ -59,41 +63,6 @@ namespace CommissionSystem.WebUI.Controllers
             }
 
             return Json(r, JsonRequestBehavior.AllowGet);
-        }
-
-        //
-        // GET: /FibrePlus/
-
-        public ActionResult Index()
-        {
-            FibrePlusCommission o = null;
-
-            try
-            {
-                DateTime dateFrom = new DateTime(2014, 6, 1);
-                DateTime dateTo = new DateTime(2014, 7, 1);
-                o = new FibrePlusCommission();
-                o.AgentID = 5800014;
-                o.AgentLevel = 4;
-                o.DateFrom = dateFrom;
-                o.DateTo = dateTo;
-                double comm = o.GetCommission();
-                ViewBag.comm = comm;
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (o != null)
-                    o.Dispose();
-            }
-            
-            return View();
         }
 
         public ActionResult Agents()

@@ -127,7 +127,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\FibrePlusController.cs" />
+    <Compile Include="Areas\Commission\CommissionAreaRegistration.cs" />
+    <Compile Include="Areas\Commission\Controllers\FibrePlusController.cs" />
+    <Compile Include="Areas\Commission\Controllers\SpeedPlusController.cs" />
+    <Compile Include="Areas\Commission\Models\Agent.cs" />
+    <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
+    <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
+    <Compile Include="Areas\Commission\Models\ICommission.cs" />
+    <Compile Include="Areas\Commission\Models\SpeedPlusCommission.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -135,8 +142,6 @@
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\DbHelper.cs" />
     <Compile Include="Helpers\Utils.cs" />
-    <Compile Include="Models\FibrePlus\Agent.cs" />
-    <Compile Include="Models\FibrePlus\FibrePlusCommission.cs" />
     <Compile Include="Models\SettingFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -172,6 +177,8 @@
     <Content Include="App_Data\Setting\speed+\internal.xml" />
     <Content Include="App_Data\Setting\vsat\external.xml" />
     <Content Include="App_Data\Setting\vsat\internal.xml" />
+    <Content Include="Areas\Commission\js\fibreplus\controller.js" />
+    <Content Include="Areas\Commission\js\speedplus\controller.js" />
     <Content Include="css\app.css" />
     <Content Include="css\bootstrap\css\bootstrap-theme.css" />
     <Content Include="css\bootstrap\css\bootstrap-theme.min.css" />
@@ -186,9 +193,7 @@
     <Content Include="Global.asax" />
     <Content Include="css\lib\toastr.less" />
     <Content Include="js\app.js" />
-    <Content Include="js\controllers.js" />
     <Content Include="js\directives.js" />
-    <Content Include="js\FibrePlus\controller.js" />
     <Content Include="js\filters.js" />
     <Content Include="js\lib\angular-animate.min.js" />
     <Content Include="js\lib\angular-resource.min.js" />
@@ -214,6 +219,10 @@
     <Content Include="js\lib\angular-route.min.js.map" />
     <Content Include="js\lib\angular-sanitize.min.js.map" />
     <Content Include="js\lib\angular.min.js.map" />
+    <Content Include="Areas\Commission\Views\Web.config" />
+    <Content Include="Areas\Commission\Views\FibrePlus\Index.cshtml" />
+    <Content Include="Areas\Commission\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Commission\Views\SpeedPlus\Index.cshtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />
     <Content Include="js\lib\jquery-ui.min.js" />
@@ -222,6 +231,7 @@
     <Content Include="js\lib\ui-bootstrap-tpls-0.11.0.min.js" />
     <Content Include="js\lib\ui-utils.min.js" />
     <Content Include="js\lib\underscore-min.js" />
+    <Content Include="js\route.js" />
     <Content Include="js\services.js" />
     <Content Include="js\utils.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
@@ -242,9 +252,10 @@
     <Content Include="Scripts\jquery-2.1.1.min.map" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
-    <Content Include="Views\FibrePlus\Index.cshtml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Areas\Commission\Views\Shared\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>
