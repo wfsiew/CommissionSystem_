@@ -91,25 +91,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 while (rd.Read())
                 {
                     Agent a = new Agent();
-                    object o = rd["agentid"];
-                    if (o != DBNull.Value)
-                        a.AgentID = Utils.GetValue<int>(o.ToString());
-
-                    o = rd["agentname"];
-                    if (o != DBNull.Value)
-                        a.AgentName = Utils.GetValue(o.ToString());
-
-                    o = rd["agenttype"];
-                    if (o != DBNull.Value)
-                        a.AgentType = Utils.GetValue(o.ToString());
-
-                    o = rd["agentlevel"];
-                    if (o != DBNull.Value)
-                        a.AgentLevel = Utils.GetValue(o.ToString());
-
-                    o = rd["agentteam"];
-                    if (o != DBNull.Value)
-                        a.AgentTeam = Utils.GetValue(o.ToString());
+                    a.AgentID = rd.Get<int>("agentid");
+                    a.AgentName = rd.Get("agentname");
+                    a.AgentType = rd.Get("agenttype");
+                    a.AgentLevel = rd.Get("agentlevel");
+                    a.AgentTeam = rd.Get("agentteam");
 
                     l.Add(a);
                 }

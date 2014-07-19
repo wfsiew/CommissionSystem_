@@ -245,4 +245,40 @@ namespace CommissionSystem.WebUI.Helpers
             }   
         }
     }
+
+    public static class Extensions
+    {
+        public static T Get<T>(this SqlDataReader rd, string c) where T : struct
+        {
+            object o = rd[c];
+            T k = default(T);
+
+            if (o != DBNull.Value)
+                k = Utils.GetValue<T>(o.ToString());
+
+            return k;
+        }
+
+        public static string Get(this SqlDataReader rd, string c)
+        {
+            object o = rd[c];
+            string a = null;
+
+            if (o != DBNull.Value)
+                a = Utils.GetValue(o.ToString(), null);
+
+            return a;
+        }
+
+        public static Nullable<T> GetNullable<T>(this SqlDataReader rd, string c) where T : struct
+        {
+            object o = rd[c];
+            T? k = null;
+
+            if (o != DBNull.Value)
+                k = Utils.GetNullableValue<T>(o.ToString(), null);
+
+            return k;
+        }
+    }
 }

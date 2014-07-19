@@ -99,9 +99,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 rd = Db.ExecuteReader(q, CommandType.Text);
                 if (rd.Read())
                 {
-                    object o = rd["amount"];
-                    if (o != DBNull.Value)
-                        amt = Utils.GetValue<double>(o.ToString());
+                    amt = rd.Get<double>("amount");
                 }
             }
 

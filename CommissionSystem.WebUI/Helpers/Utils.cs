@@ -43,6 +43,27 @@ namespace CommissionSystem.WebUI.Helpers
             return x;
         }
 
+        public static Nullable<T> GetNullableValue<T>(string p, T? k = null) where T : struct
+        {
+            T? x = k;
+
+            if (string.IsNullOrEmpty(p))
+                return x;
+
+            try
+            {
+                object o = Convert.ChangeType(p, typeof(T));
+                x = (T)o;
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return x;
+        }
+
         public static string GetValue(string p, string k = "")
         {
             if (string.IsNullOrEmpty(p))
