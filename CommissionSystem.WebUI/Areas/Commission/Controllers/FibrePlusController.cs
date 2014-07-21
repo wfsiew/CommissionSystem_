@@ -85,7 +85,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return Json(l, JsonRequestBehavior.AllowGet);
         }
 
-        private List<Agent> GetTopLevelAgents()
+        private List<Agent> GetTopLevelAgents(Dictionary<int, List<Agent>> dic)
         {
             List<Agent> l = new List<Agent>();
             DbHelper d = null;
@@ -115,7 +115,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 }
 
                 rd.Close();
-                GetChildAgents(l, d);
+                dic[0] = l;
+                GetChildAgents(l, d, dic);
             }
 
             catch (Exception e)
@@ -136,7 +137,72 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return l;
         }
 
-        private void GetChildAgents(List<Agent> parentList, DbHelper d)
+        private void GetChildAgents(List<Agent> parentList, DbHelper d, Dictionary<int, List<Agent>> dic)
+        {
+            SqlDataReader rd = null;
+
+            try
+            {
+                Stack<List<Agent>> st = new Stack<List<Agent>>();
+                st.Push(parentList);
+
+                while (st.Count > 0)
+                {
+                    List<Agent> lp = st.Pop();
+
+                    for (int i = 0; i < lp.Count; i++)
+                    {
+                        Agent parent = parentList[i];
+                        List<Agent> l = new List<Agent>();
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
+                            .Append("where a.agentteam = @agentteam ")
+                            .Append("order by a.agentname");
+                        string q = sb.ToString();
+
+                        SqlParameter p = new SqlParameter("@agentteam", SqlDbType.VarChar);
+                        p.Value = parent.AgentID;
+                        d.AddParameter(p);
+
+                        rd = d.ExecuteReader(q, CommandType.Text);
+                        while (rd.Read())
+                        {
+                            Agent a = new Agent();
+                            a.AgentID = rd.Get<int>("agentid");
+                            a.AgentName = rd.Get("agentname");
+                            a.AgentType = rd.Get("agenttype");
+                            a.AgentLevel = rd.Get("agentlevel");
+                            a.AgentTeam = rd.Get("agentteam");
+
+                            parent.AddChildAgent(a);
+
+                            l.Add(a);
+                        }
+
+                        rd.Close();
+                        List<Agent> la = dic[parent.Level + 1];
+                        if (la == null)
+                            dic[parent.Level + 1] = l;
+
+                        else
+                        {
+                            la.AddRange(l);
+                            dic[parent.Level + 1] = la;
+                        }
+
+                        st.Push(l);
+                    }
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+        }
+
+        private void GetChildAgents_(List<Agent> parentList, DbHelper d)
         {
             List<Agent> l = new List<Agent>();
             SqlDataReader rd = null;
@@ -173,7 +239,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     }
 
                     rd.Close();
-                    GetChildAgents(l, d);
+                    GetChildAgents_(l, d);
                 }
             }
 
