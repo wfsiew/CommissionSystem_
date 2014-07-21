@@ -134,6 +134,7 @@
     <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
     <Compile Include="Areas\Commission\Models\ICommission.cs" />
+    <Compile Include="Areas\Commission\Models\Settlement.cs" />
     <Compile Include="Areas\Commission\Models\SpeedPlusCommission.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
@@ -223,6 +224,8 @@
     <Content Include="Areas\Commission\Views\FibrePlus\Index.cshtml" />
     <Content Include="Areas\Commission\Views\_ViewStart.cshtml" />
     <Content Include="Areas\Commission\Views\SpeedPlus\Index.cshtml" />
+    <Content Include="Areas\Commission\Views\Shared\_Settlement.cshtml" />
+    <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />
     <Content Include="js\lib\jquery-ui.min.js" />
@@ -253,9 +256,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Areas\Commission\Views\Shared\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>

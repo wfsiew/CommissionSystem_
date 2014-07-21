@@ -7,6 +7,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
     public interface ICommission
     {
-        double GetCommission();
+        Dictionary<string, object> GetCommission();
     }
 }

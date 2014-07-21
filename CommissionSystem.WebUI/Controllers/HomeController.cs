@@ -15,11 +15,7 @@ namespace CommissionSystem.WebUI.Controllers
 
         public ActionResult Index()
         {
-            var x = SettingFactory.Instance;
-            var v = x.DiscountedCallServiceInternalSetting[0.17];
-            double a = v.GetCommission(1000, 0);
-            ViewBag.value = a;
-            return View(v);
+            return View();
         }
 
     }

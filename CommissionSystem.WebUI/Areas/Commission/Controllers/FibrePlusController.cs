@@ -43,10 +43,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                 o.AgentID = req.AgentID;
                 o.AgentLevel = req.AgentLevel == null ? -1 : req.AgentLevel.Value;
-                double comm = o.GetCommission();
+                r = o.GetCommission();
 
                 r["success"] = 1;
-                r["commission"] = comm;
             }
 
             catch (Exception e)

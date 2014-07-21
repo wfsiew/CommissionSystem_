@@ -43,8 +43,12 @@
         utils.blockUI();
         $http.post(url, o).success(function (data) {
             utils.unblockUI();
-            if (data.success == 1)
+            if (data.success == 1) {
+                $scope.result = data;
                 $scope.commission = data.commission;
+                $scope.commissionrate = data.commissionrate;
+                $scope.settlementlist = data.settlementlist;
+            }
 
             else
                 toastr.error(data.message);
