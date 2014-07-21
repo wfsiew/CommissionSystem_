@@ -1,0 +1,25 @@
+﻿@model List<CommissionSystem.WebUI.Areas.Commission.Models.Agent>
+
+@using CommissionSystem.WebUI.Areas.Commission.Models;
+
+@{
+    ViewBag.Title = "AllAgents";
+}
+
+<h2>AllAgents</h2>
+
+@ShowTree(Model)
+
+@helper ShowTree(List<Agent> l)
+{
+    <ul>
+        @foreach (var o in l)
+        {
+            <li>@o.AgentName, @o.Level</li>
+            if (o.ChildAgentList.Any())
+            {
+                @ShowTree(o.ChildAgentList)
+            }
+        }
+    </ul>
+}

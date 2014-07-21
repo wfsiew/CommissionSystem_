@@ -26,6 +26,21 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return View();
         }
 
+        public ActionResult AllAgents()
+        {
+            try
+            {
+                List<Agent> l = GetTopLevelAgents();
+                return View(l);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+        }
+
         [HttpPost]
         public ActionResult Commission(FibrePlusRequest req)
         {
@@ -68,6 +83,105 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         {
             List<Agent> l = GetAgents();
             return Json(l, JsonRequestBehavior.AllowGet);
+        }
+
+        private List<Agent> GetTopLevelAgents()
+        {
+            List<Agent> l = new List<Agent>();
+            DbHelper d = null;
+            SqlDataReader rd = null;
+
+            try
+            {
+                d = new DbHelper(DbHelper.GetConStr(DB));
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
+                    .Append("where a.agenttype = 'Master' ")
+                    .Append("order by a.agentname");
+                string q = sb.ToString();
+
+                rd = d.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    Agent a = new Agent();
+                    a.AgentID = rd.Get<int>("agentid");
+                    a.AgentName = rd.Get("agentname");
+                    a.AgentType = rd.Get("agenttype");
+                    a.AgentLevel = rd.Get("agentlevel");
+                    a.AgentTeam = rd.Get("agentteam");
+                    a.Level = 0;
+
+                    l.Add(a);
+                }
+
+                rd.Close();
+                GetChildAgents(l, d);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+
+                if (d != null)
+                    d.Dispose();
+            }
+
+            return l;
+        }
+
+        private void GetChildAgents(List<Agent> parentList, DbHelper d)
+        {
+            List<Agent> l = new List<Agent>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                for (int i = 0; i < parentList.Count; i++)
+                {
+                    Agent parent = parentList[i];
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
+                        .Append("left join customer c on a.agentid = c.agentid ")
+                        .Append("where a.agentteam = @agentteam ")
+                        .Append("order by a.agentname");
+                    string q = sb.ToString();
+
+                    SqlParameter p = new SqlParameter("@agentteam", SqlDbType.VarChar);
+                    p.Value = parent.AgentID;
+                    d.AddParameter(p);
+
+                    rd = d.ExecuteReader(q, CommandType.Text);
+                    while (rd.Read())
+                    {
+                        Agent a = new Agent();
+                        a.AgentID = rd.Get<int>("agentid");
+                        a.AgentName = rd.Get("agentname");
+                        a.AgentType = rd.Get("agenttype");
+                        a.AgentLevel = rd.Get("agentlevel");
+                        a.AgentTeam = rd.Get("agentteam");
+
+                        parent.AddChildAgent(a);
+
+                        l.Add(a);
+                    }
+
+                    rd.Close();
+                    GetChildAgents(l, d);
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
         }
 
         private List<Agent> GetAgents()

@@ -225,6 +225,7 @@
     <Content Include="Areas\Commission\Views\_ViewStart.cshtml" />
     <Content Include="Areas\Commission\Views\SpeedPlus\Index.cshtml" />
     <Content Include="Areas\Commission\Views\Shared\_Settlement.cshtml" />
+    <Content Include="Areas\Commission\Views\FibrePlus\AllAgents.cshtml" />
     <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />

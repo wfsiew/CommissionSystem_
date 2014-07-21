@@ -17,7 +17,7 @@ namespace CommissionSystem.Domain.Models
         public static double MaxRate;
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public double GetCommission(double amt, int level)
+        public double GetCommissionRate(int level)
         {
             double a = 0;
 
@@ -36,6 +36,12 @@ namespace CommissionSystem.Domain.Models
                     break;
             }
 
+            return a;
+        }
+
+        public double GetCommission(double amt, int level)
+        {
+            double a = GetCommissionRate(level);
             double x = a * amt;
             return x;
         }
@@ -109,7 +115,7 @@ namespace CommissionSystem.Domain.Models
         public static double MaxRate;
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public double GetCommission(double amt, int level)
+        public double GetCommissionRate(int level)
         {
             double a = 0;
 
@@ -132,6 +138,12 @@ namespace CommissionSystem.Domain.Models
                     break;
             }
 
+            return a;
+        }
+
+        public double GetCommission(double amt, int level)
+        {
+            double a = GetCommissionRate(level);
             double x = a * amt;
             return x;
         }
