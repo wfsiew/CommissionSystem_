@@ -69,6 +69,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 Logger.Debug("", e);
             }
 
+            finally
+            {
+                if (o != null)
+                    o.Dispose();
+            }
+
             return View();
         }
 
@@ -178,7 +184,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 rd.Close();
                 AddAgentsToDic(dic, l, 0);
                 GetChildAgents(l, dic, d);
-                ProcessCommission(l, dic, d);
             }
 
             catch (Exception e)
@@ -195,11 +200,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 if (d != null)
                     d.Dispose();
             }
-        }
-
-        private void ProcessCommission(List<Agent> l, Dictionary<int, List<Agent>> dic, DbHelper d)
-        {
-            
         }
 
         private void GetChildAgents(List<Agent> parentList, Dictionary<int, List<Agent>> dic, DbHelper d)
