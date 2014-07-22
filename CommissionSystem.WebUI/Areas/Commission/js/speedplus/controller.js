@@ -34,7 +34,7 @@
 
         var o = {
             AgentID: $scope.agentID,
-            AgentLevel: a.AgentLevel,
+            AgentType: a.AgentType,
             DateFrom: _dateFrom,
             DateTo: _dateTo
         };
@@ -61,6 +61,4 @@
             $scope.agents = data;
         });
     }
-
-    $scope.init();
 }

@@ -94,7 +94,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 o.DateTo = req.DateTo.AddDays(1);
 
                 o.AgentID = req.AgentID;
-                o.AgentTeam = req.AgentTeam;
+                o.AgentType = req.AgentType;
                 r = o.GetCommission();
 
                 r["success"] = 1;

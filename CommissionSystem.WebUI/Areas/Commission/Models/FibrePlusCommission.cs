@@ -16,7 +16,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
     {
         public DbHelper Db { get; set; }
         public int AgentID { get; set; }
-        public string AgentTeam { get; set; }
+        public string AgentType { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
         public List<Agent> AgentList { get; set; }
