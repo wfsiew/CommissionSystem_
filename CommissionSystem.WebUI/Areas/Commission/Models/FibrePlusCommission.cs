@@ -16,9 +16,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
     {
         public DbHelper Db { get; set; }
         public int AgentID { get; set; }
-        public int AgentLevel { get; set; }
+        public string AgentTeam { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
+        public List<Agent> AgentList { get; set; }
+        public Dictionary<int, List<Agent>> AgentDic { get; set; }
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -40,24 +42,19 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 SettingFactory f = SettingFactory.Instance;
 
                 bool external = IsExternal(AgentID.ToString());
-                if (external && AgentLevel == -1)
-                    AgentLevel = 4;
-
-                else if (!external && AgentLevel == -1)
-                    AgentLevel = 3;
 
                 if (!external)
                 {
-                    commrate = f.FibrePlusInternalSetting.GetCommissionRate(3 - AgentLevel);
-                    comm = f.FibrePlusInternalSetting.GetCommission(amt, 3 - AgentLevel);
+                    commrate = f.FibrePlusInternalSetting.GetCommissionRate("");
+                    comm = f.FibrePlusInternalSetting.GetCommission(amt, "");
                 }
                     
                 else
                 {
                     int numOfCustomers = GetNumOfCustomers();
                     int type = FibrePlusExternal.GetCommissionType(numOfCustomers);
-                    commrate = f.FibrePlusExternalSetting[type].GetCommissionRate(4 - AgentLevel);
-                    comm = f.FibrePlusExternalSetting[type].GetCommission(amt, 4 - AgentLevel);
+                    commrate = f.FibrePlusExternalSetting[type].GetCommissionRate("");
+                    comm = f.FibrePlusExternalSetting[type].GetCommission(amt, "");
                 }
 
                 res["commissionrate"] = commrate;
@@ -144,6 +141,66 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return res;
         }
 
+        public void SetAmount()
+        {
+            double amt = 0;
+            double comm = 0;
+            SqlDataReader rd = null;
+
+            try
+            {
+                List<int> levels = AgentDic.Keys.ToList();
+                levels.Reverse();
+                SettingFactory sf = SettingFactory.Instance;
+
+                for (int i = 0; i < levels.Count; i++)
+                {
+                    int k = levels[i];
+                    List<Agent> l = AgentDic[k];
+                    for (int j = 0; j < l.Count; j++)
+                    {
+                        Agent a = l[j];
+                        Agent b = a.ParentAgent;
+                        AgentID = a.AgentID;
+                        amt = GetAmount();
+
+                        if (a.IsInternal)
+                        {
+                            a.OwnCommission = sf.FibrePlusInternalSetting.GetDirectCommission(amt);
+                            if (b != null && b.Level > 0)
+                            {
+                                comm = sf.FibrePlusInternalSetting.GetCommission(amt, b.AgentType);
+                                b.AddToSubCommission(comm);
+                            }
+                        }
+
+                        else
+                        {
+                            int numOfCustomers = GetNumOfCustomers();
+                            int type = FibrePlusExternal.GetCommissionType(numOfCustomers);
+                            a.OwnCommission = sf.FibrePlusExternalSetting[type].GetDirectCommission(amt);
+                            if (b != null && b.Level > 0)
+                            {
+                                comm = sf.FibrePlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                b.AddToSubCommission(comm);
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+        }
 
         // not used
         private double GetAmount()
@@ -223,11 +280,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return i;
         }
 
-        private bool IsExternal(string agentid)
+        private bool IsExternal(string agentTeam)
         {
             bool a = false;
 
-            if (agentid.IndexOf("58", 0) == 0)
+            if ("AG".Equals(agentTeam, StringComparison.OrdinalIgnoreCase) ||
+                "AGT".Equals(agentTeam, StringComparison.OrdinalIgnoreCase))
                 a = true;
 
             return a;

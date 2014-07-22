@@ -26,11 +26,67 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return View();
         }
 
-        public ActionResult AllAgents()
+        public ActionResult AgentSummary()
         {
             try
             {
-                List<Agent> l = GetTopLevelAgents();
+                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
+                List<Agent> l = new List<Agent>();
+                //GetTopLevelAgents(l, dic);
+                Session["agentlist"] = l;
+                Session["agentlevels"] = dic;
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AgentSummary(DateTime dateFrom, DateTime dateTo)
+        {
+            FibrePlusCommission o = null;
+
+            try
+            {
+                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
+                List<Agent> l = new List<Agent>();
+                GetTopLevelAgents(l, dic);
+                o = new FibrePlusCommission();
+                o.AgentDic = dic;
+                o.AgentList = l;
+                o.DateFrom = dateFrom;
+                o.DateTo = dateTo.AddDays(1);
+                o.SetAmount();
+                ViewBag.list = l;
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+            }
+
+            return View();
+        }
+
+        public ActionResult AllAgents()
+        {
+            FibrePlusCommission o = null;
+
+            try
+            {
+                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
+                List<Agent> l = new List<Agent>();
+                GetTopLevelAgents(l, dic);
+                o = new FibrePlusCommission();
+                o.AgentDic = dic;
+                o.AgentList = l;
+                o.DateFrom = new DateTime(2013, 8, 1);
+                o.DateTo = new DateTime(2013, 8, 31);
+                o.SetAmount();
                 return View(l);
             }
 
@@ -38,6 +94,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             {
                 Logger.Debug("", e);
                 throw e;
+            }
+            
+            finally
+            {
+                if (o != null)
+                    o.Dispose();
             }
         }
 
@@ -57,7 +119,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 o.DateTo = req.DateTo.AddDays(1);
 
                 o.AgentID = req.AgentID;
-                o.AgentLevel = req.AgentLevel == null ? -1 : req.AgentLevel.Value;
+                o.AgentTeam = req.AgentTeam;
                 r = o.GetCommission();
 
                 r["success"] = 1;
@@ -85,9 +147,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return Json(l, JsonRequestBehavior.AllowGet);
         }
 
-        private List<Agent> GetTopLevelAgents(Dictionary<int, List<Agent>> dic)
+        private void GetTopLevelAgents(List<Agent> l, Dictionary<int, List<Agent>> dic)
         {
-            List<Agent> l = new List<Agent>();
             DbHelper d = null;
             SqlDataReader rd = null;
 
@@ -115,8 +176,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 }
 
                 rd.Close();
-                dic[0] = l;
-                GetChildAgents(l, d, dic);
+                AddAgentsToDic(dic, l, 0);
+                GetChildAgents(l, dic, d);
+                ProcessCommission(l, dic, d);
             }
 
             catch (Exception e)
@@ -133,11 +195,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 if (d != null)
                     d.Dispose();
             }
-
-            return l;
         }
 
-        private void GetChildAgents(List<Agent> parentList, DbHelper d, Dictionary<int, List<Agent>> dic)
+        private void ProcessCommission(List<Agent> l, Dictionary<int, List<Agent>> dic, DbHelper d)
+        {
+            
+        }
+
+        private void GetChildAgents(List<Agent> parentList, Dictionary<int, List<Agent>> dic, DbHelper d)
         {
             SqlDataReader rd = null;
 
@@ -152,7 +217,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                     for (int i = 0; i < lp.Count; i++)
                     {
-                        Agent parent = parentList[i];
+                        Agent parent = lp[i];
                         List<Agent> l = new List<Agent>();
                         StringBuilder sb = new StringBuilder();
                         sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
@@ -180,16 +245,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                         }
 
                         rd.Close();
-                        List<Agent> la = dic[parent.Level + 1];
-                        if (la == null)
-                            dic[parent.Level + 1] = l;
-
-                        else
-                        {
-                            la.AddRange(l);
-                            dic[parent.Level + 1] = la;
-                        }
-
+                        AddAgentsToDic(dic, l, parent.Level + 1);
                         st.Push(l);
                     }
                 }
@@ -202,6 +258,28 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             }
         }
 
+        private void AddAgentsToDic(Dictionary<int, List<Agent>> dic, List<Agent> l, int level)
+        {
+            if (l == null)
+                return;
+
+            if (l.Count < 1)
+                return;
+
+            if (dic.ContainsKey(level))
+            {
+                List<Agent> la = dic[level];
+                la.AddRange(l);
+                dic[level] = la;
+            }
+
+            else
+            {
+                dic[level] = l;
+            }
+        }
+
+        // not used
         private void GetChildAgents_(List<Agent> parentList, DbHelper d)
         {
             List<Agent> l = new List<Agent>();

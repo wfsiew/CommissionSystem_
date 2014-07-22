@@ -16,35 +16,32 @@ namespace CommissionSystem.Domain.Models
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public double GetCommissionRate(int level)
+        public double GetCommissionRate(string agentType)
         {
             double a = 0;
 
-            switch (level)
-            {
-                case 1:
-                    a = Tier1;
-                    break;
+            if ("SD".Equals(agentType, StringComparison.OrdinalIgnoreCase))
+                a = Tier2;
 
-                case 2:
-                    a = Tier2;
-                    break;
+            else if ("SM".Equals(agentType, StringComparison.OrdinalIgnoreCase))
+                a = Tier1;
 
-                case 3:
-                    a = Tier3;
-                    break;
-
-                default:
-                    a = Commission;
-                    break;
-            }
+            else
+                a = Commission;
 
             return a;
         }
 
-        public double GetCommission(double amt, int level)
+        public double GetCommission(double amt, string agentType)
         {
-            double a = GetCommissionRate(level);
+            double a = GetCommissionRate(agentType);
+            double x = a * amt;
+            return x;
+        }
+
+        public double GetDirectCommission(double amt)
+        {
+            double a = Commission;
             double x = a * amt;
             return x;
         }
@@ -104,35 +101,32 @@ namespace CommissionSystem.Domain.Models
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public double GetCommissionRate(int level)
+        public double GetCommissionRate(string agentType)
         {
             double a = 0;
 
-            switch (level)
-            {
-                case 1:
-                    a = Tier1;
-                    break;
+            if ("SD".Equals(agentType, StringComparison.OrdinalIgnoreCase))
+                a = Tier3;
 
-                case 2:
-                    a = Tier2;
-                    break;
+            else if ("SM".Equals(agentType, StringComparison.OrdinalIgnoreCase))
+                a = Tier2;
 
-                case 3:
-                    a = Tier3;
-                    break;
-
-                default:
-                    a = Commission;
-                    break;
-            }
+            else
+                a = Commission;
 
             return a;
         }
 
-        public double GetCommission(double amt, int level)
+        public double GetCommission(double amt, string agentType)
         {
-            double a = GetCommissionRate(level);
+            double a = GetCommissionRate(agentType);
+            double x = a * amt;
+            return x;
+        }
+
+        public double GetDirectCommission(double amt)
+        {
+            double a = Commission;
             double x = a * amt;
             return x;
         }

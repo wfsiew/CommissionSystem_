@@ -42,7 +42,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 o.DateTo = req.DateTo.AddDays(1);
 
                 o.AgentID = req.AgentID;
-                o.AgentLevel = req.AgentLevel == null ? -1 : req.AgentLevel.Value;
+                o.AgentTeam = req.AgentTeam;
                 r = o.GetCommission();
 
                 r["success"] = 1;

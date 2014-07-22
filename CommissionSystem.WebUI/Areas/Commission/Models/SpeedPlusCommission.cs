@@ -16,7 +16,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
     {
         public DbHelper Db { get; set; }
         public int AgentID { get; set; }
-        public int AgentLevel { get; set; }
+        public string AgentTeam { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
 
@@ -40,24 +40,19 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 SettingFactory f = SettingFactory.Instance;
 
                 bool external = IsExternal(AgentID.ToString());
-                if (external && AgentLevel == -1)
-                    AgentLevel = 4;
-
-                else if (!external && AgentLevel == -1)
-                    AgentLevel = 3;
 
                 if (!external)
                 {
-                    commrate = f.SpeedPlusInternalSetting.GetCommissionRate(3 - AgentLevel);
-                    comm = f.SpeedPlusInternalSetting.GetCommission(amt, 3 - AgentLevel);
+                    commrate = f.SpeedPlusInternalSetting.GetCommissionRate("");
+                    comm = f.SpeedPlusInternalSetting.GetCommission(amt, "");
                 }
                     
                 else
                 {
                     int numOfCustomers = GetNumOfCustomers();
                     int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                    commrate = f.SpeedPlusExternalSetting[type].GetCommissionRate(4 - AgentLevel);
-                    comm = f.SpeedPlusExternalSetting[type].GetCommission(amt, 4 - AgentLevel);
+                    commrate = f.SpeedPlusExternalSetting[type].GetCommissionRate("");
+                    comm = f.SpeedPlusExternalSetting[type].GetCommission(amt, "");
                 }
 
                 res["commissionrate"] = commrate;

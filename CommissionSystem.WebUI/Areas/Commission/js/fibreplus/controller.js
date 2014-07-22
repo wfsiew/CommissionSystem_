@@ -62,5 +62,5 @@
         });
     }
 
-    $scope.init();
+    //$scope.init();
 }

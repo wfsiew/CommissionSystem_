@@ -1,0 +1,64 @@
+﻿@using CommissionSystem.WebUI.Areas.Commission.Models;
+
+@{
+    ViewBag.Title = "AgentSummary";
+}
+
+<h2>AgentSummary</h2>
+
+<div ng-controller="FibrePlusCtrl">
+    <form name="form" class="form-horizontal well" role="form" method="post" action="@Url.Action("AgentSummary")">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Date From</label>
+            <div class="col-sm-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="dateFrom" ng-model="dateFrom" datepicker-popup="yyyy-MM-dd" is-open="openedDateFrom" ng-required="true" />
+                    <span class="input-group-btn">
+                        <button class="btn" ng-click="openDateFrom($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Date To</label>
+            <div class="col-sm-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="dateTo" ng-model="dateTo" datepicker-popup="yyyy-MM-dd" is-open="openedDateTo" ng-required="true" />
+                    <span class="input-group-btn">
+                        <button class="btn" ng-click="openDateTo($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button class="btn btn-primary" ng-disabled="form.$invalid" type="submit">Show Commission</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if (ViewBag.list != null)
+{
+    List<Agent> lx = ViewBag.list as List<Agent>;
+    if (lx != null)
+    {
+        @ShowTree(lx)
+    }
+}
+
+@helper ShowTree(List<Agent> l)
+{    
+    <ul>
+        @foreach (var o in l)
+        {
+            <li>@o.AgentName, @(o.OwnCommission + o.SubCommission)</li>
+            if (o.ChildAgentList.Any())
+            {
+                @ShowTree(o.ChildAgentList)
+            }
+        }
+    </ul>
+}
+
+<script src="~/Areas/Commission/js/fibreplus/controller.js"></script>
