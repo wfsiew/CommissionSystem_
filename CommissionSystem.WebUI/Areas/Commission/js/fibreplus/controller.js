@@ -30,11 +30,14 @@
 
         _dateFrom = utils.getDateStr(dateFrom);
         _dateTo = utils.getDateStr(dateTo);
-        var a = _.find($scope.agents, function (x) { return x.AgentID == $scope.agentID; });
+        var a = null;
+
+        if ($scope.agentID != '0')
+            a = _.find($scope.agents, function (x) { return x.AgentID == $scope.agentID; });
 
         var o = {
             AgentID: $scope.agentID,
-            AgentType: a.AgentType,
+            AgentType: a == null ? '' : a.AgentType,
             DateFrom: _dateFrom,
             DateTo: _dateTo
         };
@@ -47,7 +50,9 @@
                 $scope.result = data;
                 $scope.commission = data.commission;
                 $scope.commissionrate = data.commissionrate;
-                $scope.settlementlist = data.settlementlist;
+                $scope.tiercommissionrate = data.tiercommissionrate;
+                $scope.agentlevels = data.agentlevels;
+                $scope.agentlist = data.agentlist;
             }
 
             else

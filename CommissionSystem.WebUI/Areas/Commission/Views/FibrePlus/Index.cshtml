@@ -7,12 +7,13 @@
         <div class="form-group">
             <label class="col-sm-2 control-label">Agent</label>
             <div class="col-sm-9">
-                <select id="agentID" name="agentID" class="form-control"
+                <select id="agentID" name="agentID" style="width:80%"
                         ng-model="agentID"
                         ng-required="true"
                         ui-select2
                         data-placeholder="Please select">
                     <option value=""></option>
+                    <option value="0">All</option>
                     <option ng-repeat="o in agents" value="{{o.AgentID}}">{{o.AgentID}} ({{o.AgentType}}): {{o.AgentName}}</option>
                 </select>
             </div>
@@ -56,8 +57,40 @@
                 <p class="form-control-static">{{commissionrate * 100}} %</p>
             </div>
         </div>
+        <div class="form-group" ng-show="result != null">
+            <label class="col-sm-2 control-label">Tier Commission %</label>
+            <div class="col-sm-8">
+                <p class="form-control-static">{{tiercommissionrate * 100}}</p>
+            </div>
+        </div>
     </form>
-    @{ Html.RenderPartial("~/Areas/Commission/Views/Shared/_Settlement.cshtml"); }
+
+    <div ng-repeat="o in agentlevels" ng-show="result != null">
+        <table class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Agent ID</th>
+                    <th>Agent Name</th>
+                    <th>Agent Type</th>
+                    <th>Agent Team</th>
+                    <th>Commission</th>
+                    <th>Commission %</th>
+                    <th>Tier Commission %</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in agentlist[o]">
+                    <td>{{x.AgentID}}</td>
+                    <td>{{x.AgentName}}</td>
+                    <td>{{x.AgentType}}</td>
+                    <td>{{x.AgentTeam}} {{x.AgentTeamName}}</td>
+                    <td>{{x.TotalCommission | currency}}</td>
+                    <td>{{x.CommissionRate * 100}}</td>
+                    <td>{{x.TierCommissionRate * 100}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script src="~/Areas/Commission/js/fibreplus/controller.js"></script>

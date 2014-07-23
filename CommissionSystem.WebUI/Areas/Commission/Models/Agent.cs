@@ -20,9 +20,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public List<Agent> ChildAgentList { get; private set; }
         public Agent ParentAgent { get; private set; }
         public int Level { get; set; }
-        public double OwnCommission { get; set; }
+        public double DirectCommission { get; set; }
         public double SubCommission { get; set; }
         public double CommissionRate { get; set; }
+        public double TierCommissionRate { get; set; }
 
         public void AddChildAgent(Agent o)
         {
@@ -34,6 +35,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public void AddToSubCommission(double comm)
         {
             SubCommission += comm;
+        }
+
+        public double TotalCommission
+        {
+            get
+            {
+                return DirectCommission + SubCommission;
+            }
         }
 
         public bool IsInternal

@@ -133,7 +133,6 @@
     <Compile Include="Areas\Commission\Models\Agent.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
-    <Compile Include="Areas\Commission\Models\ICommission.cs" />
     <Compile Include="Areas\Commission\Models\Settlement.cs" />
     <Compile Include="Areas\Commission\Models\SpeedPlusCommission.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -240,6 +239,7 @@
     <Content Include="js\route.js" />
     <Content Include="js\services.js" />
     <Content Include="js\utils.js" />
+    <Content Include="ngview\commission\fibreplus\agenttpl.html" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />

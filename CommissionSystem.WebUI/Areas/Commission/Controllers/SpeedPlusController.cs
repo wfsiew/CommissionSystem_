@@ -142,7 +142,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     Agent a = new Agent();
                     a.AgentID = rd.Get<int>("agentid");
                     a.AgentName = rd.Get("agentname");
-                    a.AgentType = rd.Get("agenttype");
+                    a.AgentType = rd.Get("agenttype", "AGT");
                     a.AgentLevel = rd.Get("agentlevel");
                     a.AgentTeam = rd.Get("agentteam");
                     a.Level = 0;
@@ -204,7 +204,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                             Agent a = new Agent();
                             a.AgentID = rd.Get<int>("agentid");
                             a.AgentName = rd.Get("agentname");
-                            a.AgentType = rd.Get("agenttype");
+                            a.AgentType = rd.Get("agenttype", "AGT");
                             a.AgentLevel = rd.Get("agentlevel");
                             a.AgentTeam = rd.Get("agentteam");
 
@@ -270,7 +270,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     Agent a = new Agent();
                     a.AgentID = rd.Get<int>("agentid");
                     a.AgentName = rd.Get("agentname");
-                    a.AgentType = rd.Get("agenttype");
+                    a.AgentType = rd.Get("agenttype", "AGT");
                     a.AgentLevel = rd.Get("agentlevel");
                     a.AgentTeam = rd.Get("agentteam");
 

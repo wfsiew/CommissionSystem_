@@ -60,7 +60,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 o.AgentList = l;
                 o.DateFrom = dateFrom;
                 o.DateTo = dateTo.AddDays(1);
-                o.SetAmount();
+                o.SetCommission();
                 ViewBag.list = l;
             }
 
@@ -78,37 +78,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return View();
         }
 
-        public ActionResult AllAgents()
-        {
-            FibrePlusCommission o = null;
-
-            try
-            {
-                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
-                List<Agent> l = new List<Agent>();
-                GetTopLevelAgents(l, dic);
-                o = new FibrePlusCommission();
-                o.AgentDic = dic;
-                o.AgentList = l;
-                o.DateFrom = new DateTime(2013, 8, 1);
-                o.DateTo = new DateTime(2013, 8, 31);
-                o.SetAmount();
-                return View(l);
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-            
-            finally
-            {
-                if (o != null)
-                    o.Dispose();
-            }
-        }
-
         [HttpPost]
         public ActionResult Commission(FibrePlusRequest req)
         {
@@ -117,18 +86,51 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             try
             {
+                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
+                List<Agent> l = new List<Agent>();
+                GetAgentHierarchy(req.AgentID, l, dic);
+
                 DateTime dateFrom = req.DateFrom;
                 DateTime dateTo = req.DateTo;
 
                 o = new FibrePlusCommission();
+                o.AgentDic = dic;
+                o.AgentList = l;
                 o.DateFrom = req.DateFrom;
                 o.DateTo = req.DateTo.AddDays(1);
+                o.SetCommission();
 
-                o.AgentID = req.AgentID;
-                o.AgentType = req.AgentType;
-                r = o.GetCommission();
+                Agent a = l.First();
+                
+                Dictionary<string, object> m = new Dictionary<string, object>();
+                List<int> lk = dic.Keys.ToList();
+                lk.Sort();
+                for (int i = 0; i < lk.Count; i++)
+                {
+                    List<Agent> la = dic[lk[i]];
+                    object v = la.Select(x => new
+                    {
+                        AgentID = x.AgentID,
+                        AgentName = x.AgentName,
+                        AgentTeam = x.AgentTeam,
+                        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
+                        AgentType = x.AgentType,
+                        CommissionRate = x.CommissionRate,
+                        TierCommissionRate = x.TierCommissionRate,
+                        TotalCommission = x.TotalCommission
+                    });
+                    m[lk[i].ToString()] = v;
+                }
+
+                List<string> ls = m.Keys.ToList();
+                ls.Sort();
 
                 r["success"] = 1;
+                r["commission"] = a.TotalCommission;
+                r["commissionrate"] = a.CommissionRate;
+                r["tiercommissionrate"] = a.TierCommissionRate;
+                r["agentlevels"] = ls;
+                r["agentlist"] = m;
             }
 
             catch (Exception e)
@@ -173,7 +175,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     Agent a = new Agent();
                     a.AgentID = rd.Get<int>("agentid");
                     a.AgentName = rd.Get("agentname");
-                    a.AgentType = rd.Get("agenttype");
+                    a.AgentType = rd.Get("agenttype", "AGT");
                     a.AgentLevel = rd.Get("agentlevel");
                     a.AgentTeam = rd.Get("agentteam");
                     a.Level = 0;
@@ -183,6 +185,64 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                 rd.Close();
                 AddAgentsToDic(dic, l, 0);
+                GetChildAgents(l, dic, d);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+
+                if (d != null)
+                    d.Dispose();
+            }
+        }
+
+        private void GetAgentHierarchy(int agentID, List<Agent> l, Dictionary<int, List<Agent>> dic)
+        {
+            DbHelper d = null;
+            SqlDataReader rd = null;
+
+            try
+            {
+                if (agentID == 0)
+                {
+                    GetTopLevelAgents(l, dic);
+                    return;
+                }
+
+                d = new DbHelper(DbHelper.GetConStr(DB));
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
+                    .Append("where a.agentid = @agentid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = agentID;
+                d.AddParameter(p);
+
+                rd = d.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    Agent a = new Agent();
+                    a.AgentID = rd.Get<int>("agentid");
+                    a.AgentName = rd.Get("agentname");
+                    a.AgentType = rd.Get("agenttype", "AGT");
+                    a.AgentLevel = rd.Get("agentlevel");
+                    a.AgentTeam = rd.Get("agentteam");
+                    a.Level = 1;
+
+                    l.Add(a);
+                }
+
+                rd.Close();
+                AddAgentsToDic(dic, l, 1);
                 GetChildAgents(l, dic, d);
             }
 
@@ -235,7 +295,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                             Agent a = new Agent();
                             a.AgentID = rd.Get<int>("agentid");
                             a.AgentName = rd.Get("agentname");
-                            a.AgentType = rd.Get("agenttype");
+                            a.AgentType = rd.Get("agenttype", "AGT");
                             a.AgentLevel = rd.Get("agentlevel");
                             a.AgentTeam = rd.Get("agentteam");
 
@@ -307,7 +367,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                         Agent a = new Agent();
                         a.AgentID = rd.Get<int>("agentid");
                         a.AgentName = rd.Get("agentname");
-                        a.AgentType = rd.Get("agenttype");
+                        a.AgentType = rd.Get("agenttype", "AGT");
                         a.AgentLevel = rd.Get("agentlevel");
                         a.AgentTeam = rd.Get("agentteam");
 
@@ -350,7 +410,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     Agent a = new Agent();
                     a.AgentID = rd.Get<int>("agentid");
                     a.AgentName = rd.Get("agentname");
-                    a.AgentType = rd.Get("agenttype");
+                    a.AgentType = rd.Get("agenttype", "AGT");
                     a.AgentLevel = rd.Get("agentlevel");
                     a.AgentTeam = rd.Get("agentteam");
 

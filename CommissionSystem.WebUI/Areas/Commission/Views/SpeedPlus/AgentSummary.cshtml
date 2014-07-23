@@ -6,7 +6,7 @@
 
 <h2>AgentSummary</h2>
 
-<div ng-controller="FibrePlusCtrl">
+<div ng-controller="SpeedPlusCtrl">
     <form name="form" class="form-horizontal well" role="form" method="post" action="@Url.Action("AgentSummary")">
         <div class="form-group">
             <label class="col-sm-2 control-label">Date From</label>
@@ -52,7 +52,7 @@
     <ul>
         @foreach (var o in l)
         {
-            <li>@o.AgentName, @(o.OwnCommission + o.SubCommission)</li>
+            <li>@o.AgentName, @(o.TotalCommission)</li>
             if (o.ChildAgentList.Any())
             {
                 @ShowTree(o.ChildAgentList)

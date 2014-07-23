@@ -52,7 +52,7 @@
     <ul>
         @foreach (var o in l)
         {
-            <li>@o.AgentName, @(o.OwnCommission + o.SubCommission)</li>
+            <li>@o.AgentName, @(o.TotalCommission)</li>
             if (o.ChildAgentList.Any())
             {
                 @ShowTree(o.ChildAgentList)

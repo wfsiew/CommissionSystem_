@@ -260,13 +260,13 @@ namespace CommissionSystem.WebUI.Helpers
             return k;
         }
 
-        public static string Get(this SqlDataReader rd, string c)
+        public static string Get(this SqlDataReader rd, string c, string v = null)
         {
             object o = rd[c];
             string a = null;
 
             if (o != DBNull.Value)
-                a = Utils.GetValue(o.ToString(), null);
+                a = Utils.GetValue(o.ToString(), v);
 
             return a;
         }

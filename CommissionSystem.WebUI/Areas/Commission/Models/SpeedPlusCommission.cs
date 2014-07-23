@@ -12,7 +12,7 @@ using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
-    public class SpeedPlusCommission : IDisposable, ICommission
+    public class SpeedPlusCommission : IDisposable
     {
         public DbHelper Db { get; set; }
         public int AgentID { get; set; }
@@ -166,7 +166,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                         if (a.IsInternal)
                         {
-                            a.OwnCommission = sf.SpeedPlusInternalSetting.GetDirectCommission(amt);
+                            a.DirectCommission = sf.SpeedPlusInternalSetting.GetDirectCommission(amt);
                             if (b != null && b.Level > 0)
                             {
                                 if (b.IsInternal)
@@ -190,7 +190,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         {
                             int numOfCustomers = GetNumOfCustomers();
                             int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                            a.OwnCommission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(amt);
+                            a.DirectCommission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(amt);
                             if (b != null && b.Level > 0)
                             {
                                 if (b.IsInternal)
