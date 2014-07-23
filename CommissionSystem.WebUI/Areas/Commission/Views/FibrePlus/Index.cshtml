@@ -65,6 +65,19 @@
         </div>
     </form>
 
+    {{agentlist | json}}
+
+    <div ng-repeat="o in agentlevels" ng-show="result != null">
+        <div ng-repeat="a in groups[o]">
+            <h4>{{a}}</h4>
+            <ul>
+                <li ng-repeat="x in a">
+                    {{x.AgentName}}
+                </li>
+            </ul>
+        </div>
+    </div>
+
     <div ng-repeat="o in agentlevels" ng-show="result != null">
         <table class="table table-condensed table-hover table-striped">
             <thead>

@@ -53,6 +53,10 @@
                 $scope.tiercommissionrate = data.tiercommissionrate;
                 $scope.agentlevels = data.agentlevels;
                 $scope.agentlist = data.agentlist;
+
+                for (var i in $scope.agentlevels) {
+                    $scope.groups[i] = _.groupBy($scope.agentlist[i], 'AgentTeam');
+                }
             }
 
             else
