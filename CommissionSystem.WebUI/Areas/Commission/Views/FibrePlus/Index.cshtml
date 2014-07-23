@@ -65,7 +65,8 @@
         </div>
     </form>
 
-    {{agentlist | json}}
+    {{groups | json}}
+    {{groups_ | json }}
 
     <div ng-repeat="o in agentlevels" ng-show="result != null">
         <div ng-repeat="a in groups[o]">
@@ -103,6 +104,26 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div ng-repeat="i in agentlevels" ng-show="result != null">
+        <div ng-repeat="(agentteam, agents) in groups[i]">
+            <h4>{{agentteam}}</h4>
+            <ul class="list-group">
+                <li ng-repeat="a in agents" class="list-group-item">
+                    {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div ng-repeat="(department, employees) in groups_">
+        <h4>{{ department }}</h4>
+        <ul class="list-group">
+            <li ng-repeat="employee in employees" class="list-group-item">
+                {{ employee.name }}
+            </li>
+        </ul>
     </div>
 </div>
 
