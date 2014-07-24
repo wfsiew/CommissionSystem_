@@ -240,7 +240,34 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return amt;
         }
 
+        private object GetCustomerSettlementAmount(int custid, int year, int month)
+        {
+            double amt = 0;
+            SqlDataReader rd = null;
 
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select cs.settlementidx, cs.custid, cs.comment, cs.amount, cs.realdate, cs.paymenttype, ")
+                    .Append("cs.reference, cs.orno, cs.paymentmode from customersettlement cs ")
+                    .Append("left join customer c on cs on cs.custid = c.custid ")
+                    .Append("where c.customertype = 1 and c.agentid = @agentid and cs.custid = @custid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = AgentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    CustomerSettlement o = new CustomerSettlement();
+                    o.SettlementIdx = rd.Get<int>("settlementidx");
+                    o.CustID = rd.Get<int>("custid");
+
+                }
+            }
+        }
 
         private Dictionary<int, ProductTypes> GetProductTypes()
         {
@@ -280,9 +307,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return dic;
         }
 
-        private Dictionary<int, CustomerBillingInfo> GetCustomerBillingInfos()
+        private List<CustomerBillingInfo> GetCustomerBillingInfos()
         {
-            Dictionary<int, CustomerBillingInfo> dic = new Dictionary<int, CustomerBillingInfo>();
+            List<CustomerBillingInfo> l = new List<CustomerBillingInfo>();
             SqlDataReader rd = null;
 
             try
@@ -291,7 +318,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 sb.Append("select cb.custid, cb.rental, cb.productid, cb.amount, cb.realcommencementdate, cb.realcommencementenddate ")
                     .Append("from customerbillinginfo cb ")
                     .Append("left join customer c on cb.custid = c.custid ")
-                    .Append("where c.customertype = 1 and c.agentid = @agentid");
+                    .Append("where c.customertype = 1 and cb.productid in (7, 5, 4, 6) and c.agentid = @agentid");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
@@ -309,7 +336,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.RealCommencementDate = rd.Get<DateTime>("realcommencementdate");
                     o.RealCommencementEndDate = rd.Get<DateTime>("realcommencementenddate");
 
-                    dic[o.CustID] = o;
+                    l.Add(o);
                 }
             }
 
@@ -325,7 +352,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     rd.Dispose();
             }
 
-            return dic;
+            return l;
         }
 
         private Dictionary<int, Customer> GetCustomers()
