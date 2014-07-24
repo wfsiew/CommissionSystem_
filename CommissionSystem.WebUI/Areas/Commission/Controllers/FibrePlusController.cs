@@ -113,8 +113,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                         AgentID = x.AgentID,
                         AgentName = x.AgentName,
                         AgentTeam = x.AgentTeam,
-                        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
                         AgentType = x.AgentType,
+                        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
+                        AgentTeamType = x.ParentAgent == null ? "" : x.ParentAgent.AgentType,
                         CommissionRate = x.CommissionRate,
                         TierCommissionRate = x.TierCommissionRate,
                         TotalCommission = x.TotalCommission
@@ -219,7 +220,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                 d = new DbHelper(DbHelper.GetConStr(DB));
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
+                sb.Append("select a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam, ")
+                    .Append("b.agentid as [agentteamid], b.agentname as [agentteamname], b.agenttype as [agentteamtype], b.agentlevel as [agentteamlevel] ")
+                    .Append("from agent a ")
+                    .Append("left join agent b on a.agentteam = b.agentid ")
                     .Append("where a.agentid = @agentid");
                 string q = sb.ToString();
 
@@ -236,7 +240,15 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     a.AgentType = rd.Get("agenttype", "AGT");
                     a.AgentLevel = rd.Get("agentlevel");
                     a.AgentTeam = rd.Get("agentteam");
-                    a.Level = 1;
+
+                    Agent b = new Agent();
+                    b.AgentID = rd.Get<int>("agentteamid");
+                    b.AgentName = rd.Get("agentteamname");
+                    b.AgentType = rd.Get("agentteamtype");
+                    b.AgentLevel = rd.Get("agentteamlevel");
+                    b.Level = 0;
+
+                    b.AddChildAgent(a);
 
                     l.Add(a);
                 }

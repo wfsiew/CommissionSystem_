@@ -1,4 +1,4 @@
-﻿function FibrePlusCtrl($scope, $http) {
+﻿function FibrePlusCtrl($scope, $http, $modal) {
     $scope.agentID = '';
     $scope.agents = [];
 
@@ -12,6 +12,29 @@
         $event.preventDefault();
         $event.stopPropagation();
         $scope.openedDateTo = true;
+    }
+
+    $scope.getAgentDisplay = function (id, level) {
+        var v = '';
+        var a = _.find($scope.agentlist[level], function (x) {
+            return x.AgentTeam == id;
+        });
+        if (a != null)
+        {
+            if (a.AgentTeamType != '')
+                v = id + ' (' + a.AgentTeamType + '): ' + a.AgentTeamName;
+        }
+
+        return v;
+    }
+
+    $scope.getCssRow = function (a) {
+        var v = 'list-group-item';
+
+        if (a.TotalCommission > 0)
+            v +=  ' ' + v + '-info';
+
+        return v;
     }
 
     $scope.showCommission = function () {
@@ -55,9 +78,9 @@
                 $scope.agentlist = data.agentlist;
                 $scope.groups = {};
 
-                for (var i in $scope.agentlevels) {
+                _.each($scope.agentlevels, function (i) {
                     $scope.groups[i] = _.groupBy($scope.agentlist[i], 'AgentTeam');
-                }
+                });
             }
 
             else
@@ -70,13 +93,42 @@
         $http.get(url).success(function (data) {
             $scope.agents = data;
         });
-
-        $scope.data =
-            [
-                { department: "engineering", name: "Scott" },
-                { department: "engineering", name: "Joy" },
-                { department: "sales", name: "Sara" }
-            ];
-        $scope.groups_ = _.groupBy($scope.data, "department");
     }
+
+    $scope.items = ['item1', 'item2', 'item3'];
+
+    $scope.open = function (size) {
+        var mi = $modal.open({
+            templateUrl: '/ngview/test.html',
+            controller: ModalInstanceCtrl,
+            size: size,
+            resolve: {
+                items: function () {
+                    return $scope.items;
+                }
+            }
+        });
+
+        mi.result.then(function (x) {
+            $scope.selected = x;
+        }, function () {
+
+        });
+    }
+}
+
+function ModalInstanceCtrl($scope, $modalInstance, items) {
+    $scope.items = items;
+
+    $scope.selected = {
+        item: $scope.items[0]
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close($scope.selected.item);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 }

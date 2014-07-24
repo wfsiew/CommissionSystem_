@@ -45,41 +45,9 @@
                 <button class="btn btn-primary" ng-click="showCommission()" ng-disabled="form.$invalid">Show Commission</button>
             </div>
         </div>
-        <div class="form-group" ng-show="result != null">
-            <label class="col-sm-2 control-label">Commission</label>
-            <div class="col-sm-8">
-                <p class="form-control-static">{{commission | currency:''}}</p>
-            </div>
-        </div>
-        <div class="form-group" ng-show="result != null">
-            <label class="col-sm-2 control-label">Commission %</label>
-            <div class="col-sm-8">
-                <p class="form-control-static">{{commissionrate * 100}} %</p>
-            </div>
-        </div>
-        <div class="form-group" ng-show="result != null">
-            <label class="col-sm-2 control-label">Tier Commission %</label>
-            <div class="col-sm-8">
-                <p class="form-control-static">{{tiercommissionrate * 100}}</p>
-            </div>
-        </div>
     </form>
 
-    {{groups | json}}
-    {{groups_ | json }}
-
-    <div ng-repeat="o in agentlevels" ng-show="result != null">
-        <div ng-repeat="a in groups[o]">
-            <h4>{{a}}</h4>
-            <ul>
-                <li ng-repeat="x in a">
-                    {{x.AgentName}}
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <div ng-repeat="o in agentlevels" ng-show="result != null">
+    @*<div ng-repeat="o in agentlevels" ng-show="result != null">
         <table class="table table-condensed table-hover table-striped">
             <thead>
                 <tr>
@@ -104,27 +72,33 @@
                 </tr>
             </tbody>
         </table>
-    </div>
+    </div>*@
+
+    @*<div ng-repeat="i in agentlevels" ng-show="result != null">
+        <div ng-repeat="(agentteam, agents) in groups[i]">
+            <h4>{{getAgentDisplay(agentteam, i)}}</h4>
+            <ul class="list-group">
+                <li ng-repeat="a in agents" ng-class="getCssRow(a)">
+                    {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
+                    Commission: {{a.TotalCommission | currency:''}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
+                </li>
+            </ul>
+        </div>
+    </div>*@
 
     <div ng-repeat="i in agentlevels" ng-show="result != null">
-        <div ng-repeat="(agentteam, agents) in groups[i]">
-            <h4>{{agentteam}}</h4>
+        <div ng-repeat="(agentteam, agents) in groups[i]" class="panel panel-primary">
+            <div class="panel-heading" ng-click="open('lg')">
+                <span class="badge pull-right" ng-hide="i == '0'">{{groups[i][agentteam].length}}</span>
+                {{getAgentDisplay(agentteam, i)}}
+            </div>
             <ul class="list-group">
-                <li ng-repeat="a in agents" class="list-group-item">
+                <li ng-repeat="a in agents" ng-class="getCssRow(a)">
                     {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
+                    Commission: {{a.TotalCommission | currency:''}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
                 </li>
             </ul>
         </div>
     </div>
-
-    <div ng-repeat="(department, employees) in groups_">
-        <h4>{{ department }}</h4>
-        <ul class="list-group">
-            <li ng-repeat="employee in employees" class="list-group-item">
-                {{ employee.name }}
-            </li>
-        </ul>
-    </div>
-</div>
 
 <script src="~/Areas/Commission/js/fibreplus/controller.js"></script>

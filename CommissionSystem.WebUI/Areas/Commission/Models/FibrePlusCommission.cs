@@ -240,6 +240,136 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return amt;
         }
 
+
+
+        private Dictionary<int, ProductTypes> GetProductTypes()
+        {
+            Dictionary<int, ProductTypes> dic = new Dictionary<int, ProductTypes>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select productid, description, initialamount from producttypes");
+                string q = sb.ToString();
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    ProductTypes o = new ProductTypes();
+                    o.ProductID = rd.Get<int>("productid");
+                    o.Description = rd.Get("description");
+                    o.InitialAmount = rd.Get<decimal>("initialamount");
+
+                    dic[o.ProductID] = o;
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return dic;
+        }
+
+        private Dictionary<int, CustomerBillingInfo> GetCustomerBillingInfos()
+        {
+            Dictionary<int, CustomerBillingInfo> dic = new Dictionary<int, CustomerBillingInfo>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select cb.custid, cb.rental, cb.productid, cb.amount, cb.realcommencementdate, cb.realcommencementenddate ")
+                    .Append("from customerbillinginfo cb ")
+                    .Append("left join customer c on cb.custid = c.custid ")
+                    .Append("where c.customertype = 1 and c.agentid = @agentid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = AgentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    CustomerBillingInfo o = new CustomerBillingInfo();
+                    o.CustID = rd.Get<int>("custid");
+                    o.Rental = rd.Get<decimal>("rental");
+                    o.ProductID = rd.Get<int>("productid");
+                    o.Amount = rd.Get<decimal>("amount");
+                    o.RealCommencementDate = rd.Get<DateTime>("realcommencementdate");
+                    o.RealCommencementEndDate = rd.Get<DateTime>("realcommencementenddate");
+
+                    dic[o.CustID] = o;
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return dic;
+        }
+
+        private Dictionary<int, Customer> GetCustomers()
+        {
+            Dictionary<int, Customer> dic = new Dictionary<int, Customer>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select custid, name, customertype from customer where customertype = 1 and agentid = @agentid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = AgentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    Customer o = new Customer();
+                    o.CustID = rd.Get<int>("custid");
+                    o.Name = rd.Get("name");
+                    o.CustomerType = rd.Get<int>("customertype");
+
+                    dic[o.CustID] = o;
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return dic;
+        }
+
         private int GetNumOfCustomers()
         {
             int i = 0;
