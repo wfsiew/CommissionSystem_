@@ -47,7 +47,14 @@
                 $scope.result = data;
                 $scope.commission = data.commission;
                 $scope.commissionrate = data.commissionrate;
-                $scope.settlementlist = data.settlementlist;
+                $scope.tiercommissionrate = data.tiercommissionrate;
+                $scope.agentlevels = data.agentlevels;
+                $scope.agentlist = data.agentlist;
+                $scope.groups = {};
+
+                _.each($scope.agentlevels, function (i) {
+                    $scope.groups[i] = _.groupBy($scope.agentlist[i], 'AgentTeam');
+                });
             }
 
             else

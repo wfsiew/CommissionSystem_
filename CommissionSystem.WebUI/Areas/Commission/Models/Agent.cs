@@ -20,8 +20,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public List<Agent> ChildAgentList { get; private set; }
         public Agent ParentAgent { get; private set; }
         public int Level { get; set; }
-        public double DirectCommission { get; set; }
-        public double SubCommission { get; set; }
+        public decimal DirectCommission { get; set; }
+        public decimal SubCommission { get; set; }
         public double CommissionRate { get; set; }
         public double TierCommissionRate { get; set; }
 
@@ -32,12 +32,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             ChildAgentList.Add(o);
         }
 
-        public void AddToSubCommission(double comm)
+        public void AddToSubCommission(decimal comm)
         {
             SubCommission += comm;
         }
 
-        public double TotalCommission
+        public decimal TotalCommission
         {
             get
             {

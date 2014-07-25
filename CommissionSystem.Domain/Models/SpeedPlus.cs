@@ -32,17 +32,17 @@ namespace CommissionSystem.Domain.Models
             return a;
         }
 
-        public double GetCommission(double amt, string agentType)
+        public decimal GetCommission(decimal amt, string agentType)
         {
             double a = GetCommissionRate(agentType);
-            double x = a * amt;
+            decimal x = Convert.ToDecimal(a) * amt;
             return x;
         }
 
-        public double GetDirectCommission(double amt)
+        public decimal GetDirectCommission(decimal amt)
         {
             double a = Commission;
-            double x = a * amt;
+            decimal x = Convert.ToDecimal(a) * amt;
             return x;
         }
 
@@ -117,17 +117,17 @@ namespace CommissionSystem.Domain.Models
             return a;
         }
 
-        public double GetCommission(double amt, string agentType)
+        public decimal GetCommission(decimal amt, string agentType)
         {
             double a = GetCommissionRate(agentType);
-            double x = a * amt;
+            decimal x = Convert.ToDecimal(a) * amt;
             return x;
         }
 
-        public double GetDirectCommission(double amt)
+        public decimal GetDirectCommission(decimal amt)
         {
             double a = Commission;
-            double x = a * amt;
+            decimal x = Convert.ToDecimal(a) * amt;
             return x;
         }
 

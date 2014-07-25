@@ -9,7 +9,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
     {
         public int CustID { get; set; }
         public string Comment { get; set; }
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
         public DateTime RealDate { get; set; }
         public string Reference { get; set; }
         public string ORNo { get; set; }

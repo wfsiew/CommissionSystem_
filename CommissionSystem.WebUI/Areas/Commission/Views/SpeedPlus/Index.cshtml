@@ -7,13 +7,14 @@
         <div class="form-group">
             <label class="col-sm-2 control-label">Agent</label>
             <div class="col-sm-9">
-                <select id="agentID" name="agentID" class="form-control"
+                <select id="agentID" name="agentID" style="width:80%"
                         ng-model="agentID"
                         ng-required="true"
                         ui-select2
                         data-placeholder="Please select">
                     <option value=""></option>
-                    <option ng-repeat="o in agents" value="{{o.AgentID}}">{{o.AgentName}}</option>
+                    <option value="0">All</option>
+                    <option ng-repeat="o in agents" value="{{o.AgentID}}">{{o.AgentID}} ({{o.AgentType}}): {{o.AgentName}}</option>
                 </select>
             </div>
         </div>
@@ -44,20 +45,22 @@
                 <button class="btn btn-primary" ng-click="showCommission()" ng-disabled="form.$invalid">Show Commission</button>
             </div>
         </div>
-        <div class="form-group" ng-show="result != null">
-            <label class="col-sm-2 control-label">Commission</label>
-            <div class="col-sm-8">
-                <p class="form-control-static">{{commission | currency:''}}</p>
-            </div>
-        </div>
-        <div class="form-group" ng-show="result != null">
-            <label class="col-sm-2 control-label">Commission %</label>
-            <div class="col-sm-8">
-                <p class="form-control-static">{{commissionrate * 100}} %</p>
-            </div>
-        </div>
     </form>
-    @{ Html.RenderPartial("~/Areas/Commission/Views/Shared/_Settlement.cshtml"); }
+
+    <div ng-repeat="i in agentlevels" ng-show="result != null">
+        <div ng-repeat="(agentteam, agents) in groups[i]" class="panel panel-primary">
+            <div class="panel-heading">
+                <span class="badge pull-right" ng-hide="i == '0'">{{groups[i][agentteam].length}}</span>
+                {{getAgentDisplay(agentteam, i)}}
+            </div>
+            <ul class="list-group">
+                <li ng-repeat="a in agents" ng-class="getCssRow(a)">
+                    {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
+                    Commission: {{a.TotalCommission | currency:''}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 <script src="~/Areas/Commission/js/speedplus/controller.js"></script>

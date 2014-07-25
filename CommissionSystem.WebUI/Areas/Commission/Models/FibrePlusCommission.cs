@@ -37,7 +37,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         private Dictionary<string, object> GetSettlement()
         {
-            double amt = 0;
+            decimal amt = 0;
             SqlDataReader rd = null;
             Dictionary<string, object> res = new Dictionary<string,object>();
             List<Settlement> l = new List<Settlement>();
@@ -71,7 +71,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     Settlement o = new Settlement();
                     o.CustID = rd.Get<int>("custid");
                     o.Comment = rd.Get("comment");
-                    o.Amount = rd.Get<double>("amount");
+                    o.Amount = rd.Get<decimal>("amount");
                     o.RealDate = rd.Get<DateTime>("realdate");
                     o.Reference = rd.Get("reference");
                     o.ORNo = rd.Get("orno");
@@ -102,8 +102,118 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         public void SetCommission()
         {
-            double amt = 0;
-            double comm = 0;
+            decimal amt = 0;
+            decimal comm = 0;
+            SqlDataReader rd = null;
+
+            try
+            {
+                List<int> levels = AgentDic.Keys.ToList();
+                levels.Reverse();
+                SettingFactory sf = SettingFactory.Instance;
+                Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
+
+                for (int i = 0; i < levels.Count; i++)
+                {
+                    int k = levels[i];
+                    List<Agent> l = AgentDic[k];
+                    for (int j = 0; j < l.Count; j++)
+                    {
+                        Agent a = l[j];
+                        Agent b = a.ParentAgent;
+                        AgentID = a.AgentID;
+                        Dictionary<int, Customer> customerDic = GetCustomers();
+                        List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
+
+                        foreach (KeyValuePair<int, Customer> d in customerDic)
+                        {
+                            Customer customer = d.Value;
+                            int custID = d.Key;
+                            IEnumerable<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID);
+
+                            foreach (CustomerBillingInfo bi in ebi)
+                            {
+                                if (productTypeDic.ContainsKey(bi.ProductID))
+                                {
+                                    ProductTypes productType = productTypeDic[bi.ProductID];
+                                    decimal amount = GetCustomerSettlementAmount(customer, productType);
+                                    amt += amount;
+                                }
+                            }
+                        }
+
+                        if (a.IsInternal)
+                        {
+                            a.DirectCommission = sf.FibrePlusInternalSetting.GetDirectCommission(amt);
+                            a.CommissionRate = sf.FibrePlusInternalSetting.Commission;
+                            if (b != null && b.Level > 0)
+                            {
+                                if (b.IsInternal)
+                                {
+                                    comm = sf.FibrePlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
+                                }
+
+                                else
+                                {
+                                    AgentID = b.AgentID;
+                                    int numOfCustomers = GetNumOfCustomers();
+                                    int type = FibrePlusExternal.GetCommissionType(numOfCustomers);
+                                    comm = sf.FibrePlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                }
+                            }
+                        }
+
+                        else
+                        {
+                            int numOfCustomers = GetNumOfCustomers();
+                            int type = FibrePlusExternal.GetCommissionType(numOfCustomers);
+                            a.DirectCommission = sf.FibrePlusExternalSetting[type].GetDirectCommission(amt);
+                            a.CommissionRate = sf.FibrePlusExternalSetting[type].Commission;
+                            if (b != null && b.Level > 0)
+                            {
+                                if (b.IsInternal)
+                                {
+                                    comm = sf.FibrePlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
+                                }
+
+                                else
+                                {
+                                    AgentID = b.AgentID;
+                                    numOfCustomers = GetNumOfCustomers();
+                                    type = FibrePlusExternal.GetCommissionType(numOfCustomers);
+                                    comm = sf.FibrePlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+        }
+
+        public void SetCommission_()
+        {
+            decimal amt = 0;
+            decimal comm = 0;
             SqlDataReader rd = null;
 
             try
@@ -191,9 +301,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
         }
 
-        private double GetAmount()
+        private decimal GetAmount()
         {
-            double amt = 0;
+            decimal amt = 0;
             SqlDataReader rd = null;
 
             try
@@ -221,7 +331,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 rd = Db.ExecuteReader(q, CommandType.Text);
                 if (rd.Read())
                 {
-                    amt = rd.Get<double>("amount");
+                    amt = rd.Get<decimal>("amount");
                 }
             }
 
@@ -240,33 +350,103 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return amt;
         }
 
-        private object GetCustomerSettlementAmount(int custid, int year, int month)
+        private decimal GetCustomerSettlementAmount(Customer customer, ProductTypes productType)
         {
-            double amt = 0;
+            decimal amt = 0;
+            decimal tmpamt = 0;
             SqlDataReader rd = null;
 
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select cs.settlementidx, cs.custid, cs.comment, cs.amount, cs.realdate, cs.paymenttype, ")
-                    .Append("cs.reference, cs.orno, cs.paymentmode from customersettlement cs ")
-                    .Append("left join customer c on cs on cs.custid = c.custid ")
-                    .Append("where c.customertype = 1 and c.agentid = @agentid and cs.custid = @custid");
+                sb.Append("select settlementidx, custid, comment, amount, realdate, paymenttype, ")
+                    .Append("reference, orno, paymentmode from customersettlement ")
+                    .Append("where custid in ")
+                    .Append("(select custid from customer where customertype = 1 and agentid = @agentid and custid = @custid) and ")
+                    .Append("productid = 1 and paymenttype = 1 and custid = @custid ")
+                    .Append("order by settlementidx");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
                 p.Value = AgentID;
                 Db.AddParameter(p);
 
+                p = new SqlParameter("@custid", SqlDbType.Int);
+                p.Value = customer.CustID;
+                Db.AddParameter(p);
+
+                bool first = true;
                 rd = Db.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
+                for (int i = 0; rd.Read(); i++)
                 {
                     CustomerSettlement o = new CustomerSettlement();
                     o.SettlementIdx = rd.Get<int>("settlementidx");
                     o.CustID = rd.Get<int>("custid");
+                    o.Comment = rd.Get("comment");
+                    o.Amount = rd.Get<decimal>("amount");
+                    o.RealDate = rd.GetDateTime("realdate");
+                    o.PaymentType = rd.Get<int>("paymenttype");
+                    o.Reference = rd.Get("reference");
+                    o.ORNo = rd.Get("orno");
+                    o.PaymentMode = rd.Get<int>("paymentmode");
 
+                    if (o.RealDate >= DateFrom && o.RealDate < DateTo)
+                    {
+                        if (first)
+                        {
+                            first = false;
+
+                            if (o.Amount >= productType.InitialAmount)
+                            {
+                                amt = productType.InitialAmount;
+                                break;
+                            }
+
+                            else
+                            {
+                                tmpamt += o.Amount;
+                                continue;
+                            }
+                        }
+
+                        else
+                        {
+                            if (tmpamt >= productType.InitialAmount)
+                            {
+                                amt = productType.InitialAmount;
+                                break;
+                            }
+
+                            else
+                            {
+                                tmpamt += o.Amount;
+                                continue;
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        tmpamt = 0;
+                        first = false;
+                        break;
+                    }
                 }
             }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return amt;
         }
 
         private Dictionary<int, ProductTypes> GetProductTypes()
@@ -315,10 +495,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select cb.custid, cb.rental, cb.productid, cb.amount, cb.realcommencementdate, cb.realcommencementenddate ")
-                    .Append("from customerbillinginfo cb ")
-                    .Append("left join customer c on cb.custid = c.custid ")
-                    .Append("where c.customertype = 1 and cb.productid in (7, 5, 4, 6) and c.agentid = @agentid");
+                sb.Append("select custid, rental, productid, amount, realcommencementdate, realcommencementenddate ")
+                    .Append("from customerbillinginfo ")
+                    .Append("where custid in ")
+                    .Append("(select custid from customer where customertype = 1 and agentid = @agentid) ")
+                    .Append("and productid in ")
+                    .Append("(select productid from producttypes where description like '%Mbps%' and ")
+                    .Append("initialamount > 0)");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
@@ -333,8 +516,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.Rental = rd.Get<decimal>("rental");
                     o.ProductID = rd.Get<int>("productid");
                     o.Amount = rd.Get<decimal>("amount");
-                    o.RealCommencementDate = rd.Get<DateTime>("realcommencementdate");
-                    o.RealCommencementEndDate = rd.Get<DateTime>("realcommencementenddate");
+                    o.RealCommencementDate = rd.GetDateTime("realcommencementdate");
+                    o.RealCommencementEndDate = rd.GetDateTime("realcommencementenddate");
 
                     l.Add(o);
                 }

@@ -10,6 +10,18 @@ namespace CommissionSystem.WebUI.Helpers
     {
         public const string DATE_FMT = "yyyy-MM-dd";
 
+        public static DateTime GetDateTime(string q)
+        {
+            DateTime dt = default(DateTime);
+
+            if (string.IsNullOrEmpty(q))
+                return dt;
+
+            dt = DateTime.Parse(q);
+
+            return dt;
+        }
+
         public static DateTime GetDateTimeFMT(string q)
         {
             DateTime dt = default(DateTime);

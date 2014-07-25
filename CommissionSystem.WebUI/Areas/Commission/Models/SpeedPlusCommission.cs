@@ -29,47 +29,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             Db = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
         }
 
-        public Dictionary<string, object> GetCommission()
-        {
-            double comm = 0;
-            double commrate = 0;
-            Dictionary<string, object> res = null;
-
-            try
-            {
-                res = GetSettlement();
-                double amt = (double)res["amount"];
-                SettingFactory f = SettingFactory.Instance;
-
-                bool external = IsExternal(AgentID.ToString());
-
-                if (!external)
-                {
-                    commrate = f.SpeedPlusInternalSetting.GetCommissionRate("");
-                    comm = f.SpeedPlusInternalSetting.GetCommission(amt, "");
-                }
-                    
-                else
-                {
-                    int numOfCustomers = GetNumOfCustomers();
-                    int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                    commrate = f.SpeedPlusExternalSetting[type].GetCommissionRate("");
-                    comm = f.SpeedPlusExternalSetting[type].GetCommission(amt, "");
-                }
-
-                res["commissionrate"] = commrate;
-                res["commission"] = comm;
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            return res;
-        }
-
         public void Dispose()
         {
             if (Db != null)
@@ -78,7 +37,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         private Dictionary<string, object> GetSettlement()
         {
-            double amt = 0;
+            decimal amt = 0;
             SqlDataReader rd = null;
             Dictionary<string, object> res = new Dictionary<string, object>();
             List<Settlement> l = new List<Settlement>();
@@ -112,7 +71,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     Settlement o = new Settlement();
                     o.CustID = rd.Get<int>("custid");
                     o.Comment = rd.Get("comment");
-                    o.Amount = rd.Get<double>("amount");
+                    o.Amount = rd.Get<decimal>("amount");
                     o.RealDate = rd.Get<DateTime>("realdate");
                     o.Reference = rd.Get("reference");
                     o.ORNo = rd.Get("orno");
@@ -141,10 +100,120 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return res;
         }
 
-        public void SetAmount()
+        public void SetCommission()
         {
-            double amt = 0;
-            double comm = 0;
+            decimal amt = 0;
+            decimal comm = 0;
+            SqlDataReader rd = null;
+
+            try
+            {
+                List<int> levels = AgentDic.Keys.ToList();
+                levels.Reverse();
+                SettingFactory sf = SettingFactory.Instance;
+                Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
+
+                for (int i = 0; i < levels.Count; i++)
+                {
+                    int k = levels[i];
+                    List<Agent> l = AgentDic[k];
+                    for (int j = 0; j < l.Count; j++)
+                    {
+                        Agent a = l[j];
+                        Agent b = a.ParentAgent;
+                        AgentID = a.AgentID;
+                        Dictionary<int, Customer> customerDic = GetCustomers();
+                        List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
+
+                        foreach (KeyValuePair<int, Customer> d in customerDic)
+                        {
+                            Customer customer = d.Value;
+                            int custID = d.Key;
+                            IEnumerable<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID);
+
+                            foreach (CustomerBillingInfo bi in ebi)
+                            {
+                                if (productTypeDic.ContainsKey(bi.ProductID))
+                                {
+                                    ProductTypes productType = productTypeDic[bi.ProductID];
+                                    decimal amount = GetCustomerSettlementAmount(customer, productType);
+                                    amt += amount;
+                                }
+                            }
+                        }
+
+                        if (a.IsInternal)
+                        {
+                            a.DirectCommission = sf.SpeedPlusInternalSetting.GetDirectCommission(amt);
+                            a.CommissionRate = sf.SpeedPlusInternalSetting.Commission;
+                            if (b != null && b.Level > 0)
+                            {
+                                if (b.IsInternal)
+                                {
+                                    comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                }
+
+                                else
+                                {
+                                    AgentID = b.AgentID;
+                                    int numOfCustomers = GetNumOfCustomers();
+                                    int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                }
+                            }
+                        }
+
+                        else
+                        {
+                            int numOfCustomers = GetNumOfCustomers();
+                            int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                            a.DirectCommission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(amt);
+                            a.CommissionRate = sf.SpeedPlusExternalSetting[type].Commission;
+                            if (b != null && b.Level > 0)
+                            {
+                                if (b.IsInternal)
+                                {
+                                    comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                }
+
+                                else
+                                {
+                                    AgentID = b.AgentID;
+                                    numOfCustomers = GetNumOfCustomers();
+                                    type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+        }
+
+        public void SetCommission_()
+        {
+            decimal amt = 0;
+            decimal comm = 0;
             SqlDataReader rd = null;
 
             try
@@ -167,12 +236,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         if (a.IsInternal)
                         {
                             a.DirectCommission = sf.SpeedPlusInternalSetting.GetDirectCommission(amt);
+                            a.CommissionRate = sf.SpeedPlusInternalSetting.Commission;
                             if (b != null && b.Level > 0)
                             {
                                 if (b.IsInternal)
                                 {
                                     comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
                                 }
 
                                 else
@@ -182,6 +253,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
                                     comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                 }
                             }
                         }
@@ -191,12 +263,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             int numOfCustomers = GetNumOfCustomers();
                             int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
                             a.DirectCommission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(amt);
+                            a.CommissionRate = sf.SpeedPlusExternalSetting[type].Commission;
                             if (b != null && b.Level > 0)
                             {
                                 if (b.IsInternal)
                                 {
                                     comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
                                 }
 
                                 else
@@ -206,6 +280,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
                                     comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
+                                    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                 }
                             }
                         }
@@ -226,10 +301,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
         }
 
-        // not used
-        private double GetAmount()
+        private decimal GetAmount()
         {
-            double amt = 0;
+            decimal amt = 0;
             SqlDataReader rd = null;
 
             try
@@ -257,7 +331,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 rd = Db.ExecuteReader(q, CommandType.Text);
                 if (rd.Read())
                 {
-                    amt = rd.Get<double>("amount");
+                    amt = rd.Get<decimal>("amount");
                 }
             }
 
@@ -274,6 +348,236 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
 
             return amt;
+        }
+
+        private decimal GetCustomerSettlementAmount(Customer customer, ProductTypes productType)
+        {
+            decimal amt = 0;
+            decimal tmpamt = 0;
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select settlementidx, custid, comment, amount, realdate, paymenttype, ")
+                    .Append("reference, orno, paymentmode from customersettlement ")
+                    .Append("where custid in ")
+                    .Append("(select custid from customer where customertype in (2, 3) and agentid = @agentid and custid = @custid) and ")
+                    .Append("productid = 1 and paymenttype = 1 and custid = @custid ")
+                    .Append("order by settlementidx");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = AgentID;
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@custid", SqlDbType.Int);
+                p.Value = customer.CustID;
+                Db.AddParameter(p);
+
+                bool first = true;
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                for (int i = 0; rd.Read(); i++)
+                {
+                    CustomerSettlement o = new CustomerSettlement();
+                    o.SettlementIdx = rd.Get<int>("settlementidx");
+                    o.CustID = rd.Get<int>("custid");
+                    o.Comment = rd.Get("comment");
+                    o.Amount = rd.Get<decimal>("amount");
+                    o.RealDate = rd.GetDateTime("realdate");
+                    o.PaymentType = rd.Get<int>("paymenttype");
+                    o.Reference = rd.Get("reference");
+                    o.ORNo = rd.Get("orno");
+                    o.PaymentMode = rd.Get<int>("paymentmode");
+
+                    if (o.RealDate >= DateFrom && o.RealDate < DateTo)
+                    {
+                        if (first)
+                        {
+                            first = false;
+
+                            if (o.Amount >= productType.InitialAmount)
+                            {
+                                amt = productType.InitialAmount;
+                                break;
+                            }
+
+                            else
+                            {
+                                tmpamt += o.Amount;
+                                continue;
+                            }
+                        }
+
+                        else
+                        {
+                            if (tmpamt >= productType.InitialAmount)
+                            {
+                                amt = productType.InitialAmount;
+                                break;
+                            }
+
+                            else
+                            {
+                                tmpamt += o.Amount;
+                                continue;
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        tmpamt = 0;
+                        first = false;
+                        break;
+                    }
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return amt;
+        }
+
+        private Dictionary<int, ProductTypes> GetProductTypes()
+        {
+            Dictionary<int, ProductTypes> dic = new Dictionary<int, ProductTypes>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select productid, description, initialamount from producttypes");
+                string q = sb.ToString();
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    ProductTypes o = new ProductTypes();
+                    o.ProductID = rd.Get<int>("productid");
+                    o.Description = rd.Get("description");
+                    o.InitialAmount = rd.Get<decimal>("initialamount");
+
+                    dic[o.ProductID] = o;
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return dic;
+        }
+
+        private List<CustomerBillingInfo> GetCustomerBillingInfos()
+        {
+            List<CustomerBillingInfo> l = new List<CustomerBillingInfo>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select custid, rental, productid, amount, realcommencementdate, realcommencementenddate ")
+                    .Append("from customerbillinginfo ")
+                    .Append("where custid in ")
+                    .Append("(select custid from customer where customertype in (2, 3) and agentid = @agentid) ")
+                    .Append("and productid in ")
+                    .Append("(select productid from producttypes where description like '%Mbps%' and ")
+                    .Append("initialamount > 0)");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = AgentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    CustomerBillingInfo o = new CustomerBillingInfo();
+                    o.CustID = rd.Get<int>("custid");
+                    o.Rental = rd.Get<decimal>("rental");
+                    o.ProductID = rd.Get<int>("productid");
+                    o.Amount = rd.Get<decimal>("amount");
+                    o.RealCommencementDate = rd.GetDateTime("realcommencementdate");
+                    o.RealCommencementEndDate = rd.GetDateTime("realcommencementenddate");
+
+                    l.Add(o);
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return l;
+        }
+
+        private Dictionary<int, Customer> GetCustomers()
+        {
+            Dictionary<int, Customer> dic = new Dictionary<int, Customer>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select custid, name, customertype from customer where customertype in (2, 3) and agentid = @agentid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = AgentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    Customer o = new Customer();
+                    o.CustID = rd.Get<int>("custid");
+                    o.Name = rd.Get("name");
+                    o.CustomerType = rd.Get<int>("customertype");
+
+                    dic[o.CustID] = o;
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return dic;
         }
 
         private int GetNumOfCustomers()

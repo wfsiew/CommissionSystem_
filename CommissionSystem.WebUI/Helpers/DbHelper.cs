@@ -271,6 +271,17 @@ namespace CommissionSystem.WebUI.Helpers
             return a;
         }
 
+        public static DateTime GetDateTime(this SqlDataReader rd, string c)
+        {
+            object o = rd[c];
+            DateTime k = default(DateTime);
+
+            if (o != DBNull.Value)
+                k = Utils.GetDateTime(o.ToString());
+
+            return k;
+        }
+
         public static Nullable<T> GetNullable<T>(this SqlDataReader rd, string c) where T : struct
         {
             object o = rd[c];
