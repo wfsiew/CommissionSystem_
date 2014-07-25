@@ -29,77 +29,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             Db = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
         }
 
-        public void Dispose()
-        {
-            if (Db != null)
-                Db.Dispose();
-        }
-
-        private Dictionary<string, object> GetSettlement()
-        {
-            decimal amt = 0;
-            SqlDataReader rd = null;
-            Dictionary<string, object> res = new Dictionary<string,object>();
-            List<Settlement> l = new List<Settlement>();
-
-            try
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select cs.custid, cs.comment, cs.amount, cs.realdate, cs.reference, cs.orno, c.name ")
-                    .Append("from customersettlement cs ")
-                    .Append("left join customer c on cs.custid = c.custid ")
-                    .Append("where cs.productid = 0 and cs.paymenttype = 3 ")
-                    .Append("and c.customertype = 1 and c.agentid = @agentid ")
-                    .Append("and cs.realdate >= @fromdate and cs.realdate < @todate");
-                string q = sb.ToString();
-
-                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
-                p.Value = AgentID;
-                Db.AddParameter(p);
-
-                p = new SqlParameter("fromdate", SqlDbType.DateTime);
-                p.Value = DateFrom;
-                Db.AddParameter(p);
-
-                p = new SqlParameter("@todate", SqlDbType.DateTime);
-                p.Value = DateTo;
-                Db.AddParameter(p);
-
-                rd = Db.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
-                {
-                    Settlement o = new Settlement();
-                    o.CustID = rd.Get<int>("custid");
-                    o.Comment = rd.Get("comment");
-                    o.Amount = rd.Get<decimal>("amount");
-                    o.RealDate = rd.Get<DateTime>("realdate");
-                    o.Reference = rd.Get("reference");
-                    o.ORNo = rd.Get("orno");
-                    o.CustName = rd.Get("name");
-
-                    amt += o.Amount;
-                    l.Add(o);
-                }
-
-                res["amount"] = amt;
-                res["settlementlist"] = l;
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-            }
-
-            return res;
-        }
-
         public void SetCommission()
         {
             decimal amt = 0;
@@ -299,6 +228,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 if (rd != null)
                     rd.Dispose();
             }
+        }
+
+        public void Dispose()
+        {
+            if (Db != null)
+                Db.Dispose();
         }
 
         private decimal GetAmount()
@@ -606,17 +541,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
 
             return i;
-        }
-
-        private bool IsExternal(string agentTeam)
-        {
-            bool a = false;
-
-            if ("AG".Equals(agentTeam, StringComparison.OrdinalIgnoreCase) ||
-                "AGT".Equals(agentTeam, StringComparison.OrdinalIgnoreCase))
-                a = true;
-
-            return a;
         }
     }
 }

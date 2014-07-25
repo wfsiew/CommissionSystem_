@@ -14,6 +14,28 @@
         $scope.openedDateTo = true;
     }
 
+    $scope.getAgentDisplay = function (id, level) {
+        var v = '';
+        var a = _.find($scope.agentlist[level], function (x) {
+            return x.AgentTeam == id;
+        });
+        if (a != null) {
+            if (a.AgentTeamType != '')
+                v = id + ' (' + a.AgentTeamType + '): ' + a.AgentTeamName;
+        }
+
+        return v;
+    }
+
+    $scope.getCssRow = function (a) {
+        var v = 'list-group-item';
+
+        if (a.TotalCommission > 0)
+            v += ' ' + v + '-info';
+
+        return v;
+    }
+
     $scope.showCommission = function () {
         if ($scope.agentID == '') {
             bootbox.alert('Please select agent');
