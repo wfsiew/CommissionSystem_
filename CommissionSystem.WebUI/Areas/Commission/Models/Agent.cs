@@ -10,6 +10,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public Agent()
         {
             ChildAgentList = new List<Agent>();
+            CustomerList = new List<Customer>();
         }
 
         public int AgentID { get; set; }
@@ -20,16 +21,23 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public List<Agent> ChildAgentList { get; private set; }
         public Agent ParentAgent { get; private set; }
         public int Level { get; set; }
+        public decimal Amount { get; set; }
         public decimal DirectCommission { get; set; }
         public decimal SubCommission { get; set; }
         public double CommissionRate { get; set; }
         public double TierCommissionRate { get; set; }
+        public List<Customer> CustomerList { get; private set; }
 
         public void AddChildAgent(Agent o)
         {
             o.ParentAgent = this;
             o.Level = this.Level + 1;
             ChildAgentList.Add(o);
+        }
+
+        public void AddCustomer(Customer o)
+        {
+            CustomerList.Add(o);
         }
 
         public void AddToSubCommission(decimal comm)

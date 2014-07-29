@@ -137,7 +137,6 @@
     <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
     <Compile Include="Areas\Commission\Models\ProductTypes.cs" />
-    <Compile Include="Areas\Commission\Models\Settlement.cs" />
     <Compile Include="Areas\Commission\Models\SpeedPlusCommission.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
@@ -188,6 +187,7 @@
     <Content Include="css\bootstrap\css\bootstrap-theme.min.css" />
     <Content Include="css\bootstrap\css\bootstrap.css" />
     <Content Include="css\bootstrap\css\bootstrap.min.css" />
+    <Content Include="css\bootstrap\css\select2-spinner.gif" />
     <Content Include="css\bootstrap\css\select2.css" />
     <Content Include="css\bootstrap\css\select2.png" />
     <Content Include="css\bootstrap\fonts\glyphicons-halflings-regular.svg" />

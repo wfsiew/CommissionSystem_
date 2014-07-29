@@ -93,9 +93,27 @@
                 {{getAgentDisplay(agentteam, i)}}
             </div>
             <ul class="list-group">
-                <li ng-repeat="a in agents" ng-class="getCssRow(a)">
+                <li ng-repeat="a in agents" class="list-group-item">
                     {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
-                    Commission: {{a.TotalCommission | currency:''}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
+                    <div>
+                        Commission: {{a.TotalCommission | currency:'RM'}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
+                    </div>
+                    <div>
+                        Total Amount: {{a.Amount | currency:'RM'}}
+                    </div>
+                    <ul class="list-group" ng-show="a.CustomerList.length > 0">
+                        <li ng-repeat="c in a.CustomerList" class="list-group-item">
+                            {{$index + 1}}. {{c.CustID}} {{c.Name}}
+                            <table class="table table-condensed table-bordered" ng-show="c.SettlementList.length > 0">
+                                <tbody>
+                                    <tr ng-repeat="b in c.BillingInfoList">
+                                        <td>{{b.ProductType.Description}}</td>
+                                        <td class="tdRight">{{b.ProductType.InitialAmount | currency:'RM'}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>

@@ -57,6 +57,8 @@
                 <li ng-repeat="a in agents" ng-class="getCssRow(a)">
                     {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
                     Commission: {{a.TotalCommission | currency:''}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
+
+                    {{a.CustomerList | json}}
                 </li>
             </ul>
         </div>
