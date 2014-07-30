@@ -32,7 +32,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public void SetCommission()
         {
             decimal comm = 0;
-            SqlDataReader rd = null;
 
             try
             {
@@ -133,12 +132,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             {
                 Logger.Debug("", e);
                 throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
             }
         }
 
@@ -271,6 +264,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 {
                     amt = rd.Get<decimal>("amount");
                 }
+
+                rd.Close();
             }
 
             catch (Exception e)
@@ -315,7 +310,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                 bool first = true;
                 rd = Db.ExecuteReader(q, CommandType.Text);
-                for (int i = 0; rd.Read(); i++)
+                while (rd.Read())
                 {
                     CustomerSettlement o = new CustomerSettlement();
                     o.SettlementIdx = rd.Get<int>("settlementidx");
@@ -374,6 +369,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         break;
                     }
                 }
+
+                rd.Close();
             }
 
             catch (Exception e)
@@ -412,6 +409,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                     dic[o.ProductID] = o;
                 }
+
+                rd.Close();
             }
 
             catch (Exception e)
@@ -463,6 +462,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                     l.Add(o);
                 }
+
+                rd.Close();
             }
 
             catch (Exception e)
@@ -505,6 +506,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                     dic[o.CustID] = o;
                 }
+
+                rd.Close();
             }
 
             catch (Exception e)
