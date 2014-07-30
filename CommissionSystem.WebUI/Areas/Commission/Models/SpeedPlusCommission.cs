@@ -31,7 +31,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         public void SetCommission()
         {
-            decimal amt = 0;
             decimal comm = 0;
             SqlDataReader rd = null;
 
@@ -58,28 +57,32 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         {
                             Customer customer = d.Value;
                             int custID = d.Key;
-                            IEnumerable<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID);
+                            List<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID).ToList();
+
+                            customer.BillingInfoList = ebi;
+                            a.AddCustomer(customer);
 
                             foreach (CustomerBillingInfo bi in ebi)
                             {
                                 if (productTypeDic.ContainsKey(bi.ProductID))
                                 {
                                     ProductTypes productType = productTypeDic[bi.ProductID];
+                                    bi.ProductType = productType;
                                     decimal amount = GetCustomerSettlementAmount(customer, productType);
-                                    amt += amount;
+                                    a.Amount += amount;
                                 }
                             }
                         }
 
                         if (a.IsInternal)
                         {
-                            a.DirectCommission = sf.SpeedPlusInternalSetting.GetDirectCommission(amt);
+                            a.DirectCommission = sf.SpeedPlusInternalSetting.GetDirectCommission(a.Amount);
                             a.CommissionRate = sf.SpeedPlusInternalSetting.Commission;
                             if (b != null && b.Level > 0)
                             {
                                 if (b.IsInternal)
                                 {
-                                    comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
                                     b.AddToSubCommission(comm);
                                     b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
                                 }
@@ -89,7 +92,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     AgentID = b.AgentID;
                                     int numOfCustomers = GetNumOfCustomers();
                                     int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
                                     b.AddToSubCommission(comm);
                                     b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                 }
@@ -100,13 +103,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         {
                             int numOfCustomers = GetNumOfCustomers();
                             int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                            a.DirectCommission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(amt);
+                            a.DirectCommission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(a.Amount);
                             a.CommissionRate = sf.SpeedPlusExternalSetting[type].Commission;
                             if (b != null && b.Level > 0)
                             {
                                 if (b.IsInternal)
                                 {
-                                    comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
                                     b.AddToSubCommission(comm);
                                     b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
                                 }
@@ -116,7 +119,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     AgentID = b.AgentID;
                                     numOfCustomers = GetNumOfCustomers();
                                     type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
                                     b.AddToSubCommission(comm);
                                     b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                 }
@@ -334,12 +337,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             if (o.Amount >= productType.InitialAmount)
                             {
                                 amt = productType.InitialAmount;
+                                customer.AddSettlement(o);
                                 break;
                             }
 
                             else
                             {
                                 tmpamt += o.Amount;
+                                customer.AddSettlement(o);
                                 continue;
                             }
                         }
@@ -349,12 +354,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             if (tmpamt >= productType.InitialAmount)
                             {
                                 amt = productType.InitialAmount;
+                                customer.AddSettlement(o);
                                 break;
                             }
 
                             else
                             {
                                 tmpamt += o.Amount;
+                                customer.AddSettlement(o);
                                 continue;
                             }
                         }

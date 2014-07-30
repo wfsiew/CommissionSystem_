@@ -102,9 +102,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                         AgentType = x.AgentType,
                         AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
                         AgentTeamType = x.ParentAgent == null ? "" : x.ParentAgent.AgentType,
+                        Amount = x.Amount,
                         CommissionRate = x.CommissionRate,
                         TierCommissionRate = x.TierCommissionRate,
-                        TotalCommission = x.TotalCommission
+                        TotalCommission = x.TotalCommission,
+                        CustomerList = x.CustomerList
                     });
                     m[lk[i].ToString()] = v;
                 }
