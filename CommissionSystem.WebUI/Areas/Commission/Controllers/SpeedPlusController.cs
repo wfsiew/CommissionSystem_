@@ -367,6 +367,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                     l.Add(a);
                 }
+
+                rd.Close();
             }
 
             catch (Exception e)
