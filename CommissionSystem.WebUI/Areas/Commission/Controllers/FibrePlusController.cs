@@ -283,6 +283,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             {
                 Stack<List<Agent>> st = new Stack<List<Agent>>();
                 st.Push(parentList);
+                Dictionary<int, int> k = new Dictionary<int, int>();
 
                 while (st.Count > 0)
                 {
@@ -312,14 +313,21 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                             a.AgentLevel = rd.Get("agentlevel");
                             a.AgentTeam = rd.Get("agentteam");
 
+                            if (k.ContainsKey(a.AgentID))
+                                continue;
+
                             parent.AddChildAgent(a);
 
                             l.Add(a);
+
+                            k.Add(a.AgentID, a.AgentID);
                         }
 
                         rd.Close();
                         AddAgentsToDic(dic, l, parent.Level + 1);
-                        st.Push(l);
+
+                        if (l.Count > 0)
+                            st.Push(l);
                     }
                 }
             }
