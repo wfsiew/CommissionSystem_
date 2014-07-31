@@ -28,6 +28,19 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
         public ActionResult AgentSummary()
         {
+            try
+            {
+                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
+                List<Agent> l = new List<Agent>();
+                GetTopLevelAgents(l, dic);
+                ViewBag.list = l;
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+            }
+
             return View();
         }
 

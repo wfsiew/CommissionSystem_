@@ -243,7 +243,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 sb.Append("select sum(amount) as amount from customersettlement cs ")
                     .Append("left join customer c on cs.custid = c.custid ")
                     .Append("where cs.productid = 0 and cs.paymenttype = 3 ")
-                    .Append("and c.customertype = 1 and c.agentid = @agentid ")
+                    .Append("and c.customertype = 1 and c.status = 1 and c.agentid = @agentid ")
                     .Append("and cs.realdate >= @fromdate and cs.realdate < @todate");
                 string q = sb.ToString();
 
@@ -295,7 +295,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 sb.Append("select settlementidx, custid, comment, amount, realdate, paymenttype, ")
                     .Append("reference, orno, paymentmode from customersettlement ")
                     .Append("where custid in ")
-                    .Append("(select custid from customer where customertype = 1 and agentid = @agentid and custid = @custid) and ")
+                    .Append("(select custid from customer where customertype = 1 and status = 1 and agentid = @agentid and custid = @custid) and ")
                     .Append("productid = 1 and paymenttype = 1 and custid = @custid ")
                     .Append("order by settlementidx");
                 string q = sb.ToString();
@@ -439,7 +439,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 sb.Append("select custid, rental, productid, amount, realcommencementdate, realcommencementenddate ")
                     .Append("from customerbillinginfo ")
                     .Append("where custid in ")
-                    .Append("(select custid from customer where customertype = 1 and agentid = @agentid) ")
+                    .Append("(select custid from customer where customertype = 1 and status = 1 and agentid = @agentid) ")
                     .Append("and productid in ")
                     .Append("(select productid from producttypes where description like '%Mbps%' and ")
                     .Append("initialamount > 0)");
@@ -489,7 +489,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select custid, name, customertype from customer where customertype = 1 and agentid = @agentid");
+                sb.Append("select custid, name, customertype from customer where customertype = 1 and status = 1 and agentid = @agentid");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
@@ -532,7 +532,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select count(custid) from customer where customertype = 1 and agentid = @agentid");
+                sb.Append("select count(custid) from customer where customertype = 1 and status = 1 and agentid = @agentid");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
