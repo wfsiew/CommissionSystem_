@@ -130,6 +130,7 @@
     <Compile Include="Areas\Commission\CommissionAreaRegistration.cs" />
     <Compile Include="Areas\Commission\Controllers\FibrePlusController.cs" />
     <Compile Include="Areas\Commission\Controllers\SpeedPlusController.cs" />
+    <Compile Include="Areas\Commission\Models\ADSLCommission.cs" />
     <Compile Include="Areas\Commission\Models\Agent.cs" />
     <Compile Include="Areas\Commission\Models\Customer.cs" />
     <Compile Include="Areas\Commission\Models\CustomerBillingInfo.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
     <Compile Include="Areas\Commission\Models\ProductTypes.cs" />
+    <Compile Include="Areas\Commission\Models\SalesParent.cs" />
     <Compile Include="Areas\Commission\Models\SpeedPlusCommission.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
