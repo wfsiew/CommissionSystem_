@@ -1,0 +1,3 @@
+﻿function ADSLCtrl($scope, $http) {
+
+}

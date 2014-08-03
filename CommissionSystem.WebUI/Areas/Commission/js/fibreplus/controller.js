@@ -94,41 +94,4 @@
             $scope.agents = data;
         });
     }
-
-    $scope.items = ['item1', 'item2', 'item3'];
-
-    $scope.open = function (size) {
-        var mi = $modal.open({
-            templateUrl: '/ngview/test.html',
-            controller: ModalInstanceCtrl,
-            size: size,
-            resolve: {
-                items: function () {
-                    return $scope.items;
-                }
-            }
-        });
-
-        mi.result.then(function (x) {
-            $scope.selected = x;
-        }, function () {
-
-        });
-    }
-}
-
-function ModalInstanceCtrl($scope, $modalInstance, items) {
-    $scope.items = items;
-
-    $scope.selected = {
-        item: $scope.items[0]
-    };
-
-    $scope.ok = function () {
-        $modalInstance.close($scope.selected.item);
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
 }

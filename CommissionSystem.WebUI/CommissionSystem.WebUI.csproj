@@ -182,6 +182,7 @@
     <Content Include="App_Data\Setting\speed+\internal.xml" />
     <Content Include="App_Data\Setting\vsat\external.xml" />
     <Content Include="App_Data\Setting\vsat\internal.xml" />
+    <Content Include="Areas\Commission\js\adsl\controller.js" />
     <Content Include="Areas\Commission\js\fibreplus\controller.js" />
     <Content Include="Areas\Commission\js\speedplus\controller.js" />
     <Content Include="css\app.css" />
@@ -193,6 +194,7 @@
     <Content Include="css\bootstrap\css\select2.css" />
     <Content Include="css\bootstrap\css\select2.png" />
     <Content Include="css\bootstrap\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="css\lib\angular-motion.min.css" />
     <Content Include="css\lib\loading-bar.css" />
     <Content Include="css\lib\toastr-icon.png" />
     <Content Include="css\lib\toastr.min.css" />

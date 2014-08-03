@@ -38,22 +38,22 @@ td.menuitem {
     font-weight: bold;
 }
 
-#dropzone.in {
-    border: dotted;
-}
+    #dropzone.in {
+        border: dotted;
+    }
 
-#dropzone.hover {
-    background: lawngreen;
-}
+    #dropzone.hover {
+        background: lawngreen;
+    }
 
-#dropzone.fade {
-    -webkit-transition: all 0.3s ease-out;
-    -moz-transition: all 0.3s ease-out;
-    -ms-transition: all 0.3s ease-out;
-    -o-transition: all 0.3s ease-out;
-    transition: all 0.3s ease-out;
-    opacity: 1;
-}
+    #dropzone.fade {
+        -webkit-transition: all 0.3s ease-out;
+        -moz-transition: all 0.3s ease-out;
+        -ms-transition: all 0.3s ease-out;
+        -o-transition: all 0.3s ease-out;
+        transition: all 0.3s ease-out;
+        opacity: 1;
+    }
 
 .table tbody tr.urgent > td {
     color: white;
@@ -65,18 +65,39 @@ td.menuitem {
     background-color: #ffd800;
 }
 
-.nav, .pagination, .carousel a { cursor: pointer; }
+.nav, .pagination, .carousel a {
+    cursor: pointer;
+}
 
 #loading-bar .bar {
-  background: #2c3e50;
+    background: #2c3e50;
 }
+
 #loading-bar-spinner .spinner-icon {
-  border-top-color:  #2c3e50;
-  border-left-color: #2c3e50;
+    border-top-color: #2c3e50;
+    border-left-color: #2c3e50;
 }
+
 #loading-bar .peg {
-  -moz-box-shadow: #2c3e50 1px 0 6px 1px;
-  -ms-box-shadow: #2c3e50 1px 0 6px 1px;
-  -webkit-box-shadow: #2c3e50 1px 0 6px 1px;
-  box-shadow: #2c3e50 1px 0 6px 1px;
+    -moz-box-shadow: #2c3e50 1px 0 6px 1px;
+    -ms-box-shadow: #2c3e50 1px 0 6px 1px;
+    -webkit-box-shadow: #2c3e50 1px 0 6px 1px;
+    box-shadow: #2c3e50 1px 0 6px 1px;
+}
+
+.modal-backdrop.am-fade {
+  opacity: .5;
+  transition: opacity .15s linear;
+  &.ng-enter {
+    opacity: 0;
+    &.ng-enter-active {
+      opacity: .5;
+    }
+  }
+  &.ng-leave {
+    opacity: .5;
+    &.ng-leave-active {
+      opacity: 0;
+    }
+  }
 }
