@@ -10,8 +10,14 @@
         agents: utils.getUrl('/Commission/SpeedPlus/Agents')
     };
 
+    var adsl = {
+        commission: utils.getUrl('/Commission/ADSL/Commission'),
+        agents: utils.getUrl('/Commission/ADSL/Agents')
+    };
+
     return {
         fibreplus: fibreplus,
-        speedplus: speedplus
+        speedplus: speedplus,
+        adsl: adsl
     };
 }());

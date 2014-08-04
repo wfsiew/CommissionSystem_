@@ -36,7 +36,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
         }
 
-        public bool IsInternal
+        public bool IsInternalData
         {
             get
             {
@@ -44,6 +44,20 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 string id = SParentID.ToString();
 
                 if (id.IndexOf("881") == 0)
+                    a = true;
+
+                return a;
+            }
+        }
+
+        public bool IsInternalVoice
+        {
+            get
+            {
+                bool a = false;
+                string id = SParentID.ToString();
+
+                if (id.IndexOf("222") == 0)
                     a = true;
 
                 return a;

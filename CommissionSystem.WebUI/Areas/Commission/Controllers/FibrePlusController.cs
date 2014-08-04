@@ -16,7 +16,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
     public class FibrePlusController : Controller
     {
         private static Logger Logger = LogManager.GetCurrentClassLogger();
-        private const string DB = "HSBB_Billing";
 
         //
         // GET: /Commission/FibrePlus/
@@ -164,7 +163,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             try
             {
-                d = new DbHelper(DbHelper.GetConStr(DB));
+                d = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
                     .Append("where a.agenttype = 'Master' ")
@@ -219,7 +218,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     return;
                 }
 
-                d = new DbHelper(DbHelper.GetConStr(DB));
+                d = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam, ")
                     .Append("b.agentid as [agentteamid], b.agentname as [agentteamname], b.agenttype as [agentteamtype], b.agentlevel as [agentteamlevel] ")
@@ -417,7 +416,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             try
             {
-                d = new DbHelper(DbHelper.GetConStr(DB));
+                d = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
                     .Append("left join customer c on a.agentid = c.agentid ")

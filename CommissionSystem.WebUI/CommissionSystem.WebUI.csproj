@@ -128,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Areas\Commission\CommissionAreaRegistration.cs" />
+    <Compile Include="Areas\Commission\Controllers\ADSLController.cs" />
     <Compile Include="Areas\Commission\Controllers\FibrePlusController.cs" />
     <Compile Include="Areas\Commission\Controllers\SpeedPlusController.cs" />
     <Compile Include="Areas\Commission\Models\ADSLCommission.cs" />
@@ -235,6 +236,7 @@
     <Content Include="Areas\Commission\Views\FibrePlus\AllAgents.cshtml" />
     <Content Include="Areas\Commission\Views\FibrePlus\AgentSummary.cshtml" />
     <Content Include="Areas\Commission\Views\SpeedPlus\AgentSummary.cshtml" />
+    <Content Include="Areas\Commission\Views\ADSL\Index.cshtml" />
     <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />

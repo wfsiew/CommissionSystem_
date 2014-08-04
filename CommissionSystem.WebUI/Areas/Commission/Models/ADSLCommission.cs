@@ -29,8 +29,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         public void SetCommission()
         {
-            decimal comm = 0;
-
             try
             {
                 SettingFactory sf = SettingFactory.Instance;
@@ -65,7 +63,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         }
                     }
 
-                    if (a.IsInternal)
+                    if (a.IsInternalData)
                     {
                         a.DirectCommission = sf.ADSLInternalSetting.GetDirectCommission(a.Amount);
                         a.CommissionRate = sf.ADSLInternalSetting.Commission;
