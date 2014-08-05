@@ -71,16 +71,8 @@
             utils.unblockUI();
             if (data.success == 1) {
                 $scope.result = data;
-                $scope.commission = data.commission;
-                $scope.commissionrate = data.commissionrate;
-                $scope.tiercommissionrate = data.tiercommissionrate;
-                $scope.agentlevels = data.agentlevels;
-                $scope.agentlist = data.agentlist;
-                $scope.groups = {};
-
-                _.each($scope.agentlevels, function (i) {
-                    $scope.groups[i] = _.groupBy($scope.agentlist[i], 'AgentTeam');
-                });
+                $scope.agentviewlist = data.agentviewlist;
+                $scope.commissionviewdic = data.commissionviewdic;
             }
 
             else

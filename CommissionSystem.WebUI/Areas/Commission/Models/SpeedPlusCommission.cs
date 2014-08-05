@@ -507,7 +507,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select custid, name, customertype from customer where customertype in (2, 3) and status = 1 and agentid = @agentid");
+                sb.Append("select custid, name, customertype from customer where customertype in (2, 3) and status = 1 and agentid = @agentid ")
+                    .Append("order by name");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);

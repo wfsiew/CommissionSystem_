@@ -21,6 +21,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public DateTime DateTo { get; set; }
         public List<Agent> AgentList { get; set; }
         public Dictionary<int, List<Agent>> AgentDic { get; set; }
+        public Dictionary<string, List<CommissionView>> CommissionViewDic { get; set; }
+        public List<AgentView> AgentViewList { get; set; }
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -33,15 +35,18 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         {
             decimal comm = 0;
             double rate = 0;
+            string agentid = null;
+            string bagentid = null;
 
             try
             {
-                Dictionary<int, List<CommissionView>> cv = new Dictionary<int, List<CommissionView>>();
-                Dictionary<int, AgentView> av = new Dictionary<int, AgentView>();
+                Dictionary<string, List<CommissionView>> cv = new Dictionary<string, List<CommissionView>>();
+                Dictionary<string, AgentView> av = new Dictionary<string, AgentView>();
                 List<int> levels = AgentDic.Keys.ToList();
                 levels.Reverse();
                 SettingFactory sf = SettingFactory.Instance;
                 Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
+                Dictionary<int, int> numCustDic = new Dictionary<int, int>();
 
                 for (int i = 0; i < levels.Count; i++)
                 {
@@ -52,8 +57,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         Agent a = l[j];
                         Agent b = a.ParentAgent;
                         AgentID = a.AgentID;
-                        cv[a.AgentID] = new List<CommissionView>();
-                        av[a.AgentID] = GetAgentInfo(a);
+                        agentid = a.AgentID.ToString();
+
+                        if (!cv.ContainsKey(agentid))
+                            cv[agentid] = new List<CommissionView>();
+
+                        if (!av.ContainsKey(agentid))
+                            av[agentid] = GetAgentInfo(a);
+
                         Dictionary<int, Customer> customerDic = GetCustomers();
                         List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
          
@@ -68,6 +79,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                             CommissionView v = new CommissionView();
                             v.Customer = customer;
+                            cv[agentid].Add(v);
 
                             foreach (CustomerBillingInfo bi in ebi)
                             {
@@ -80,20 +92,84 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                     if (a.IsInternal)
                                     {
-                                        v.Commission = sf.FibrePlusInternalSetting.GetDirectCommission(amount);
                                         v.CommissionRate = sf.FibrePlusInternalSetting.Commission;
-                                        v.SettlementAmount = amount;
-                                        cv[a.AgentID].Add(v);
+                                        v.SettlementAmount += amount;
 
-                                        if (b != null && b.Level > 0)
-                                        {
-                                            if (cv[b.AgentID] == null)
-                                                cv[b.AgentID] = new List<CommissionView>();
-
-                                            CommissionView bv = new CommissionView();
-                                            bv.Commission
-                                        }
+                                        av[agentid].TotalSettlement += v.SettlementAmount;
                                     }
+
+                                    else
+                                    {
+                                        if (!numCustDic.ContainsKey(a.AgentID))
+                                            numCustDic[a.AgentID] = GetNumOfCustomers();
+
+                                        int numOfCustomers = numCustDic[a.AgentID];
+                                        int type = FibrePlusExternal.GetCommissionType(numOfCustomers);
+                                        v.CommissionRate = sf.FibrePlusExternalSetting[type].Commission;
+                                        v.SettlementAmount += amount;
+
+                                        av[agentid].TotalSettlement += v.SettlementAmount;
+                                    }
+                                }
+                            }
+
+                            if (a.IsInternal)
+                            {
+                                v.Commission = sf.FibrePlusInternalSetting.GetDirectCommission(v.SettlementAmount);
+                                av[agentid].TotalCommission += v.Commission;
+
+                                if (b != null && b.Level > 0)
+                                {
+                                    bagentid = b.AgentID.ToString();
+
+                                    if (!cv.ContainsKey(bagentid))
+                                        cv[bagentid] = new List<CommissionView>();
+
+                                    CommissionView bv = new CommissionView();
+                                    bv.Customer = customer;
+                                    bv.Commission = sf.FibrePlusInternalSetting.GetCommission(v.SettlementAmount, b.AgentType);
+                                    bv.CommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    bv.SettlementAmount += v.SettlementAmount;
+                                    cv[bagentid].Add(bv);
+
+                                    if (!av.ContainsKey(bagentid))
+                                        av[bagentid] = GetAgentInfo(b);
+
+                                    av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                    av[bagentid].TotalCommission += bv.Commission;
+                                }
+                            }
+
+                            else
+                            {
+                                if (!numCustDic.ContainsKey(a.AgentID))
+                                    numCustDic[a.AgentID] = GetNumOfCustomers();
+
+                                int numOfCustomers = numCustDic[a.AgentID];
+                                int type = FibrePlusExternal.GetCommissionType(numOfCustomers);
+                                v.Commission = sf.FibrePlusExternalSetting[type].GetDirectCommission(v.SettlementAmount);
+                                av[agentid].TotalCommission += v.Commission;
+
+                                if (b != null && b.Level > 0)
+                                {
+                                    bagentid = b.AgentID.ToString();
+
+                                    if (!cv.ContainsKey(bagentid))
+                                        cv[bagentid] = new List<CommissionView>();
+
+                                    CommissionView bv = new CommissionView();
+                                    type = FibrePlusExternal.GetCommissionType(numOfCustomers);
+                                    bv.Customer = customer;
+                                    bv.Commission = sf.FibrePlusExternalSetting[type].GetCommission(v.SettlementAmount, b.AgentType);
+                                    bv.CommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    bv.SettlementAmount += v.SettlementAmount;
+                                    cv[bagentid].Add(bv);
+
+                                    if (!av.ContainsKey(bagentid))
+                                        av[bagentid] = GetAgentInfo(b);
+
+                                    av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                    av[bagentid].TotalCommission += bv.Commission;
                                 }
                             }
                         }
@@ -135,8 +211,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             a.CommissionRate = sf.FibrePlusExternalSetting[type].Commission;
                             if (b != null && b.Level > 0)
                             {
-                                AgentID = b.AgentID;
-                                numOfCustomers = GetNumOfCustomers();
                                 type = FibrePlusExternal.GetCommissionType(numOfCustomers);
                                 comm = sf.FibrePlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
                                 rate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
@@ -160,10 +234,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 //}
                             }
                         }
-
-                        cv[a.AgentID].Add(v)
                     }
                 }
+
+                CommissionViewDic = cv;
+                AgentViewList = av.Values.OrderBy(x => x.AgentName).ToList();
             }
 
             catch (Exception e)
@@ -534,7 +609,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select custid, name, customertype from customer where customertype = 1 and status = 1 and agentid = @agentid");
+                sb.Append("select custid, name, customertype from customer where customertype = 1 and status = 1 and agentid = @agentid ")
+                    .Append("order by name");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);

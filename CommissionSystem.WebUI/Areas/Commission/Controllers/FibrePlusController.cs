@@ -98,42 +98,60 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 o.DateTo = req.DateTo.AddDays(1);
                 o.SetCommission();
 
+                Dictionary<string, List<CommissionView>> commviewDic = new Dictionary<string,List<CommissionView>>();
+                List<AgentView> agentviewList = new List<AgentView>();
 
-
-                Agent a = l.First();
-                
-                Dictionary<string, object> m = new Dictionary<string, object>();
-                List<int> lk = dic.Keys.ToList();
-                lk.Sort();
-                for (int i = 0; i < lk.Count; i++)
+                if (req.AgentID != 0)
                 {
-                    List<Agent> la = dic[lk[i]];
-                    object v = la.Select(x => new
-                    {
-                        AgentID = x.AgentID,
-                        AgentName = x.AgentName,
-                        AgentTeam = x.AgentTeam,
-                        AgentType = x.AgentType,
-                        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
-                        AgentTeamType = x.ParentAgent == null ? "" : x.ParentAgent.AgentType,
-                        Amount = x.Amount,
-                        CommissionRate = x.CommissionRate,
-                        TierCommissionRate = x.TierCommissionRate,
-                        TotalCommission = x.TotalCommission,
-                        CustomerList = x.CustomerList
-                    });
-                    m[lk[i].ToString()] = v;
+                    var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
+                    commviewDic[k.Key] = k.Value;
+                    agentviewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
                 }
 
-                List<string> ls = m.Keys.ToList();
-                ls.Sort();
+                else
+                {
+                    commviewDic = o.CommissionViewDic;
+                    agentviewList = o.AgentViewList;
+                }
 
                 r["success"] = 1;
-                r["commission"] = a.TotalCommission;
-                r["commissionrate"] = a.CommissionRate;
-                r["tiercommissionrate"] = a.TierCommissionRate;
-                r["agentlevels"] = ls;
-                r["agentlist"] = m;
+                r["commissionviewdic"] = commviewDic;
+                r["agentviewlist"] = agentviewList;
+
+                //Agent a = l.First();
+                
+                //Dictionary<string, object> m = new Dictionary<string, object>();
+                //List<int> lk = dic.Keys.ToList();
+                //lk.Sort();
+                //for (int i = 0; i < lk.Count; i++)
+                //{
+                //    List<Agent> la = dic[lk[i]];
+                //    object v = la.Select(x => new
+                //    {
+                //        AgentID = x.AgentID,
+                //        AgentName = x.AgentName,
+                //        AgentTeam = x.AgentTeam,
+                //        AgentType = x.AgentType,
+                //        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
+                //        AgentTeamType = x.ParentAgent == null ? "" : x.ParentAgent.AgentType,
+                //        Amount = x.Amount,
+                //        CommissionRate = x.CommissionRate,
+                //        TierCommissionRate = x.TierCommissionRate,
+                //        TotalCommission = x.TotalCommission,
+                //        CustomerList = x.CustomerList
+                //    });
+                //    m[lk[i].ToString()] = v;
+                //}
+
+                //List<string> ls = m.Keys.ToList();
+                //ls.Sort();
+
+                //r["success"] = 1;
+                //r["commission"] = a.TotalCommission;
+                //r["commissionrate"] = a.CommissionRate;
+                //r["tiercommissionrate"] = a.TierCommissionRate;
+                //r["agentlevels"] = ls;
+                //r["agentlist"] = m;
             }
 
             catch (Exception e)
