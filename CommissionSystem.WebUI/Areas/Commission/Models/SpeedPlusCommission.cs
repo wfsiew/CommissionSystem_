@@ -79,22 +79,26 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             a.CommissionRate = sf.SpeedPlusInternalSetting.Commission;
                             if (b != null && b.Level > 0)
                             {
-                                if (b.IsInternal)
-                                {
-                                    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
-                                    b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
-                                }
+                                comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
+                                b.AddToSubCommission(comm);
+                                b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
 
-                                else
-                                {
-                                    AgentID = b.AgentID;
-                                    int numOfCustomers = GetNumOfCustomers();
-                                    int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
-                                    b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
-                                }
+                                //if (b.IsInternal)
+                                //{
+                                //    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
+                                //    b.AddToSubCommission(comm);
+                                //    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                //}
+
+                                //else
+                                //{
+                                //    AgentID = b.AgentID;
+                                //    int numOfCustomers = GetNumOfCustomers();
+                                //    int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                                //    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
+                                //    b.AddToSubCommission(comm);
+                                //    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                //}
                             }
                         }
 
@@ -106,22 +110,29 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             a.CommissionRate = sf.SpeedPlusExternalSetting[type].Commission;
                             if (b != null && b.Level > 0)
                             {
-                                if (b.IsInternal)
-                                {
-                                    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
-                                    b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
-                                }
+                                AgentID = b.AgentID;
+                                numOfCustomers = GetNumOfCustomers();
+                                type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                                comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
+                                b.AddToSubCommission(comm);
+                                b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
 
-                                else
-                                {
-                                    AgentID = b.AgentID;
-                                    numOfCustomers = GetNumOfCustomers();
-                                    type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
-                                    b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
-                                }
+                                //if (b.IsInternal)
+                                //{
+                                //    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
+                                //    b.AddToSubCommission(comm);
+                                //    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                //}
+
+                                //else
+                                //{
+                                //    AgentID = b.AgentID;
+                                //    numOfCustomers = GetNumOfCustomers();
+                                //    type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                                //    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
+                                //    b.AddToSubCommission(comm);
+                                //    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                //}
                             }
                         }
                     }
@@ -328,6 +339,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         if (first)
                         {
                             first = false;
+
+                            if (!string.IsNullOrEmpty(productType.Description) &&
+                                productType.Description.IndexOf("Rebate", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                amt = productType.InitialAmount * -1;
+                                break;
+                            }
 
                             if (o.Amount >= productType.InitialAmount)
                             {

@@ -111,6 +111,10 @@ namespace CommissionSystem.Domain.Models
             else if ("SM".Equals(agentType, StringComparison.OrdinalIgnoreCase))
                 a = Tier2;
 
+            else if ("SE".Equals(agentType, StringComparison.OrdinalIgnoreCase) ||
+                "NSE".Equals(agentType, StringComparison.OrdinalIgnoreCase))
+                a = Tier1;
+
             else
                 a = Commission;
 

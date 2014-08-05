@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "Fibre+";
+}
+
+<div ng-controller="FibrePlusCtrl" ng-init="init()">
+    <form name="form" class="form-horizontal well" role="form">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Agent</label>
+            <div class="col-sm-9">
+                <select id="agentID" name="agentID" style="width:80%"
+                        ng-model="agentID"
+                        ng-required="true"
+                        ui-select2
+                        data-placeholder="Please select">
+                    <option value=""></option>
+                    <option value="0">All</option>
+                    <option ng-repeat="o in agents" value="{{o.AgentID}}">{{o.AgentID}} ({{o.AgentType}}): {{o.AgentName}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Date From</label>
+            <div class="col-sm-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="dateFrom" datepicker-popup="yyyy-MM-dd" is-open="openedDateFrom" ng-required="true" />
+                    <span class="input-group-btn">
+                        <button class="btn" ng-click="openDateFrom($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Date To</label>
+            <div class="col-sm-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="dateTo" datepicker-popup="yyyy-MM-dd" is-open="openedDateTo" ng-required="true" />
+                    <span class="input-group-btn">
+                        <button class="btn" ng-click="openDateTo($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button class="btn btn-primary" ng-click="showCommission()" ng-disabled="form.$invalid">Show Commission</button>
+            </div>
+        </div>
+    </form>
+
+    @*<div ng-repeat="o in agentlevels" ng-show="result != null">
+        <table class="table table-condensed table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Agent ID</th>
+                    <th>Agent Name</th>
+                    <th>Agent Type</th>
+                    <th>Agent Team</th>
+                    <th>Commission</th>
+                    <th>Commission %</th>
+                    <th>Tier Commission %</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in agentlist[o]">
+                    <td>{{x.AgentID}}</td>
+                    <td>{{x.AgentName}}</td>
+                    <td>{{x.AgentType}}</td>
+                    <td>{{x.AgentTeam}} {{x.AgentTeamName}}</td>
+                    <td>{{x.TotalCommission | currency}}</td>
+                    <td>{{x.CommissionRate * 100}}</td>
+                    <td>{{x.TierCommissionRate * 100}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>*@
+
+    @*<div ng-repeat="i in agentlevels" ng-show="result != null">
+        <div ng-repeat="(agentteam, agents) in groups[i]">
+            <h4>{{getAgentDisplay(agentteam, i)}}</h4>
+            <ul class="list-group">
+                <li ng-repeat="a in agents" ng-class="getCssRow(a)">
+                    {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
+                    Commission: {{a.TotalCommission | currency:''}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
+                </li>
+            </ul>
+        </div>
+    </div>*@
+
+    <div ng-repeat="i in agentlevels" ng-show="result != null">
+        <div ng-repeat="(agentteam, agents) in groups[i]" class="panel panel-primary">
+            <div class="panel-heading" ng-click="open('lg')">
+                <span class="badge pull-right" ng-hide="i == '0'">{{groups[i][agentteam].length}}</span>
+                {{getAgentDisplay(agentteam, i)}}
+            </div>
+            <ul class="list-group">
+                <li ng-repeat="a in agents" class="list-group-item">
+                    {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
+                    <div>
+                        Commission: {{a.TotalCommission | currency:'RM'}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
+                    </div>
+                    <div>
+                        Total Amount: {{a.Amount | currency:'RM'}}
+                    </div>
+                    <ul class="list-group" ng-show="a.CustomerList.length > 0">
+                        <li ng-repeat="c in a.CustomerList" class="list-group-item">
+                            {{$index + 1}}. {{c.CustID}} {{c.Name}}
+                            <table class="table table-condensed table-bordered" ng-show="c.SettlementList.length > 0">
+                                <tbody>
+                                    <tr ng-repeat="b in c.BillingInfoList">
+                                        <td>{{b.ProductType.Description}}</td>
+                                        <td class="tdRight">{{b.ProductType.InitialAmount | currency:'RM'}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="~/Areas/Commission/js/fibreplus/controller.js"></script>

@@ -133,6 +133,8 @@
     <Compile Include="Areas\Commission\Controllers\SpeedPlusController.cs" />
     <Compile Include="Areas\Commission\Models\ADSLCommission.cs" />
     <Compile Include="Areas\Commission\Models\Agent.cs" />
+    <Compile Include="Areas\Commission\Models\AgentView.cs" />
+    <Compile Include="Areas\Commission\Models\CommissionView.cs" />
     <Compile Include="Areas\Commission\Models\Customer.cs" />
     <Compile Include="Areas\Commission\Models\CustomerBillingInfo.cs" />
     <Compile Include="Areas\Commission\Models\CustomerSettlement.cs" />
@@ -237,6 +239,7 @@
     <Content Include="Areas\Commission\Views\FibrePlus\AgentSummary.cshtml" />
     <Content Include="Areas\Commission\Views\SpeedPlus\AgentSummary.cshtml" />
     <Content Include="Areas\Commission\Views\ADSL\Index.cshtml" />
+    <Content Include="Areas\Commission\Views\FibrePlus\Index2.cshtml" />
     <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />

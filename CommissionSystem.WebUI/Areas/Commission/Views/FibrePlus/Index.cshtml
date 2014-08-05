@@ -47,44 +47,7 @@
         </div>
     </form>
 
-    @*<div ng-repeat="o in agentlevels" ng-show="result != null">
-        <table class="table table-condensed table-hover table-striped">
-            <thead>
-                <tr>
-                    <th>Agent ID</th>
-                    <th>Agent Name</th>
-                    <th>Agent Type</th>
-                    <th>Agent Team</th>
-                    <th>Commission</th>
-                    <th>Commission %</th>
-                    <th>Tier Commission %</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in agentlist[o]">
-                    <td>{{x.AgentID}}</td>
-                    <td>{{x.AgentName}}</td>
-                    <td>{{x.AgentType}}</td>
-                    <td>{{x.AgentTeam}} {{x.AgentTeamName}}</td>
-                    <td>{{x.TotalCommission | currency}}</td>
-                    <td>{{x.CommissionRate * 100}}</td>
-                    <td>{{x.TierCommissionRate * 100}}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>*@
 
-    @*<div ng-repeat="i in agentlevels" ng-show="result != null">
-        <div ng-repeat="(agentteam, agents) in groups[i]">
-            <h4>{{getAgentDisplay(agentteam, i)}}</h4>
-            <ul class="list-group">
-                <li ng-repeat="a in agents" ng-class="getCssRow(a)">
-                    {{a.AgentID}} ({{a.AgentType}}): {{a.AgentName}}
-                    Commission: {{a.TotalCommission | currency:''}} ({{a.CommissionRate * 100}} %) (Tier %: {{a.TierCommissionRate * 100}} %)
-                </li>
-            </ul>
-        </div>
-    </div>*@
 
     <div ng-repeat="i in agentlevels" ng-show="result != null">
         <div ng-repeat="(agentteam, agents) in groups[i]" class="panel panel-primary">

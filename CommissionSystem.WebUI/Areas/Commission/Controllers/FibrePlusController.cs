@@ -98,6 +98,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 o.DateTo = req.DateTo.AddDays(1);
                 o.SetCommission();
 
+
+
                 Agent a = l.First();
                 
                 Dictionary<string, object> m = new Dictionary<string, object>();
