@@ -5,11 +5,18 @@ using System.Web;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
+    public class Attachment
+    {
+        public string Filename { get; set; }
+        public byte[] Data { get; set; }
+    }
+
     public class EmailInfo
     {
         private IEnumerable<string> toList;
         private IEnumerable<string> ccList;
         private IEnumerable<string> bccList;
+        private IEnumerable<Attachment> attList;
 
         public string DisplayName { get; set; }
         public string Subject { get; set; }
@@ -59,6 +66,22 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             set
             {
                 bccList = value;
+            }
+        }
+
+        public IEnumerable<Attachment> AttList
+        {
+            get
+            {
+                if (attList == null)
+                    attList = new List<Attachment>();
+
+                return attList;
+            }
+
+            set
+            {
+                attList = value;
             }
         }
     }

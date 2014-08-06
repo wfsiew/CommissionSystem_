@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Globalization;
+using OfficeOpenXml;
 
 namespace CommissionSystem.WebUI.Helpers
 {
@@ -94,6 +95,17 @@ namespace CommissionSystem.WebUI.Helpers
                 return k;
 
             return p;
+        }
+
+        public static ExcelWorksheet CreateSheet(ExcelPackage p, string sheetName, int idx)
+        {
+            p.Workbook.Worksheets.Add(sheetName);
+            ExcelWorksheet ws = p.Workbook.Worksheets[idx];
+            ws.Name = sheetName;
+            ws.Cells.Style.Font.Size = 11; //Default font size for whole sheet
+            ws.Cells.Style.Font.Name = "Calibri"; //Default Font name for whole sheet
+
+            return ws;
         }
     }
 }

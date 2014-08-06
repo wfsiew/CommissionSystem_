@@ -18,6 +18,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 To.Add(email);
             }
 
+            foreach (Attachment att in mail.AttList)
+            {
+                Attachments.Add(att.Filename, att.Data);
+            }
+
             From = string.Format("{0} {1}", mail.DisplayName, Constants.MAIL_SENDER);
             Subject = mail.Subject;
 

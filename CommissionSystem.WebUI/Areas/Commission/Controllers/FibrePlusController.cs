@@ -9,6 +9,7 @@ using System.Data.SqlClient;
 using CommissionSystem.WebUI.Models;
 using CommissionSystem.WebUI.Areas.Commission.Models;
 using CommissionSystem.WebUI.Helpers;
+using OfficeOpenXml;
 using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Controllers
@@ -198,6 +199,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 ViewData["DateFrom"] = Utils.FormatDateTime(req.DateFrom);
                 ViewData["DateTo"] = Utils.FormatDateTime(req.DateTo);
 
+                Attachment att = GetCommissionResultData(c, req.DateFrom, req.DateTo);
+
+                if (att != null)
+                    emailInfo.AttList = new List<Attachment> { att };
+
                 new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData).DeliverAsync();
 
                 r["success"] = 1;
@@ -223,6 +229,129 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         {
             List<Agent> l = GetAgents();
             return Json(l, JsonRequestBehavior.AllowGet);
+        }
+
+        private Attachment GetCommissionResultData(CommissionResult c, DateTime dateFrom, DateTime dateTo)
+        {
+            ExcelPackage pk = null;
+            Attachment att = null;
+
+            try
+            {
+                pk = new ExcelPackage();
+                ExcelWorksheet ws = Utils.CreateSheet(pk, "Commission", 1);
+                int row = 1;
+                int col = 1;
+                int z = 1;
+
+                foreach (AgentView a in c.AgentViewList)
+                {
+                    string r = string.Format("A{0}:D{0}", z++);
+                    ws.Cells[r].Merge = true;
+                    r = string.Format("A{0}:D{0}", z++);
+                    ws.Cells[r].Merge = true;
+                    r = string.Format("A{0}:D{0}", z++);
+                    ws.Cells[r].Merge = true;
+
+                    row = z - 3;
+                    col = 1;
+
+                    ws.Cells[row++, col].Value = string.Format("Commission Period: {0} - {1}", 
+                        Utils.FormatDateTime(dateFrom), Utils.FormatDateTime(dateTo));
+                    ws.Cells[row++, col].Value = string.Format("Agent: {0} ({1}): {2}", a.AgentID, a.AgentType, a.AgentName);
+                    ws.Cells[row++, col].Value = string.Format("Total Commission Payable: {0}", Utils.FormatCurrency(a.TotalCommission));
+
+                    ++row;
+
+                    if (c.CommissionViewDic[a.AgentID.ToString()].Count < 1)
+                    {
+                        z = row + 3;
+                        continue;
+                    }
+
+                    ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                    ws.Cells[row, col++].Value = "No.";
+                    ws.Cells[row, col++].Value = "CustID";
+                    ws.Cells[row, col++].Value = "Name";
+                    ws.Cells[row, col++].Value = "Desc";
+                    ws.Cells[row, col].Style.WrapText = false;
+                    ws.Cells[row, col++].Value = "Settlement Date";
+                    ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                    ws.Cells[row, col++].Value = "Settlement Amount";
+                    ws.Cells[row, col++].Value = "Comm Rate";
+                    ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                    ws.Cells[row, col++].Value = "Comm Amount";
+
+                    ++row;
+
+                    for (int i = 0; i < c.CommissionViewDic[a.AgentID.ToString()].Count; i++)
+                    {
+                        col = 1;
+
+                        CommissionView k = c.CommissionViewDic[a.AgentID.ToString()][i];
+                        ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, col++].Value = string.Format("{0}.", i + 1);
+
+                        ws.Cells[row, col].Style.Numberformat.Format = "0";
+                        ws.Cells[row, col++].Value = k.Customer.CustID;
+
+                        ws.Cells[row, col++].Value = k.Customer.Name;
+
+                        int j = row;
+
+                        foreach (CustomerBillingInfo bi in k.Customer.BillingInfoList)
+                        {
+                            ws.Cells[row++, col].Value = string.Format("{0} ({1})", bi.ProductType.Description, 
+                                Utils.FormatCurrency(bi.ProductType.InitialAmount));
+                        }
+
+                        if (row > j)
+                            --row;
+
+                        ++col;
+
+                        if (k.Customer.SettlementList.Count > 0)
+                        {
+                            ws.Cells[row, col].Style.WrapText = false;
+                            ws.Cells[row, col++].Value = Utils.FormatDateTime(k.Customer.SettlementList.First().RealDate);
+                        }
+
+                        else
+                            col++;
+
+                        ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, col++].Value = Utils.FormatCurrency(k.SettlementAmount);
+                        ws.Cells[row, col++].Value = string.Format("(T x {0})", k.CommissionRate);
+                        ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, col++].Value = Utils.FormatCurrency(k.Commission);
+
+                        ++row;
+                    }
+
+                    z = row + 3;
+                }
+
+                for (int i = 1; i <= 8; i++)
+                    ws.Column(i).AutoFit();
+
+                att = new Attachment();
+                att.Data = pk.GetAsByteArray();
+                att.Filename = string.Format("CommissionResult.xlsx");
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (pk != null)
+                    pk.Dispose();
+            }
+
+            return att;
         }
 
         private void GetTopLevelAgents(List<Agent> l, Dictionary<int, List<Agent>> dic)
