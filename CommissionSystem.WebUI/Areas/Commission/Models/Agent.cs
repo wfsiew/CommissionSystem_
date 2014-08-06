@@ -53,6 +53,18 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
         }
 
+        public AgentView GetAgentInfo()
+        {
+            AgentView o = new AgentView();
+            o.AgentID = AgentID;
+            o.AgentLevel = AgentLevel;
+            o.AgentName = AgentName;
+            o.AgentTeam = AgentTeam;
+            o.AgentType = AgentType;
+
+            return o;
+        }
+
         public bool IsInternal
         {
             get

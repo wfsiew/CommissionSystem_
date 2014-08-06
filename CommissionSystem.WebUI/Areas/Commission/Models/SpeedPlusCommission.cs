@@ -21,6 +21,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public DateTime DateTo { get; set; }
         public List<Agent> AgentList { get; set; }
         public Dictionary<int, List<Agent>> AgentDic { get; set; }
+        public Dictionary<string, List<CommissionView>> CommissionViewDic { get; set; }
+        public List<AgentView> AgentViewList { get; set; }
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -31,14 +33,18 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         public void SetCommission()
         {
-            decimal comm = 0;
+            string agentid = null;
+            string bagentid = null;
 
             try
             {
+                Dictionary<string, List<CommissionView>> cv = new Dictionary<string, List<CommissionView>>();
+                Dictionary<string, AgentView> av = new Dictionary<string, AgentView>();
                 List<int> levels = AgentDic.Keys.ToList();
                 levels.Reverse();
                 SettingFactory sf = SettingFactory.Instance;
                 Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
+                Dictionary<int, int> numCustDic = new Dictionary<int, int>();
 
                 for (int i = 0; i < levels.Count; i++)
                 {
@@ -49,6 +55,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         Agent a = l[j];
                         Agent b = a.ParentAgent;
                         AgentID = a.AgentID;
+                        agentid = a.AgentID.ToString();
+
+                        if (!cv.ContainsKey(agentid))
+                            cv[agentid] = new List<CommissionView>();
+
+                        if (!av.ContainsKey(agentid))
+                            av[agentid] = a.GetAgentInfo();
+
                         Dictionary<int, Customer> customerDic = GetCustomers();
                         List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
 
@@ -61,6 +75,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             customer.BillingInfoList = ebi;
                             a.AddCustomer(customer);
 
+                            CommissionView v = new CommissionView();
+                            v.Customer = customer;
+                            cv[agentid].Add(v);
+
                             foreach (CustomerBillingInfo bi in ebi)
                             {
                                 if (productTypeDic.ContainsKey(bi.ProductID))
@@ -69,74 +87,158 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     bi.ProductType = productType;
                                     decimal amount = GetCustomerSettlementAmount(customer, productType);
                                     a.Amount += amount;
+
+                                    if (a.IsInternal)
+                                    {
+                                        v.CommissionRate = sf.SpeedPlusInternalSetting.Commission;
+                                        v.SettlementAmount += amount;
+
+                                        av[agentid].TotalSettlement += v.SettlementAmount;
+                                    }
+
+                                    else
+                                    {
+                                        if (!numCustDic.ContainsKey(a.AgentID))
+                                            numCustDic[a.AgentID] = GetNumOfCustomers();
+
+                                        int numOfCustomers = numCustDic[a.AgentID];
+                                        int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                                        v.CommissionRate = sf.SpeedPlusExternalSetting[type].Commission;
+                                        v.SettlementAmount += amount;
+
+                                        av[agentid].TotalSettlement += v.SettlementAmount;
+                                    }
+                                }
+                            }
+
+                            if (a.IsInternal)
+                            {
+                                v.Commission = sf.SpeedPlusInternalSetting.GetDirectCommission(v.SettlementAmount);
+                                av[agentid].TotalCommission += v.Commission;
+
+                                if (b != null && b.Level > 0)
+                                {
+                                    bagentid = b.AgentID.ToString();
+
+                                    if (!cv.ContainsKey(bagentid))
+                                        cv[bagentid] = new List<CommissionView>();
+
+                                    CommissionView bv = new CommissionView();
+                                    bv.Customer = customer;
+                                    bv.Commission = sf.SpeedPlusInternalSetting.GetCommission(v.SettlementAmount, b.AgentType);
+                                    bv.CommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    bv.SettlementAmount += v.SettlementAmount;
+                                    cv[bagentid].Add(bv);
+
+                                    if (!av.ContainsKey(bagentid))
+                                        av[bagentid] = b.GetAgentInfo();
+
+                                    av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                    av[bagentid].TotalCommission += bv.Commission;
+                                }
+                            }
+
+                            else
+                            {
+                                if (!numCustDic.ContainsKey(a.AgentID))
+                                    numCustDic[a.AgentID] = GetNumOfCustomers();
+
+                                int numOfCustomers = numCustDic[a.AgentID];
+                                int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                                v.Commission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(v.SettlementAmount);
+                                av[agentid].TotalCommission += v.Commission;
+
+                                if (b != null && b.Level > 0)
+                                {
+                                    bagentid = b.AgentID.ToString();
+
+                                    if (!cv.ContainsKey(bagentid))
+                                        cv[bagentid] = new List<CommissionView>();
+
+                                    CommissionView bv = new CommissionView();
+                                    type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                                    bv.Customer = customer;
+                                    bv.Commission = sf.SpeedPlusExternalSetting[type].GetCommission(v.SettlementAmount, b.AgentType);
+                                    bv.CommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    bv.SettlementAmount += v.SettlementAmount;
+                                    cv[bagentid].Add(bv);
+
+                                    if (!av.ContainsKey(bagentid))
+                                        av[bagentid] = b.GetAgentInfo();
+
+                                    av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                    av[bagentid].TotalCommission += bv.Commission;
                                 }
                             }
                         }
 
-                        if (a.IsInternal)
-                        {
-                            a.DirectCommission = sf.SpeedPlusInternalSetting.GetDirectCommission(a.Amount);
-                            a.CommissionRate = sf.SpeedPlusInternalSetting.Commission;
-                            if (b != null && b.Level > 0)
-                            {
-                                comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
-                                b.AddToSubCommission(comm);
-                                b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                        //if (a.IsInternal)
+                        //{
+                        //    a.DirectCommission = sf.SpeedPlusInternalSetting.GetDirectCommission(a.Amount);
+                        //    a.CommissionRate = sf.SpeedPlusInternalSetting.Commission;
+                        //    if (b != null && b.Level > 0)
+                        //    {
+                        //        comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
+                        //        b.AddToSubCommission(comm);
+                        //        b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
 
-                                //if (b.IsInternal)
-                                //{
-                                //    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
-                                //    b.AddToSubCommission(comm);
-                                //    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
-                                //}
+                        //        //if (b.IsInternal)
+                        //        //{
+                        //        //    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
+                        //        //    b.AddToSubCommission(comm);
+                        //        //    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                        //        //}
 
-                                //else
-                                //{
-                                //    AgentID = b.AgentID;
-                                //    int numOfCustomers = GetNumOfCustomers();
-                                //    int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                //    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
-                                //    b.AddToSubCommission(comm);
-                                //    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
-                                //}
-                            }
-                        }
+                        //        //else
+                        //        //{
+                        //        //    AgentID = b.AgentID;
+                        //        //    int numOfCustomers = GetNumOfCustomers();
+                        //        //    int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                        //        //    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
+                        //        //    b.AddToSubCommission(comm);
+                        //        //    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                        //        //}
+                        //    }
+                        //}
 
-                        else
-                        {
-                            int numOfCustomers = GetNumOfCustomers();
-                            int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                            a.DirectCommission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(a.Amount);
-                            a.CommissionRate = sf.SpeedPlusExternalSetting[type].Commission;
-                            if (b != null && b.Level > 0)
-                            {
-                                AgentID = b.AgentID;
-                                numOfCustomers = GetNumOfCustomers();
-                                type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
-                                b.AddToSubCommission(comm);
-                                b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                        //else
+                        //{
+                        //    int numOfCustomers = GetNumOfCustomers();
+                        //    int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                        //    a.DirectCommission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(a.Amount);
+                        //    a.CommissionRate = sf.SpeedPlusExternalSetting[type].Commission;
+                        //    if (b != null && b.Level > 0)
+                        //    {
+                        //        AgentID = b.AgentID;
+                        //        numOfCustomers = GetNumOfCustomers();
+                        //        type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                        //        comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
+                        //        b.AddToSubCommission(comm);
+                        //        b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
 
-                                //if (b.IsInternal)
-                                //{
-                                //    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
-                                //    b.AddToSubCommission(comm);
-                                //    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
-                                //}
+                        //        //if (b.IsInternal)
+                        //        //{
+                        //        //    comm = sf.SpeedPlusInternalSetting.GetCommission(a.Amount, b.AgentType);
+                        //        //    b.AddToSubCommission(comm);
+                        //        //    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                        //        //}
 
-                                //else
-                                //{
-                                //    AgentID = b.AgentID;
-                                //    numOfCustomers = GetNumOfCustomers();
-                                //    type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                //    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
-                                //    b.AddToSubCommission(comm);
-                                //    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
-                                //}
-                            }
-                        }
+                        //        //else
+                        //        //{
+                        //        //    AgentID = b.AgentID;
+                        //        //    numOfCustomers = GetNumOfCustomers();
+                        //        //    type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
+                        //        //    comm = sf.SpeedPlusExternalSetting[type].GetCommission(a.Amount, b.AgentType);
+                        //        //    b.AddToSubCommission(comm);
+                        //        //    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                        //        //}
+                        //    }
+                        //}
                     }
                 }
+
+                CommissionViewDic = cv;
+                AgentViewList = av.Values.OrderBy(x => x.AgentName).ToList();
             }
 
             catch (Exception e)
@@ -340,10 +442,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         {
                             first = false;
 
-                            if (!string.IsNullOrEmpty(productType.Description) &&
-                                productType.Description.IndexOf("Rebate", StringComparison.OrdinalIgnoreCase) >= 0)
+                            if (productType.IsRebate)
                             {
-                                amt = productType.InitialAmount * -1;
+                                amt = productType.InitialAmount;
                                 break;
                             }
 
@@ -424,6 +525,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.ProductID = rd.Get<int>("productid");
                     o.Description = rd.Get("description");
                     o.InitialAmount = rd.Get<decimal>("initialamount");
+
+                    if (o.IsRebate)
+                        o.InitialAmount *= -1;
 
                     dic[o.ProductID] = o;
                 }

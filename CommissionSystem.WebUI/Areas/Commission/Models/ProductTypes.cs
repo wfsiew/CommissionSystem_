@@ -10,5 +10,19 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public int ProductID { get; set; }
         public string Description { get; set; }
         public decimal InitialAmount { get; set; }
+
+        public bool IsRebate
+        {
+            get
+            {
+                bool a = false;
+
+                if (!string.IsNullOrEmpty(Description) &&
+                    Description.IndexOf("Rebate", StringComparison.OrdinalIgnoreCase) >= 0)
+                    a = true;
+
+                return a;
+            }
+        }
     }
 }

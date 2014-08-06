@@ -39,6 +39,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ActionMailer.Net">
+      <HintPath>..\packages\ActionMailer.0.7.4\lib\Net40\ActionMailer.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="ActionMailer.Net.Mvc">
+      <HintPath>..\packages\ActionMailer.0.7.4\lib\Net40\ActionMailer.Net.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
@@ -129,15 +135,18 @@
   <ItemGroup>
     <Compile Include="Areas\Commission\CommissionAreaRegistration.cs" />
     <Compile Include="Areas\Commission\Controllers\ADSLController.cs" />
+    <Compile Include="Areas\Commission\Controllers\CommissionMailController.cs" />
     <Compile Include="Areas\Commission\Controllers\FibrePlusController.cs" />
     <Compile Include="Areas\Commission\Controllers\SpeedPlusController.cs" />
     <Compile Include="Areas\Commission\Models\ADSLCommission.cs" />
     <Compile Include="Areas\Commission\Models\Agent.cs" />
     <Compile Include="Areas\Commission\Models\AgentView.cs" />
+    <Compile Include="Areas\Commission\Models\CommissionResult.cs" />
     <Compile Include="Areas\Commission\Models\CommissionView.cs" />
     <Compile Include="Areas\Commission\Models\Customer.cs" />
     <Compile Include="Areas\Commission\Models\CustomerBillingInfo.cs" />
     <Compile Include="Areas\Commission\Models\CustomerSettlement.cs" />
+    <Compile Include="Areas\Commission\Models\EmailInfo.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
     <Compile Include="Areas\Commission\Models\ProductTypes.cs" />
@@ -151,6 +160,7 @@
     <Compile Include="Helpers\DbHelper.cs" />
     <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Models\SettingFactory.cs" />
+    <Compile Include="Models\UIException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -234,12 +244,14 @@
     <Content Include="Areas\Commission\Views\FibrePlus\Index.cshtml" />
     <Content Include="Areas\Commission\Views\_ViewStart.cshtml" />
     <Content Include="Areas\Commission\Views\SpeedPlus\Index.cshtml" />
-    <Content Include="Areas\Commission\Views\Shared\_Settlement.cshtml" />
     <Content Include="Areas\Commission\Views\FibrePlus\AllAgents.cshtml" />
     <Content Include="Areas\Commission\Views\FibrePlus\AgentSummary.cshtml" />
     <Content Include="Areas\Commission\Views\SpeedPlus\AgentSummary.cshtml" />
     <Content Include="Areas\Commission\Views\ADSL\Index.cshtml" />
     <Content Include="Areas\Commission\Views\FibrePlus\Index2.cshtml" />
+    <Content Include="Areas\Commission\Views\CommissionMail\CommissionNotification.html.cshtml" />
+    <Content Include="Areas\Commission\Views\Shared\_CommissionResult.cshtml" />
+    <Content Include="Areas\Commission\Views\SpeedPlus\Index2.cshtml" />
     <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />

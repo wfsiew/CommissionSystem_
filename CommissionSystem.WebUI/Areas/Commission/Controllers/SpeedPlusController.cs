@@ -15,6 +15,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 {
     public class SpeedPlusController : Controller
     {
+        private const string COMMISSION_RESULT = "SPEED+_COMMISSION_RESULT";
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
         //
@@ -98,40 +99,59 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 o.DateTo = req.DateTo.AddDays(1);
                 o.SetCommission();
 
-                Agent a = l.First();
+                CommissionResult c = new CommissionResult();
 
-                Dictionary<string, object> m = new Dictionary<string, object>();
-                List<int> lk = dic.Keys.ToList();
-                lk.Sort();
-                for (int i = 0; i < lk.Count; i++)
+                if (req.AgentID != 0)
                 {
-                    List<Agent> la = dic[lk[i]];
-                    object v = la.Select(x => new
-                    {
-                        AgentID = x.AgentID,
-                        AgentName = x.AgentName,
-                        AgentTeam = x.AgentTeam,
-                        AgentType = x.AgentType,
-                        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
-                        AgentTeamType = x.ParentAgent == null ? "" : x.ParentAgent.AgentType,
-                        Amount = x.Amount,
-                        CommissionRate = x.CommissionRate,
-                        TierCommissionRate = x.TierCommissionRate,
-                        TotalCommission = x.TotalCommission,
-                        CustomerList = x.CustomerList
-                    });
-                    m[lk[i].ToString()] = v;
+                    var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
+                    c.CommissionViewDic[k.Key] = k.Value;
+                    c.AgentViewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
                 }
 
-                List<string> ls = m.Keys.ToList();
-                ls.Sort();
+                else
+                {
+                    c.CommissionViewDic = o.CommissionViewDic;
+                    c.AgentViewList = o.AgentViewList;
+                }
 
                 r["success"] = 1;
-                r["commission"] = a.TotalCommission;
-                r["commissionrate"] = a.CommissionRate;
-                r["tiercommissionrate"] = a.TierCommissionRate;
-                r["agentlevels"] = ls;
-                r["agentlist"] = m;
+                r["result"] = c;
+                Session[COMMISSION_RESULT] = c;
+
+                //Agent a = l.First();
+
+                //Dictionary<string, object> m = new Dictionary<string, object>();
+                //List<int> lk = dic.Keys.ToList();
+                //lk.Sort();
+                //for (int i = 0; i < lk.Count; i++)
+                //{
+                //    List<Agent> la = dic[lk[i]];
+                //    object v = la.Select(x => new
+                //    {
+                //        AgentID = x.AgentID,
+                //        AgentName = x.AgentName,
+                //        AgentTeam = x.AgentTeam,
+                //        AgentType = x.AgentType,
+                //        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
+                //        AgentTeamType = x.ParentAgent == null ? "" : x.ParentAgent.AgentType,
+                //        Amount = x.Amount,
+                //        CommissionRate = x.CommissionRate,
+                //        TierCommissionRate = x.TierCommissionRate,
+                //        TotalCommission = x.TotalCommission,
+                //        CustomerList = x.CustomerList
+                //    });
+                //    m[lk[i].ToString()] = v;
+                //}
+
+                //List<string> ls = m.Keys.ToList();
+                //ls.Sort();
+
+                //r["success"] = 1;
+                //r["commission"] = a.TotalCommission;
+                //r["commissionrate"] = a.CommissionRate;
+                //r["tiercommissionrate"] = a.TierCommissionRate;
+                //r["agentlevels"] = ls;
+                //r["agentlist"] = m;
             }
 
             catch (Exception e)
@@ -145,6 +165,55 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             {
                 if (o != null)
                     o.Dispose();
+            }
+
+            return Json(r, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult Mail(FibrePlusRequest req)
+        {
+            Dictionary<string, object> r = new Dictionary<string, object>();
+
+            try
+            {
+                List<string> l = new List<string>()
+                    {
+                        "siewwingfei@hotmail.com",
+                        "chinchin.lee@redtone.com"
+                    };
+
+                EmailInfo emailInfo = new EmailInfo
+                {
+                    ToList = l,
+                    DisplayName = "Speed+ Commission",
+                    Subject = "REDtone Speed+ Commission"
+                };
+
+                CommissionResult c = Session[COMMISSION_RESULT] as CommissionResult;
+
+                if (c == null)
+                    throw new UIException("There is no commission result");
+
+                ViewData["DateFrom"] = Utils.FormatDateTime(req.DateFrom);
+                ViewData["DateTo"] = Utils.FormatDateTime(req.DateTo);
+
+                new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData).DeliverAsync();
+
+                r["success"] = 1;
+            }
+
+            catch (UIException e)
+            {
+                r["error"] = 1;
+                r["message"] = e.Message;
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                r["error"] = 1;
+                r["message"] = e.StackTrace;
             }
 
             return Json(r, JsonRequestBehavior.AllowGet);

@@ -15,6 +15,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 {
     public class FibrePlusController : Controller
     {
+        private const string COMMISSION_RESULT = "FIBRE+_COMMISSION_RESULT";
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
         //
@@ -98,25 +99,24 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 o.DateTo = req.DateTo.AddDays(1);
                 o.SetCommission();
 
-                Dictionary<string, List<CommissionView>> commviewDic = new Dictionary<string,List<CommissionView>>();
-                List<AgentView> agentviewList = new List<AgentView>();
+                CommissionResult c = new CommissionResult();
 
                 if (req.AgentID != 0)
                 {
                     var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
-                    commviewDic[k.Key] = k.Value;
-                    agentviewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
+                    c.CommissionViewDic[k.Key] = k.Value;
+                    c.AgentViewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
                 }
 
                 else
                 {
-                    commviewDic = o.CommissionViewDic;
-                    agentviewList = o.AgentViewList;
+                    c.CommissionViewDic = o.CommissionViewDic;
+                    c.AgentViewList = o.AgentViewList;
                 }
 
                 r["success"] = 1;
-                r["commissionviewdic"] = commviewDic;
-                r["agentviewlist"] = agentviewList;
+                r["result"] = c;
+                Session[COMMISSION_RESULT] = c;
 
                 //Agent a = l.First();
                 
@@ -165,6 +165,55 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             {
                 if (o != null)
                     o.Dispose();
+            }
+
+            return Json(r, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult Mail(FibrePlusRequest req)
+        {
+            Dictionary<string, object> r = new Dictionary<string, object>();
+
+            try
+            {
+                List<string> l = new List<string>()
+                    {
+                        "siewwingfei@hotmail.com",
+                        "chinchin.lee@redtone.com"
+                    };
+
+                EmailInfo emailInfo = new EmailInfo
+                {
+                    ToList = l,
+                    DisplayName = "Fibre+ Commission",
+                    Subject = "REDtone Fibre+ Commission"
+                };
+
+                CommissionResult c = Session[COMMISSION_RESULT] as CommissionResult;
+
+                if (c == null)
+                    throw new UIException("There is no commission result");
+
+                ViewData["DateFrom"] = Utils.FormatDateTime(req.DateFrom);
+                ViewData["DateTo"] = Utils.FormatDateTime(req.DateTo);
+
+                new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData).DeliverAsync();
+
+                r["success"] = 1;
+            }
+
+            catch (UIException e)
+            {
+                r["error"] = 1;
+                r["message"] = e.Message;
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                r["error"] = 1;
+                r["message"] = e.StackTrace;
             }
 
             return Json(r, JsonRequestBehavior.AllowGet);

@@ -14,28 +14,6 @@
         $scope.openedDateTo = true;
     }
 
-    $scope.getAgentDisplay = function (id, level) {
-        var v = '';
-        var a = _.find($scope.agentlist[level], function (x) {
-            return x.AgentTeam == id;
-        });
-        if (a != null) {
-            if (a.AgentTeamType != '')
-                v = id + ' (' + a.AgentTeamType + '): ' + a.AgentTeamName;
-        }
-
-        return v;
-    }
-
-    $scope.getCssRow = function (a) {
-        var v = 'list-group-item';
-
-        if (a.TotalCommission > 0)
-            v += ' ' + v + '-info';
-
-        return v;
-    }
-
     $scope.showCommission = function () {
         if ($scope.agentID == '') {
             bootbox.alert('Please select agent');
@@ -50,16 +28,11 @@
             return;
         }
 
-        _dateFrom = utils.getDateStr(dateFrom);
-        _dateTo = utils.getDateStr(dateTo);
-        var a = null;
-
-        if ($scope.agentID != '0')
-            a = _.find($scope.agents, function (x) { return x.AgentID == $scope.agentID; });
+        var _dateFrom = utils.getDateStr(dateFrom);
+        var _dateTo = utils.getDateStr(dateTo);
 
         var o = {
             AgentID: $scope.agentID,
-            AgentType: a == null ? '' : a.AgentType,
             DateFrom: _dateFrom,
             DateTo: _dateTo
         };
@@ -69,22 +42,41 @@
         $http.post(url, o).success(function (data) {
             utils.unblockUI();
             if (data.success == 1) {
-                $scope.result = data;
-                $scope.commission = data.commission;
-                $scope.commissionrate = data.commissionrate;
-                $scope.tiercommissionrate = data.tiercommissionrate;
-                $scope.agentlevels = data.agentlevels;
-                $scope.agentlist = data.agentlist;
-                $scope.groups = {};
-
-                _.each($scope.agentlevels, function (i) {
-                    $scope.groups[i] = _.groupBy($scope.agentlist[i], 'AgentTeam');
-                });
+                $scope.result = data.result;
             }
 
             else
                 toastr.error(data.message);
-        })
+        }).error(function (data, status, statusText) {
+            bootbox.alert('Request failed: ' + statusText);
+        });
+    }
+
+    $scope.sendMail = function () {
+        var dateFrom = $scope.dateFrom;
+        var dateTo = $scope.dateTo;
+
+        var _dateFrom = utils.getDateStr(dateFrom);
+        var _dateTo = utils.getDateStr(dateTo);
+
+        var o = {
+            AgentID: $scope.agentID,
+            DateFrom: _dateFrom,
+            DateTo: _dateTo
+        };
+
+        var url = route.speedplus.mail;
+        utils.blockUI();
+        $http.post(url, o).success(function (data) {
+            utils.unblockUI();
+            if (data.success == 1)
+                toastr.success('Mail has been sent successfully');
+
+            else
+                toastr.error(data.message);
+        }).error(function (data, status, statusText) {
+            bootbox.alert('Request failed: ' + statusText);
+        });
     }
 
     $scope.init = function () {

@@ -43,67 +43,12 @@
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
                 <button class="btn btn-primary" ng-click="showCommission()" ng-disabled="form.$invalid">Show Commission</button>
+                <button class="btn btn-success" ng-click="sendMail()" ng-disabled="result == null">Send Mail</button>
             </div>
         </div>
     </form>
 
-    <div ng-show="result != null">
-        <div ng-repeat="o in agentviewlist">
-            <form class="form-horizontal well" role="form">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label bold">Agent :</label>
-                    <div class="col-sm-10">
-                        <p class="form-control-static bold">{{o.AgentID}} ({{o.AgentType}}): {{o.AgentName}}</p>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label bold">Total Commission Payable :</label>
-                    <div class="col-sm-10">
-                        <p class="form-control-static bold">{{o.TotalCommission | currency:'RM'}}</p>
-                    </div>
-                </div>
-            </form>
-            <div class="alert alert-info" ng-hide="commissionviewdic[o.AgentID].length > 0">
-                No customers found.
-            </div>
-            <table class="table table-condensed table-bordered table-hover table-striped" ng-show="commissionviewdic[o.AgentID].length > 0">
-                <thead>
-                    <tr>
-                        <th class="tdRight">No.</th>
-                        <th>CustID</th>
-                        <th>Name</th>
-                        <th>Desc</th>
-                        <th class="nowrap">Settlement Date</th>
-                        <th class="tdRight">Settlement Amount</th>
-                        <th>Comm Rate</th>
-                        <th class="tdRight">Comm Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="k in commissionviewdic[o.AgentID]">
-                        <td class="tdRight">{{$index + 1}}.</td>
-                        <td>{{k.Customer.CustID}}</td>
-                        <td>{{k.Customer.Name}}</td>
-                        <td>
-                            <div ng-repeat="bi in k.Customer.BillingInfoList">
-                                {{bi.ProductType.Description}} ({{bi.ProductType.InitialAmount | currency:'RM'}})
-                            </div>
-                        </td>
-                        <td class="nowrap">
-                            <div ng-show="k.Customer.SettlementList.length > 0">
-                                {{k.Customer.SettlementList[0].RealDate | datefilter | date:'yyyy-MM-dd'}}
-                            </div>
-                        </td>
-                        <td class="tdRight">{{k.SettlementAmount | currency:'RM'}}</td>
-                        <td>(T x {{k.CommissionRate}})</td>
-                        <td class="tdRight">{{k.Commission | currency:'RM'}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <br />
-        <hr />
-    </div>
+    @{ Html.RenderPartial("_CommissionResult"); }
 </div>
 
 <script src="~/Areas/Commission/js/fibreplus/controller.js"></script>

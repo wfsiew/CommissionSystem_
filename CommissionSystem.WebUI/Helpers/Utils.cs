@@ -10,6 +10,18 @@ namespace CommissionSystem.WebUI.Helpers
     {
         public const string DATE_FMT = "yyyy-MM-dd";
 
+        public static string FormatCurrency(decimal amount)
+        {
+            string a = string.Format("RM {0:##,0.00}", amount);
+            return a;
+        }
+
+        public static string FormatDateTime(DateTime dt)
+        {
+            string a = string.Format("{0:dd MMM yyyy}", dt);
+            return a;
+        }
+
         public static DateTime GetDateTime(string q)
         {
             DateTime dt = default(DateTime);
