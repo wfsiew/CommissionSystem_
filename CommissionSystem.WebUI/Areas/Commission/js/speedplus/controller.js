@@ -47,8 +47,9 @@
 
             else
                 toastr.error(data.message);
-        }).error(function (data, status, statusText) {
-            bootbox.alert('Request failed: ' + statusText);
+        }).error(function (data, status) {
+            utils.unblockUI();
+            bootbox.alert('Request failed');
         });
     }
 
@@ -74,8 +75,9 @@
 
             else
                 toastr.error(data.message);
-        }).error(function (data, status, statusText) {
-            bootbox.alert('Request failed: ' + statusText);
+        }).error(function (data, status) {
+            utils.unblockUI();
+            bootbox.alert('Request failed');
         });
     }
 
