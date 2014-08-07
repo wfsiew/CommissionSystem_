@@ -1,0 +1,33 @@
+﻿@using CommissionSystem.WebUI.Areas.Commission.Models;
+
+@{
+    ViewBag.Title = "AgentSummary";
+}
+
+<h2>AgentSummary</h2>
+
+@if (ViewBag.list != null)
+{
+    List<SalesParent> lx = ViewBag.list as List<SalesParent>;
+    if (lx != null)
+    {
+        @ShowTree(lx)
+    }
+}
+
+@helper ShowTree(List<SalesParent> l)
+{
+    <ul>
+        @{
+            var lx = l.OrderBy(x => x.SParentName);
+            foreach (var o in lx)
+            {
+                <li>@o.SParentName, @o.SParentID</li>
+                if (o.ChildAgentList.Any())
+                {
+                    @ShowTree(o.ChildAgentList)
+                }
+            }
+        }
+    </ul>
+}

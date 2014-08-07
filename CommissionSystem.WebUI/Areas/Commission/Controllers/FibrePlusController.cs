@@ -46,39 +46,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         }
 
         [HttpPost]
-        public ActionResult AgentSummary(DateTime dateFrom, DateTime dateTo)
-        {
-            FibrePlusCommission o = null;
-
-            try
-            {
-                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
-                List<Agent> l = new List<Agent>();
-                GetTopLevelAgents(l, dic);
-                o = new FibrePlusCommission();
-                o.AgentDic = dic;
-                o.AgentList = l;
-                o.DateFrom = dateFrom;
-                o.DateTo = dateTo.AddDays(1);
-                o.SetCommission();
-                ViewBag.list = l;
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-            }
-
-            finally
-            {
-                if (o != null)
-                    o.Dispose();
-            }
-
-            return View();
-        }
-
-        [HttpPost]
         public ActionResult Commission(FibrePlusRequest req)
         {
             FibrePlusCommission o = null;
