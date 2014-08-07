@@ -21,6 +21,16 @@
         font-weight: bold;
     }
 
+    table {
+        border-spacing: 0;
+        border-collapse: collapse;
+    }
+
+    td,
+    th {
+        padding: 0;
+    }
+
     thead {
         display: table-header-group;
     }
@@ -45,6 +55,7 @@
     }
 
     table {
+        max-width: 100%;
         background-color: transparent;
     }
 
@@ -54,43 +65,42 @@
 
     .table {
         width: 100%;
-        max-width: 100%;
         margin-bottom: 20px;
     }
 
-    .table > thead > tr > th,
-    .table > tbody > tr > th,
-    .table > tfoot > tr > th,
-    .table > thead > tr > td,
-    .table > tbody > tr > td,
-    .table > tfoot > tr > td {
-        padding: 8px;
-        line-height: 1.42857143;
-        vertical-align: top;
-        border-top: 1px solid #ddd;
-    }
+        .table > thead > tr > th,
+        .table > tbody > tr > th,
+        .table > tfoot > tr > th,
+        .table > thead > tr > td,
+        .table > tbody > tr > td,
+        .table > tfoot > tr > td {
+            padding: 8px;
+            line-height: 1.42857143;
+            vertical-align: top;
+            border-top: 1px solid #ddd;
+        }
 
-    .table > thead > tr > th {
-        vertical-align: bottom;
-        border-bottom: 2px solid #ddd;
-    }
+        .table > thead > tr > th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #ddd;
+        }
 
-    .table > caption + thead > tr:first-child > th,
-    .table > colgroup + thead > tr:first-child > th,
-    .table > thead:first-child > tr:first-child > th,
-    .table > caption + thead > tr:first-child > td,
-    .table > colgroup + thead > tr:first-child > td,
-    .table > thead:first-child > tr:first-child > td {
-        border-top: 0;
-    }
+        .table > caption + thead > tr:first-child > th,
+        .table > colgroup + thead > tr:first-child > th,
+        .table > thead:first-child > tr:first-child > th,
+        .table > caption + thead > tr:first-child > td,
+        .table > colgroup + thead > tr:first-child > td,
+        .table > thead:first-child > tr:first-child > td {
+            border-top: 0;
+        }
 
-    .table > tbody + tbody {
-        border-top: 2px solid #ddd;
-    }
+        .table > tbody + tbody {
+            border-top: 2px solid #ddd;
+        }
 
-    .table .table {
-        background-color: #fff;
-    }
+        .table .table {
+            background-color: #fff;
+        }
 
     .table-condensed > thead > tr > th,
     .table-condensed > tbody > tr > th,
@@ -105,19 +115,19 @@
         border: 1px solid #ddd;
     }
 
-    .table-bordered > thead > tr > th,
-    .table-bordered > tbody > tr > th,
-    .table-bordered > tfoot > tr > th,
-    .table-bordered > thead > tr > td,
-    .table-bordered > tbody > tr > td,
-    .table-bordered > tfoot > tr > td {
-        border: 1px solid #ddd;
-    }
+        .table-bordered > thead > tr > th,
+        .table-bordered > tbody > tr > th,
+        .table-bordered > tfoot > tr > th,
+        .table-bordered > thead > tr > td,
+        .table-bordered > tbody > tr > td,
+        .table-bordered > tfoot > tr > td {
+            border: 1px solid #ddd;
+        }
 
-    .table-bordered > thead > tr > th,
-    .table-bordered > thead > tr > td {
-        border-bottom-width: 2px;
-    }
+        .table-bordered > thead > tr > th,
+        .table-bordered > thead > tr > td {
+            border-bottom-width: 2px;
+        }
 
     .table-striped > tbody > tr:nth-child(odd) > td,
     .table-striped > tbody > tr:nth-child(odd) > th {
@@ -160,7 +170,6 @@
     .table-hover > tbody > tr > td.active:hover,
     .table-hover > tbody > tr > th.active:hover,
     .table-hover > tbody > tr.active:hover > td,
-    .table-hover > tbody > tr:hover > .active,
     .table-hover > tbody > tr.active:hover > th {
         background-color: #e8e8e8;
     }
@@ -183,7 +192,6 @@
     .table-hover > tbody > tr > td.success:hover,
     .table-hover > tbody > tr > th.success:hover,
     .table-hover > tbody > tr.success:hover > td,
-    .table-hover > tbody > tr:hover > .success,
     .table-hover > tbody > tr.success:hover > th {
         background-color: #d0e9c6;
     }
@@ -206,7 +214,6 @@
     .table-hover > tbody > tr > td.info:hover,
     .table-hover > tbody > tr > th.info:hover,
     .table-hover > tbody > tr.info:hover > td,
-    .table-hover > tbody > tr:hover > .info,
     .table-hover > tbody > tr.info:hover > th {
         background-color: #c4e3f3;
     }
@@ -229,7 +236,6 @@
     .table-hover > tbody > tr > td.warning:hover,
     .table-hover > tbody > tr > th.warning:hover,
     .table-hover > tbody > tr.warning:hover > td,
-    .table-hover > tbody > tr:hover > .warning,
     .table-hover > tbody > tr.warning:hover > th {
         background-color: #faf2cc;
     }
@@ -252,7 +258,6 @@
     .table-hover > tbody > tr > td.danger:hover,
     .table-hover > tbody > tr > th.danger:hover,
     .table-hover > tbody > tr.danger:hover > td,
-    .table-hover > tbody > tr:hover > .danger,
     .table-hover > tbody > tr.danger:hover > th {
         background-color: #ebcccc;
     }
@@ -280,7 +285,7 @@
             </tr>
             <tr>
                 <td>
-                    <span class="bold">Total Commission Payable: </span>
+                    <span class="bold">Total Commission Payable :</span>
                 </td>
                 <td>
                     <span class="bold">@Utils.FormatCurrency(a.TotalCommission)</span>
@@ -297,6 +302,7 @@
 
     else
     {
+        <br />
         <table class="table table-bordered table-condensed table-hover table-striped">
             <thead>
                 <tr>
