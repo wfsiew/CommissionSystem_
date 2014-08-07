@@ -198,6 +198,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 ViewData["DateFrom"] = Utils.FormatDateTime(req.DateFrom);
                 ViewData["DateTo"] = Utils.FormatDateTime(req.DateTo);
 
+                Attachment att = c.GetFibrePlusCommissionResultData(req.DateFrom, req.DateTo);
+
+                if (att != null)
+                    emailInfo.AttList = new List<Attachment> { att };
+
                 new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData).DeliverAsync();
 
                 r["success"] = 1;
