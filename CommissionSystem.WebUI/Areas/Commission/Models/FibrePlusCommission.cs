@@ -403,7 +403,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select settlementidx, custid, comment, amount, realdate, paymenttype, ")
+                sb.Append("select top 20 settlementidx, custid, comment, amount, realdate, paymenttype, ")
                     .Append("reference, orno, paymentmode from customersettlement ")
                     .Append("where custid in ")
                     .Append("(select custid from customer where customertype = 1 and status = 1 and agentid = @agentid and custid = @custid) and ")
