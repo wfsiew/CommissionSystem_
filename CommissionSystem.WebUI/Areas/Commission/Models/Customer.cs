@@ -29,4 +29,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             SettlementList.Add(o);
         }
     }
+
+    public class ADSLCustomer : Customer
+    {
+        public int MasterAgentID { get; set; }
+    }
 }

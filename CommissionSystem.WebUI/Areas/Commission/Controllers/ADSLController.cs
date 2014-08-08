@@ -58,7 +58,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 DateTime dateTo = req.DateTo;
 
                 o = new ADSLCommission();
-                o.SalesParentList = l;
+                o.AgentList = l;
                 o.DateFrom = req.DateFrom;
                 o.DateTo = req.DateTo.AddDays(1);
                 o.SetCommission();
@@ -117,6 +117,66 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                 rd.Close();
                 AddAgentsToDic(dic, l, 0);
+                GetChildAgents(l, dic, m, d);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+
+                if (d != null)
+                    d.Dispose();
+            }
+        }
+
+        private void GetAgentHierarchy(int agentID, List<SalesParent> l, Dictionary<int, List<SalesParent>> dic)
+        {
+            DbHelper d = null;
+            SqlDataReader rd = null;
+
+            try
+            {
+                if (agentID == 0)
+                {
+                    GetTopLevelAgents(l, dic);
+                    return;
+                }
+
+                Dictionary<int, SalesParent> m = GetAgents_();
+                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select distinct sfid, magentid from salesforcedetail ")
+                    .Append("where magentid = @magentid and sfid in ")
+                    .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@magentid", SqlDbType.Int);
+                p.Value = agentID;
+                d.AddParameter(p);
+
+                rd = d.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    int sfid = rd.Get<int>("sfid");
+                    int magentid = rd.Get<int>("magentid");
+
+                    SalesParent a = m[sfid];
+                    SalesParent b = m[magentid];
+
+                    b.AddChildAgent(a);
+
+                    l.Add(a);
+                }
+
+                rd.Close();
+                AddAgentsToDic(dic, l, 1);
                 GetChildAgents(l, dic, m, d);
             }
 

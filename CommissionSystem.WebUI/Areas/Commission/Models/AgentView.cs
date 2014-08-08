@@ -12,6 +12,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public string AgentType { get; set; }
         public string AgentLevel { get; set; }
         public string AgentTeam { get; set; }
+        public int Level { get; set; }
         public decimal TotalSettlement { get; set; }
         public decimal TotalCommission { get; set; }
     }

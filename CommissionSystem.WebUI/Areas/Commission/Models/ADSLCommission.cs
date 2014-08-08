@@ -15,10 +15,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
     public class ADSLCommission : IDisposable
     {
         public DbHelper Db { get; set; }
-        public int SParentID { get; set; }
+        public int AgentID { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
-        public List<SalesParent> SalesParentList { get; set; }
+        public List<SalesParent> AgentList { get; set; }
+        public Dictionary<int, List<SalesParent>> AgentDic { get; set; }
+        public Dictionary<string, List<CommissionView>> CommissionViewDic { get; set; }
+        public List<AgentView> AgentViewList { get; set; }
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -29,50 +32,96 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         public void SetCommission()
         {
+            string agentid = null;
+            string bagentid = null;
+
             try
             {
+                Dictionary<string, List<CommissionView>> cv = new Dictionary<string, List<CommissionView>>();
+                Dictionary<string, AgentView> av = new Dictionary<string, AgentView>();
+                List<int> levels = AgentDic.Keys.ToList();
+                levels.Reverse();
                 SettingFactory sf = SettingFactory.Instance;
                 Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
 
-                List<SalesParent> l = SalesParentList;
-                for (int i = 0; i < l.Count; i++)
+                for (int i = 0; i < levels.Count; i++)
                 {
-                    SalesParent a = l[i];
-                    SParentID = a.SParentID;
-                    Dictionary<int, Customer> customerDic = GetCustomers();
-                    List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
-
-                    foreach (KeyValuePair<int, Customer> d in customerDic)
+                    int k = levels[i];
+                    List<SalesParent> l = AgentDic[k];
+                    for (int j = 0; j < l.Count; j++)
                     {
-                        Customer customer = d.Value;
-                        int custID = d.Key;
-                        List<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID).ToList();
+                        SalesParent a = l[j];
+                        SalesParent b = a.ParentAgent;
+                        AgentID = a.SParentID;
+                        agentid = a.SParentID.ToString();
 
-                        customer.BillingInfoList = ebi;
-                        a.AddCustomer(customer);
+                        if (!cv.ContainsKey(agentid))
+                            cv[agentid] = new List<CommissionView>();
 
-                        foreach (CustomerBillingInfo bi in ebi)
+                        if (!av.ContainsKey(agentid))
+                            av[agentid] = a.GetAgentInfo();
+
+                        Dictionary<int, ADSLCustomer> customerDic = GetCustomers();
+                        List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
+
+                        foreach (KeyValuePair<int, ADSLCustomer> d in customerDic)
                         {
-                            if (productTypeDic.ContainsKey(bi.ProductID))
+                            ADSLCustomer customer = d.Value;
+                            int custID = d.Key;
+                            List<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID).ToList();
+
+                            customer.BillingInfoList = ebi;
+                            a.AddCustomer(customer);
+
+                            CommissionView v = new CommissionView();
+                            v.Customer = customer;
+                            cv[agentid].Add(v);
+
+                            foreach (CustomerBillingInfo bi in ebi)
                             {
-                                ProductTypes productType = productTypeDic[bi.ProductID];
-                                bi.ProductType = productType;
-                                decimal amount = GetCustomerSettlementAmount(customer);
-                                a.Amount += amount;
+                                if (productTypeDic.ContainsKey(bi.ProductID))
+                                {
+                                    ProductTypes productType = productTypeDic[bi.ProductID];
+                                    bi.ProductType = productType;
+                                    decimal amount = GetCustomerSettlementAmount(customer);
+                                    a.Amount += amount;
+
+                                    if (a.IsInternalData)
+                                    {
+                                        v.CommissionRate = sf.ADSLInternalSetting.Commission;
+                                        v.SettlementAmount += amount;
+
+                                        av[agentid].TotalSettlement += v.SettlementAmount;
+                                    }
+
+                                    else
+                                    {
+                                        v.CommissionRate = sf.ADSLExternalSetting.Commission;
+                                        v.SettlementAmount += amount;
+
+                                        av[agentid].TotalSettlement += v.SettlementAmount;
+                                    }
+                                }
+                            }
+
+                            if (a.IsInternalData)
+                            {
+                                v.Commission = sf.ADSLInternalSetting.GetDirectCommission(v.SettlementAmount);
+                                av[agentid].TotalCommission += v.Commission;
+
+                                if (b != null && customer.MasterAgentID != 0)
+                                {
+                                    bagentid = b.SParentID.ToString();
+
+                                    if (!cv.ContainsKey(bagentid))
+                                        cv[bagentid] = new List<CommissionView>();
+
+                                    CommissionView bv = new CommissionView();
+                                    bv.Customer = customer;
+                                    bv.Commission = sf.ADSLInternalSetting.GetCommission(v.SettlementAmount, 0);
+                                }
                             }
                         }
-                    }
-
-                    if (a.IsInternalData)
-                    {
-                        a.DirectCommission = sf.ADSLInternalSetting.GetDirectCommission(a.Amount);
-                        a.CommissionRate = sf.ADSLInternalSetting.Commission;
-                    }
-
-                    else
-                    {
-                        a.DirectCommission = sf.ADSLExternalSetting.GetDirectCommission(a.Amount);
-                        a.CommissionRate = sf.ADSLExternalSetting.Commission;
                     }
                 }
             }
@@ -201,14 +250,15 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select custid, rental, productid, amount, realcommencementdate, realcommencementenddate ")
                     .Append("from customerbillinginfo ")
-                    .Append("where custid in ")
-                    .Append("(select custid from customer where status = 1 and agentid = @agentid) ")
-                    .Append("and productid in ")
-                    .Append("(select productid from producttypes where description like '%ADSL%')");
+                    .Append("where custid in (")
+                    .Append("select custid from customer where status = 1 and custid in (")
+                    .Append("select distinct custid from salesforcedetail where sfid = @sfid)) ")
+                    .Append("and productid in (")
+                    .Append("select productid from producttypes where description like '%ADSL%')");
                 string q = sb.ToString();
 
-                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
-                p.Value = SParentID;
+                SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
+                p.Value = AgentID;
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
@@ -243,29 +293,32 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return l;
         }
 
-        private Dictionary<int, Customer> GetCustomers()
+        private Dictionary<int, ADSLCustomer> GetCustomers()
         {
-            Dictionary<int, Customer> dic = new Dictionary<int, Customer>();
+            Dictionary<int, ADSLCustomer> dic = new Dictionary<int, ADSLCustomer>();
             SqlDataReader rd = null;
 
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select custid, name from customer where status = 1 and agentid = @agentid and custid in (")
+                sb.Append("select distinct c.custid, c.name, sf.magentid from customer c ")
+                    .Append("left join salesforcedetail sf on c.custid = sf.custid ")
+                    .Append("where c.status = 1 and sf.sfid = @sfid and c.custid in (")
                     .Append("select custid from customerbillinginfo where productid in (")
                     .Append("select productid from producttypes where description like '%ADSL%'))");
                 string q = sb.ToString();
 
-                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
-                p.Value = SParentID;
+                SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
+                p.Value = AgentID;
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
                 while (rd.Read())
                 {
-                    Customer o = new Customer();
+                    ADSLCustomer o = new ADSLCustomer();
                     o.CustID = rd.Get<int>("custid");
                     o.Name = rd.Get("name");
+                    o.MasterAgentID = rd.Get<int>("magentid");
 
                     dic[o.CustID] = o;
                 }

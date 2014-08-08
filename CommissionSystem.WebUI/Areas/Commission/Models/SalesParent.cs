@@ -46,6 +46,17 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             SubCommission += comm;
         }
 
+        public AgentView GetAgentInfo()
+        {
+            AgentView o = new AgentView();
+            o.AgentID = SParentID;
+            o.Level = Level;
+            o.AgentName = SParentName;
+            o.AgentTeam = MasterAgentID.ToString();
+
+            return o;
+        }
+
         public string UID
         {
             get
