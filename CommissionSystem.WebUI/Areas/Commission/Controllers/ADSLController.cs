@@ -130,7 +130,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     int magentid = rd.Get<int>("magentid");
 
                     SalesParent a = m[sfid];
-                    a.IsRoot = true;
                     l.Add(a);
                 }
 
@@ -168,7 +167,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     return;
                 }
 
-                Dictionary<int, int> t = new Dictionary<int, int>();
+                Dictionary<int, bool> t = new Dictionary<int, bool>();
                 Dictionary<int, SalesParent> m = GetAgents_();
                 d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
                 StringBuilder sb = new StringBuilder();
@@ -197,14 +196,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                     if (!t.ContainsKey(sfid))
                     {
-                        t[sfid] = sfid;
+                        t[sfid] = true;
                         l.Add(a);
                     }
                 }
 
                 rd.Close();
                 AddAgentsToDic(dic, l, 1);
-                GetChildAgents(l, dic, m, d, 1);
+                GetChildAgents(l, dic, m, d, 0);
             }
 
             catch (Exception e)
@@ -227,27 +226,33 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             Dictionary<int, SalesParent> m, DbHelper d, int parentLevel)
         {
             SqlDataReader rd = null;
-            int level = parentLevel;
+            int level = 0;
 
             try
             {
                 Stack<List<SalesParent>> st = new Stack<List<SalesParent>>();
+                Stack<int> sl = new Stack<int>();
                 st.Push(parentList);
-                Dictionary<int, int> k = new Dictionary<int, int>();
+                sl.Push(parentLevel);
 
                 while (st.Count > 0)
                 {
                     List<SalesParent> lp = st.Pop();
+                    level = sl.Pop();
 
                     for (int i = 0; i < lp.Count; i++)
                     {
                         SalesParent parent = lp[i];
                         List<SalesParent> l = new List<SalesParent>();
+                        Dictionary<int, bool> t = new Dictionary<int, bool>();
                         StringBuilder sb = new StringBuilder();
                         sb.Append("select distinct sfid, magentid from salesforcedetail ")
                             .Append("where magentid = @magentid and sfid in ")
                             .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
                         string q = sb.ToString();
+
+                        if (parent.SParentID == 8810039)
+                            System.Diagnostics.Debug.WriteLine("l");
 
                         SqlParameter p = new SqlParameter("@magentid", SqlDbType.Int);
                         p.Value = parent.SParentID;
@@ -261,24 +266,24 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                             SalesParent a = m[sfid];
 
-                            if (k.ContainsKey(sfid))
-                                continue;
-
                             parent.AddChildAgent(a);
 
-                            l.Add(a);
-
-                            k.Add(sfid, sfid);
+                            if (!t.ContainsKey(sfid))
+                            {
+                                t[sfid] = true;
+                                l.Add(a);
+                            }
                         }
 
                         rd.Close();
                         AddAgentsToDic(dic, l, level + 1);
 
                         if (l.Count > 0)
+                        {
                             st.Push(l);
+                            sl.Push(level + 1);
+                        }
                     }
-
-                    ++level;
                 }
             }
 

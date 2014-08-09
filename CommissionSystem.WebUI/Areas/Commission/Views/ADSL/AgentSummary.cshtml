@@ -22,7 +22,7 @@
             var lx = l.OrderBy(x => x.SParentID);
             foreach (var o in lx)
             {
-                <li>@o.SParentID @o.SParentName, @o.Level</li>
+                <li>@o.SParentID @o.SParentName</li>
                 if (o.ChildAgentList.Any())
                 {
                     @ShowTree(o.ChildAgentList)

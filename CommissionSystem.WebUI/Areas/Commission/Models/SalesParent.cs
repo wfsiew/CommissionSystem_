@@ -12,6 +12,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             ParentAgentList = new List<SalesParent>();
             ChildAgentList = new List<SalesParent>();
             CustomerList = new List<Customer>();
+            childiDDic = new Dictionary<int, bool>();
+            parentIDDic = new Dictionary<int, bool>();
         }
 
         public int SParentID { get; set; }
@@ -26,18 +28,27 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public decimal SubCommission { get; set; }
         public double CommissionRate { get; set; }
         public double TierCommissionRate { get; set; }
-        public bool IsRoot { get; set; }
         public List<Customer> CustomerList { get; private set; }
+        private Dictionary<int, bool> childiDDic;
+        private Dictionary<int, bool> parentIDDic;
         
         public void AddParentAgent(SalesParent o)
         {
-            ParentAgentList.Add(o);
+            if (!parentIDDic.ContainsKey(o.SParentID))
+            {
+                parentIDDic[o.SParentID] = true;
+                ParentAgentList.Add(o);
+            }
         }
 
         public void AddChildAgent(SalesParent o)
         {
-            o.ParentAgentList.Add(this);
-            ChildAgentList.Add(o);
+            if (!childiDDic.ContainsKey(o.SParentID))
+            {
+                childiDDic[o.SParentID] = true;
+                o.ParentAgentList.Add(this);
+                ChildAgentList.Add(o);
+            }
         }
 
         public void AddCustomer(Customer o)
