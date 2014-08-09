@@ -39,6 +39,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             {
                 Dictionary<string, List<CommissionView>> cv = new Dictionary<string, List<CommissionView>>();
                 Dictionary<string, AgentView> av = new Dictionary<string, AgentView>();
+                Queue<List<SalesParent>> qa = new Queue<List<SalesParent>>();
                 List<int> levels = AgentDic.Keys.ToList();
                 levels.Reverse();
                 SettingFactory sf = SettingFactory.Instance;
@@ -51,7 +52,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     for (int j = 0; j < l.Count; j++)
                     {
                         SalesParent a = l[j];
-                        SalesParent b = a.ParentAgent;
+                        List<SalesParent> blist = a.ParentAgentList;
+                        qa.Clear();
+
+                        if (blist.Count > 0)
+                            qa.Enqueue(blist);
+
                         AgentID = a.SParentID;
                         agentid = a.SParentID.ToString();
 
@@ -61,12 +67,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         if (!av.ContainsKey(agentid))
                             av[agentid] = a.GetAgentInfo();
 
-                        Dictionary<int, ADSLCustomer> customerDic = GetCustomers();
+                        Dictionary<int, Customer> customerDic = GetCustomers();
                         List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
 
-                        foreach (KeyValuePair<int, ADSLCustomer> d in customerDic)
+                        foreach (KeyValuePair<int, Customer> d in customerDic)
                         {
-                            ADSLCustomer customer = d.Value;
+                            Customer customer = d.Value;
                             int custID = d.Key;
                             List<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID).ToList();
 
@@ -83,47 +89,111 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 {
                                     ProductTypes productType = productTypeDic[bi.ProductID];
                                     bi.ProductType = productType;
-                                    decimal amount = GetCustomerSettlementAmount(customer);
-                                    a.Amount += amount;
+                                }
+                            }
 
-                                    if (a.IsInternalData)
+                            decimal amount = GetCustomerSettlementAmount(customer);
+                            a.Amount += amount;
+
+                            if (a.IsInternalData)
+                            {
+                                v.CommissionRate = sf.ADSLInternalSetting.Commission;
+                                v.SettlementAmount += amount;
+
+                                av[agentid].TotalSettlement += v.SettlementAmount;
+
+                                v.Commission = sf.ADSLInternalSetting.GetDirectCommission(v.SettlementAmount);
+                                av[agentid].TotalCommission += v.Commission;
+
+                                for (int n = 1; n < 3; n++)
+                                {
+                                    blist = qa.Count > 0 ? qa.Dequeue() : null;
+                                    if (blist == null)
+                                        break;
+
+                                    for (int z = 0; z < blist.Count; z++)
                                     {
-                                        v.CommissionRate = sf.ADSLInternalSetting.Commission;
-                                        v.SettlementAmount += amount;
+                                        SalesParent b = blist[z];
+                                        if (b.ParentAgentList.Count > 0)
+                                            qa.Enqueue(b.ParentAgentList);
 
-                                        av[agentid].TotalSettlement += v.SettlementAmount;
-                                    }
+                                        bagentid = b.SParentID.ToString();
+                                        bool parentExist = IsCustomerExist(b.SParentID, custID);
 
-                                    else
-                                    {
-                                        v.CommissionRate = sf.ADSLExternalSetting.Commission;
-                                        v.SettlementAmount += amount;
+                                        if (!parentExist)
+                                            continue;
 
-                                        av[agentid].TotalSettlement += v.SettlementAmount;
+                                        if (!cv.ContainsKey(bagentid))
+                                            cv[bagentid] = new List<CommissionView>();
+
+                                        CommissionView bv = new CommissionView();
+                                        bv.Customer = customer;
+                                        bv.Commission = sf.ADSLInternalSetting.GetCommission(v.SettlementAmount, n);
+                                        bv.CommissionRate = sf.ADSLInternalSetting.GetCommissionRate(n);
+                                        bv.SettlementAmount += v.SettlementAmount;
+                                        cv[bagentid].Add(bv);
+
+                                        if (!av.ContainsKey(bagentid))
+                                            av[bagentid] = b.GetAgentInfo();
+
+                                        av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                        av[bagentid].TotalCommission += bv.Commission;
                                     }
                                 }
                             }
 
-                            if (a.IsInternalData)
+                            else
                             {
-                                v.Commission = sf.ADSLInternalSetting.GetDirectCommission(v.SettlementAmount);
+                                v.CommissionRate = sf.ADSLExternalSetting.Commission;
+                                v.SettlementAmount += amount;
+
+                                av[agentid].TotalSettlement += v.SettlementAmount;
+
+                                v.Commission = sf.ADSLExternalSetting.GetDirectCommission(v.SettlementAmount);
                                 av[agentid].TotalCommission += v.Commission;
 
-                                if (b != null && customer.MasterAgentID != 0)
+                                for (int n = 1; n < 4; n++)
                                 {
-                                    bagentid = b.SParentID.ToString();
+                                    blist = qa.Count > 0 ? qa.Dequeue() : null;
+                                    if (blist == null)
+                                        break;
 
-                                    if (!cv.ContainsKey(bagentid))
-                                        cv[bagentid] = new List<CommissionView>();
+                                    for (int z = 0; z < blist.Count; z++)
+                                    {
+                                        SalesParent b = blist[z];
+                                        if (b.ParentAgentList.Count > 0)
+                                            qa.Enqueue(b.ParentAgentList);
 
-                                    CommissionView bv = new CommissionView();
-                                    bv.Customer = customer;
-                                    bv.Commission = sf.ADSLInternalSetting.GetCommission(v.SettlementAmount, 0);
+                                        bagentid = b.SParentID.ToString();
+                                        bool parentExist = IsCustomerExist(b.SParentID, custID);
+
+                                        if (!parentExist)
+                                            continue;
+
+                                        if (!cv.ContainsKey(bagentid))
+                                            cv[bagentid] = new List<CommissionView>();
+
+                                        CommissionView bv = new CommissionView();
+                                        bv.Customer = customer;
+                                        bv.Commission = sf.ADSLExternalSetting.GetCommission(v.SettlementAmount, n);
+                                        bv.CommissionRate = sf.ADSLExternalSetting.GetCommissionRate(n);
+                                        bv.SettlementAmount += v.SettlementAmount;
+                                        cv[bagentid].Add(bv);
+
+                                        if (!av.ContainsKey(bagentid))
+                                            av[bagentid] = b.GetAgentInfo();
+
+                                        av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                        av[bagentid].TotalCommission += bv.Commission;
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                CommissionViewDic = cv;
+                AgentViewList = av.Values.OrderBy(x => x.AgentName).ToList();
             }
 
             catch (Exception e)
@@ -248,13 +318,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select custid, rental, productid, amount, realcommencementdate, realcommencementenddate ")
+                sb.Append("select custid, rental, productid, amount, realcommencementdate ")
                     .Append("from customerbillinginfo ")
                     .Append("where custid in (")
                     .Append("select custid from customer where status = 1 and custid in (")
-                    .Append("select distinct custid from salesforcedetail where sfid = @sfid)) ")
-                    .Append("and productid in (")
-                    .Append("select productid from producttypes where description like '%ADSL%')");
+                    .Append("select distinct custid from salesforcedetail where sfid = @sfid)) ");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
@@ -270,7 +338,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.ProductID = rd.Get<int>("productid");
                     o.Amount = rd.Get<decimal>("amount");
                     o.RealCommencementDate = rd.GetDateTime("realcommencementdate");
-                    o.RealCommencementEndDate = rd.GetDateTime("realcommencementenddate");
 
                     l.Add(o);
                 }
@@ -293,32 +360,29 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return l;
         }
 
-        private Dictionary<int, ADSLCustomer> GetCustomers()
+        private Dictionary<int, Customer> GetCustomers()
         {
-            Dictionary<int, ADSLCustomer> dic = new Dictionary<int, ADSLCustomer>();
+            Dictionary<int, Customer> dic = new Dictionary<int, Customer>();
             SqlDataReader rd = null;
 
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select distinct c.custid, c.name, sf.magentid from customer c ")
-                    .Append("left join salesforcedetail sf on c.custid = sf.custid ")
-                    .Append("where c.status = 1 and sf.sfid = @sfid and c.custid in (")
+                sb.Append("select custid, name from customer where agentid = @agentid and status = 1 and custid in (")
                     .Append("select custid from customerbillinginfo where productid in (")
                     .Append("select productid from producttypes where description like '%ADSL%'))");
                 string q = sb.ToString();
 
-                SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
                 p.Value = AgentID;
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
                 while (rd.Read())
                 {
-                    ADSLCustomer o = new ADSLCustomer();
+                    Customer o = new Customer();
                     o.CustID = rd.Get<int>("custid");
                     o.Name = rd.Get("name");
-                    o.MasterAgentID = rd.Get<int>("magentid");
 
                     dic[o.CustID] = o;
                 }
@@ -339,6 +403,47 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
 
             return dic;
+        }
+
+        private bool IsCustomerExist(int sfid, int custid)
+        {
+            bool a = false;
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select top 1 custid from salesforcedetail where sfid = @sfid and custid = @custid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
+                p.Value = sfid;
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@custid", SqlDbType.Int);
+                p.Value = custid;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                if (rd.Read())
+                    a = true;
+
+                rd.Close();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return a;
         }
     }
 }

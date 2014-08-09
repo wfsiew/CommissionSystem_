@@ -14,7 +14,8 @@
 
     var adsl = {
         commission: utils.getUrl('/Commission/ADSL/Commission'),
-        agents: utils.getUrl('/Commission/ADSL/Agents')
+        agents: utils.getUrl('/Commission/ADSL/Agents'),
+        mail: utils.getUrl('/Commission/ADSL/Mail')
     };
 
     return {

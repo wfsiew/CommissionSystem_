@@ -9,6 +9,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
     {
         public SalesParent()
         {
+            ParentAgentList = new List<SalesParent>();
             ChildAgentList = new List<SalesParent>();
             CustomerList = new List<Customer>();
         }
@@ -19,8 +20,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public int RptParentID { get; set; }
         public int MasterAgentID { get; set; }
         public List<SalesParent> ChildAgentList { get; private set; }
-        public SalesParent ParentAgent { get; private set; }
-        public int Level { get; set; }
+        public List<SalesParent> ParentAgentList { get; private set; }
         public decimal Amount { get; set; }
         public decimal DirectCommission { get; set; }
         public decimal SubCommission { get; set; }
@@ -28,11 +28,15 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public double TierCommissionRate { get; set; }
         public bool IsRoot { get; set; }
         public List<Customer> CustomerList { get; private set; }
+        
+        public void AddParentAgent(SalesParent o)
+        {
+            ParentAgentList.Add(o);
+        }
 
         public void AddChildAgent(SalesParent o)
         {
-            o.ParentAgent = this;
-            o.Level = this.Level + 1;
+            o.ParentAgentList.Add(this);
             ChildAgentList.Add(o);
         }
 
@@ -50,7 +54,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         {
             AgentView o = new AgentView();
             o.AgentID = SParentID;
-            o.Level = Level;
             o.AgentName = SParentName;
             o.AgentTeam = MasterAgentID.ToString();
 
@@ -61,7 +64,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         {
             get
             {
-                return string.Format("{0}|{1}", SParentID, Level);
+                return string.Format("{0}|{1}", SParentID, MasterAgentID);
             }
         }
 

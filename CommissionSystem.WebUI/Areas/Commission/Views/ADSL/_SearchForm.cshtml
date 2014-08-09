@@ -1,0 +1,43 @@
+﻿<form name="form" class="form-horizontal well" role="form">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Agent</label>
+        <div class="col-sm-9">
+            <select id="agentID" name="agentID" style="width:80%"
+                    ng-model="agentID"
+                    ng-required="true"
+                    ui-select2
+                    data-placeholder="Please select">
+                <option value=""></option>
+                <option value="0">All</option>
+                <option ng-repeat="o in agents" value="{{o.SParentID}}">{{o.SParentID}}: {{o.SParentName}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Date</label>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <span class="input-group-addon">From</span>
+                <input type="text" class="form-control" ng-model="dateFrom" datepicker-popup="yyyy-MM-dd" is-open="openedDateFrom" ng-required="true" />
+                <span class="input-group-btn">
+                    <button class="btn" ng-click="openDateFrom($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <span class="input-group-addon">To</span>
+                <input type="text" class="form-control" ng-model="dateTo" datepicker-popup="yyyy-MM-dd" is-open="openedDateTo" ng-required="true" />
+                <span class="input-group-btn">
+                    <button class="btn" ng-click="openDateTo($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button class="btn btn-primary" ng-click="showCommission()" ng-disabled="form.$invalid">Show Commission</button>
+            <button class="btn btn-success" ng-click="sendMail()" ng-disabled="result == null">Send Mail</button>
+        </div>
+    </div>
+</form>

@@ -15,6 +15,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 {
     public class ADSLController : Controller
     {
+        private const string COMMISSION_RESULT = "ADSL_COMMISSION_RESULT";
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
         //
@@ -51,20 +52,38 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             try
             {
+                Dictionary<int, List<SalesParent>> dic = new Dictionary<int, List<SalesParent>>();
                 List<SalesParent> l = new List<SalesParent>();
-                GetAgents(req.AgentID, l);
+                GetAgentHierarchy(req.AgentID, l, dic);
 
                 DateTime dateFrom = req.DateFrom;
                 DateTime dateTo = req.DateTo;
 
                 o = new ADSLCommission();
+                o.AgentDic = dic;
                 o.AgentList = l;
                 o.DateFrom = req.DateFrom;
                 o.DateTo = req.DateTo.AddDays(1);
                 o.SetCommission();
 
+                CommissionResult c = new CommissionResult();
+
+                if (req.AgentID != 0)
+                {
+                    var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
+                    c.CommissionViewDic[k.Key] = k.Value;
+                    c.AgentViewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
+                }
+
+                else
+                {
+                    c.CommissionViewDic = o.CommissionViewDic;
+                    c.AgentViewList = o.AgentViewList;
+                }
+
                 r["success"] = 1;
-                r["agentlist"] = l;
+                r["result"] = c;
+                Session[COMMISSION_RESULT] = c;
             }
 
             catch (Exception e)
@@ -117,7 +136,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                 rd.Close();
                 AddAgentsToDic(dic, l, 0);
-                GetChildAgents(l, dic, m, d);
+                GetChildAgents(l, dic, m, d, 0);
             }
 
             catch (Exception e)
@@ -149,15 +168,16 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     return;
                 }
 
+                Dictionary<int, int> t = new Dictionary<int, int>();
                 Dictionary<int, SalesParent> m = GetAgents_();
                 d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct sfid, magentid from salesforcedetail ")
-                    .Append("where magentid = @magentid and sfid in ")
+                    .Append("where sfid = @sfid and sfid in ")
                     .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
                 string q = sb.ToString();
 
-                SqlParameter p = new SqlParameter("@magentid", SqlDbType.Int);
+                SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
                 p.Value = agentID;
                 d.AddParameter(p);
 
@@ -168,16 +188,23 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     int magentid = rd.Get<int>("magentid");
 
                     SalesParent a = m[sfid];
-                    SalesParent b = m[magentid];
 
-                    b.AddChildAgent(a);
+                    if (m.ContainsKey(magentid))
+                    {
+                        SalesParent b = m[magentid];
+                        b.AddChildAgent(a);
+                    }
 
-                    l.Add(a);
+                    if (!t.ContainsKey(sfid))
+                    {
+                        t[sfid] = sfid;
+                        l.Add(a);
+                    }
                 }
 
                 rd.Close();
                 AddAgentsToDic(dic, l, 1);
-                GetChildAgents(l, dic, m, d);
+                GetChildAgents(l, dic, m, d, 1);
             }
 
             catch (Exception e)
@@ -197,9 +224,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         }
 
         private void GetChildAgents(List<SalesParent> parentList, Dictionary<int, List<SalesParent>> dic, 
-            Dictionary<int, SalesParent> m, DbHelper d)
+            Dictionary<int, SalesParent> m, DbHelper d, int parentLevel)
         {
             SqlDataReader rd = null;
+            int level = parentLevel;
 
             try
             {
@@ -244,11 +272,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                         }
 
                         rd.Close();
-                        AddAgentsToDic(dic, l, parent.Level + 1);
+                        AddAgentsToDic(dic, l, level + 1);
 
                         if (l.Count > 0)
                             st.Push(l);
                     }
+
+                    ++level;
                 }
             }
 
