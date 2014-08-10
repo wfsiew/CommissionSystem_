@@ -54,10 +54,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     {
                         SalesParent a = l[j];
                         List<SalesParent> blist = a.ParentAgentList;
-                        qa.Clear();
-
-                        if (a.ParentAgentList.Count > 0)
-                            qa.Enqueue(a.ParentAgentList);
 
                         AgentID = a.SParentID;
                         agentid = a.SParentID.ToString();
@@ -73,12 +69,19 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                         foreach (KeyValuePair<int, Customer> d in customerDic)
                         {
+                            qa.Clear();
+
+                            if (a.ParentAgentList.Count > 0)
+                                qa.Enqueue(a.ParentAgentList);
+
                             Customer customer = d.Value;
                             int custID = d.Key;
                             List<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID).ToList();
 
                             customer.BillingInfoList = ebi;
-                            a.AddCustomer(customer);
+
+                            if (!a.CustomerList.Exists(x => x.CustID == customer.CustID))
+                                a.AddCustomer(customer);
 
                             CommissionView v = new CommissionView();
                             v.Customer = customer;
