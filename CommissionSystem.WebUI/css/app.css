@@ -59,6 +59,11 @@ td.menuitem {
     font-weight: bold !important;
 }
 
+.total {
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+}
+
 .nav, .pagination, .carousel a {
     cursor: pointer;
 }

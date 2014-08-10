@@ -55,10 +55,16 @@
                         <div ng-repeat="se in k.Customer.SettlementList">
                             {{se.Amount | mycurrency:'RM'}}
                         </div>
-                        <div class="bold" style="border-top:1px solid;border-bottom:1px solid">{{k.SettlementAmount | mycurrency:'RM'}}</div>
+                        <div class="bold total">{{k.SettlementAmount | mycurrency:'RM'}}</div>
                     </td>
-                    <td>(T x {{k.CommissionRate}})</td>
-                    <td class="tdRight">{{k.Commission | mycurrency:'RM'}}</td>
+                    <td>
+                        <br ng-repeat="se in k.Customer.SettlementList" />
+                        (T x {{k.CommissionRate}})
+                    </td>
+                    <td class="tdRight">
+                        <br ng-repeat="se in k.Customer.SettlementList" />
+                        {{k.Commission | mycurrency:'RM'}}
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -102,6 +102,60 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return Json(r, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public ActionResult Mail(FibrePlusRequest req)
+        {
+            Dictionary<string, object> r = new Dictionary<string, object>();
+
+            try
+            {
+                List<string> l = new List<string>()
+                    {
+                        "siewwingfei@hotmail.com"
+                    };
+
+                EmailInfo emailInfo = new EmailInfo
+                {
+                    ToList = l,
+                    DisplayName = "ADSL Commission",
+                    Subject = "REDtone ADSL Commission"
+                };
+
+                CommissionResult c = Session[COMMISSION_RESULT] as CommissionResult;
+
+                if (c == null)
+                    throw new UIException("There is no commission result");
+
+                ViewData["DateFrom"] = Utils.FormatDateTime(req.DateFrom);
+                ViewData["DateTo"] = Utils.FormatDateTime(req.DateTo);
+
+                Attachment att = c.GetADSLCommissionResultData(req.DateFrom, req.DateTo);
+
+                if (att != null)
+                    emailInfo.AttList = new List<Attachment> { att };
+
+                new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData,
+                    CommissionMailController.COMMISSIONNOTIFICATION_ADSL).DeliverAsync();
+
+                r["success"] = 1;
+            }
+
+            catch (UIException e)
+            {
+                r["error"] = 1;
+                r["message"] = e.Message;
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                r["error"] = 1;
+                r["message"] = e.StackTrace;
+            }
+
+            return Json(r, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult Agents()
         {
             List<SalesParent> l = GetAgents();
@@ -202,7 +256,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 }
 
                 rd.Close();
-                AddAgentsToDic(dic, l, 1);
+                AddAgentsToDic(dic, l, 0);
                 GetChildAgents(l, dic, m, d, 0);
             }
 
@@ -250,9 +304,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                             .Append("where magentid = @magentid and sfid in ")
                             .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
                         string q = sb.ToString();
-
-                        if (parent.SParentID == 8810039)
-                            System.Diagnostics.Debug.WriteLine("l");
 
                         SqlParameter p = new SqlParameter("@magentid", SqlDbType.Int);
                         p.Value = parent.SParentID;

@@ -11,7 +11,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 {
     public class CommissionMailController : MailerBase
     {
-        public EmailResult CommissionNotificationEmail(CommissionResult c, EmailInfo mail, ViewDataDictionary viewData)
+        public const string COMMISSIONNOTIFICATION_FIBREPLUS = "CommissionNotification_FibrePlus";
+        public const string COMMISSIONNOTIFICATION_ADSL = "CommissionNotification_ADSL";
+
+        public EmailResult CommissionNotificationEmail(CommissionResult c, EmailInfo mail, ViewDataDictionary viewData, string view)
         {
             foreach (string email in mail.ToList)
             {
@@ -26,7 +29,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             From = string.Format("{0} {1}", mail.DisplayName, Constants.MAIL_SENDER);
             Subject = mail.Subject;
 
-            string view = "CommissionNotification";
             ViewData = viewData;
 
             return Email(view, c);

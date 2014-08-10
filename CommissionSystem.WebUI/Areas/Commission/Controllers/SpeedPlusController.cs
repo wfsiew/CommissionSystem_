@@ -170,7 +170,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 if (att != null)
                     emailInfo.AttList = new List<Attachment> { att };
 
-                new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData).DeliverAsync();
+                new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData, 
+                    CommissionMailController.COMMISSIONNOTIFICATION_FIBREPLUS).DeliverAsync();
 
                 r["success"] = 1;
             }

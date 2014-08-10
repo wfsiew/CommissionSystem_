@@ -5,6 +5,7 @@ using System.Web;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using CommissionSystem.WebUI.Models;
 using CommissionSystem.WebUI.Helpers;
 using CommissionSystem.Domain.Models;
@@ -55,8 +56,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         List<SalesParent> blist = a.ParentAgentList;
                         qa.Clear();
 
-                        if (blist.Count > 0)
-                            qa.Enqueue(blist);
+                        if (a.ParentAgentList.Count > 0)
+                            qa.Enqueue(a.ParentAgentList);
 
                         AgentID = a.SParentID;
                         agentid = a.SParentID.ToString();
@@ -188,6 +189,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     }
                                 }
                             }
+
+                            qa.Clear();
+
+                            if (a.ParentAgentList.Count > 0)
+                                qa.Enqueue(a.ParentAgentList);
                         }
                     }
                 }
@@ -405,7 +411,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return dic;
         }
 
-        private bool IsCustomerExist(int sfid, int custid)
+        private bool IsCustomerExist(int magentid, int custid)
         {
             bool a = false;
             SqlDataReader rd = null;
@@ -413,11 +419,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select top 1 custid from salesforcedetail where sfid = @sfid and custid = @custid");
+                sb.Append("select top 1 custid from salesforcedetail where magentid = @magentid and custid = @custid");
                 string q = sb.ToString();
 
-                SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
-                p.Value = sfid;
+                SqlParameter p = new SqlParameter("@magentid", magentid);
+                p.Value = magentid;
                 Db.AddParameter(p);
 
                 p = new SqlParameter("@custid", SqlDbType.Int);
