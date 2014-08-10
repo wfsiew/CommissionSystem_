@@ -122,7 +122,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                         bool parentExist = IsCustomerExist(b.SParentID, custID);
 
                                         if (!parentExist)
+                                        {
+                                            //qa.Enqueue(new List<SalesParent>() { b });
                                             continue;
+                                        }
 
                                         if (!cv.ContainsKey(bagentid))
                                             cv[bagentid] = new List<CommissionView>();
@@ -169,7 +172,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                         bool parentExist = IsCustomerExist(b.SParentID, custID);
 
                                         if (!parentExist)
+                                        {
+                                            //qa.Enqueue(new List<SalesParent>() { b });
                                             continue;
+                                        }
 
                                         if (!cv.ContainsKey(bagentid))
                                             cv[bagentid] = new List<CommissionView>();
@@ -189,11 +195,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     }
                                 }
                             }
-
-                            qa.Clear();
-
-                            if (a.ParentAgentList.Count > 0)
-                                qa.Enqueue(a.ParentAgentList);
                         }
                     }
                 }
@@ -319,6 +320,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         private List<CustomerBillingInfo> GetCustomerBillingInfos()
         {
             List<CustomerBillingInfo> l = new List<CustomerBillingInfo>();
+            Dictionary<string, bool> m = new Dictionary<string, bool>();
             SqlDataReader rd = null;
 
             try
@@ -327,11 +329,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 sb.Append("select custid, rental, productid, amount, realcommencementdate ")
                     .Append("from customerbillinginfo ")
                     .Append("where custid in (")
-                    .Append("select custid from customer where status = 1 and custid in (")
-                    .Append("select distinct custid from salesforcedetail where sfid = @sfid)) ");
+                    .Append("select custid from customer where agentid = @agentid and status = 1)");
                 string q = sb.ToString();
 
-                SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
                 p.Value = AgentID;
                 Db.AddParameter(p);
 
@@ -345,7 +346,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.Amount = rd.Get<decimal>("amount");
                     o.RealCommencementDate = rd.GetDateTime("realcommencementdate");
 
-                    l.Add(o);
+                    string uid = string.Format("{0}-{1}", o.CustID, o.ProductID);
+
+                    if (!m.ContainsKey(uid))
+                    {
+                        m[uid] = true;
+                        l.Add(o);
+                    }
                 }
 
                 rd.Close();
