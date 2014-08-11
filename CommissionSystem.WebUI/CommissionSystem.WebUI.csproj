@@ -239,6 +239,7 @@
     <Content Include="js\lib\angular-sanitize.min.js" />
     <Content Include="js\lib\angular-strap.min.js" />
     <Content Include="js\lib\angular-strap.tpl.min.js" />
+    <Content Include="js\lib\angular-touch.min.js" />
     <Content Include="js\lib\angular.min.js" />
     <Content Include="js\lib\bootbox.min.js" />
     <Content Include="js\lib\bootstrap.js" />
@@ -282,6 +283,7 @@
     <Content Include="Areas\Commission\Views\CorporateInternetPro\Index.cshtml" />
     <Content Include="Areas\Commission\Views\CorporateInternetPremium\AgentSummary.cshtml" />
     <Content Include="Areas\Commission\Views\CorporateInternetPro\AgentSummary.cshtml" />
+    <Content Include="js\lib\angular-touch.min.js.map" />
     <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />
