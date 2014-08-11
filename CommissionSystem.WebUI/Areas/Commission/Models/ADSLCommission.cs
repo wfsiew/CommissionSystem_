@@ -45,6 +45,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 levels.Reverse();
                 SettingFactory sf = SettingFactory.Instance;
                 Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
+                Dictionary<string, bool> t = new Dictionary<string, bool>();
 
                 for (int i = 0; i < levels.Count; i++)
                 {
@@ -69,6 +70,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                         foreach (KeyValuePair<int, Customer> d in customerDic)
                         {
+                            string uid = string.Format("{0}-{1}", a.SParentID, d.Key);
+                            if (t.ContainsKey(uid))
+                                break;
+
+                            else
+                                t[uid] = true;
+
                             qa.Clear();
 
                             if (a.ParentAgentList.Count > 0)
@@ -125,10 +133,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                         bool parentExist = IsCustomerExist(b.SParentID, custID);
 
                                         if (!parentExist)
-                                        {
-                                            //qa.Enqueue(new List<SalesParent>() { b });
                                             continue;
-                                        }
 
                                         if (!cv.ContainsKey(bagentid))
                                             cv[bagentid] = new List<CommissionView>();
@@ -175,10 +180,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                         bool parentExist = IsCustomerExist(b.SParentID, custID);
 
                                         if (!parentExist)
-                                        {
-                                            //qa.Enqueue(new List<SalesParent>() { b });
                                             continue;
-                                        }
 
                                         if (!cv.ContainsKey(bagentid))
                                             cv[bagentid] = new List<CommissionView>();
