@@ -325,7 +325,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         private List<CustomerBillingInfo> GetCustomerBillingInfos()
         {
             List<CustomerBillingInfo> l = new List<CustomerBillingInfo>();
-            Dictionary<string, bool> m = new Dictionary<string, bool>();
+            Dictionary<string, bool> t = new Dictionary<string, bool>();
             SqlDataReader rd = null;
 
             try
@@ -335,6 +335,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     .Append("from customerbillinginfo ")
                     .Append("where custid in (")
                     .Append("select custid from customer where agentid = @agentid and status = 1)");
+                    //.Append("dateadd(month, contractperiod, realcommencementdate) > current_timestamp");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
@@ -353,9 +354,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                     string uid = string.Format("{0}-{1}", o.CustID, o.ProductID);
 
-                    if (!m.ContainsKey(uid))
+                    if (!t.ContainsKey(uid))
                     {
-                        m[uid] = true;
+                        t[uid] = true;
                         l.Add(o);
                     }
                 }
