@@ -13,7 +13,7 @@ using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
-    public class ADSLCommission : IDisposable
+    public class MetroECommission : IDisposable
     {
         public DbHelper Db { get; set; }
         public int AgentID { get; set; }
@@ -23,14 +23,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public Dictionary<int, List<SalesParent>> AgentDic { get; set; }
         public Dictionary<string, List<CommissionView>> CommissionViewDic { get; set; }
         public List<AgentView> AgentViewList { get; set; }
-        public string ProductKeyword { get; set; }
+        public string ProductKeyword { get; private set; }
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public ADSLCommission()
+        public MetroECommission()
         {
             Db = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
-            ProductKeyword = "%ADSL%";
+            ProductKeyword = "%Metro%";
         }
 
         public void SetCommission()
@@ -111,12 +111,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                             if (a.IsInternalData)
                             {
-                                v.CommissionRate = sf.ADSLInternalSetting.Commission;
+                                v.CommissionRate = sf.MetroEInternalSetting[1].Commission;
                                 v.SettlementAmount += amount;
 
                                 av[agentid].TotalSettlement += v.SettlementAmount;
 
-                                v.Commission = sf.ADSLInternalSetting.GetDirectCommission(v.SettlementAmount);
+                                v.Commission = sf.MetroEInternalSetting[1].GetDirectCommission(v.SettlementAmount);
                                 av[agentid].TotalCommission += v.Commission;
 
                                 for (int n = 1; n < 3; n++)
@@ -142,8 +142,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                         CommissionView bv = new CommissionView();
                                         bv.Customer = customer;
-                                        bv.Commission = sf.ADSLInternalSetting.GetCommission(v.SettlementAmount, n);
-                                        bv.CommissionRate = sf.ADSLInternalSetting.GetCommissionRate(n);
+                                        bv.Commission = sf.MetroEInternalSetting[1].GetCommission(v.SettlementAmount, n);
+                                        bv.CommissionRate = sf.MetroEInternalSetting[1].GetCommissionRate(n);
                                         bv.SettlementAmount += v.SettlementAmount;
                                         cv[bagentid].Add(bv);
 
@@ -158,12 +158,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                             else
                             {
-                                v.CommissionRate = sf.ADSLExternalSetting.Commission;
+                                v.CommissionRate = sf.MetroEExternalSetting[1].Commission;
                                 v.SettlementAmount += amount;
 
                                 av[agentid].TotalSettlement += v.SettlementAmount;
 
-                                v.Commission = sf.ADSLExternalSetting.GetDirectCommission(v.SettlementAmount);
+                                v.Commission = sf.MetroEExternalSetting[1].GetDirectCommission(v.SettlementAmount);
                                 av[agentid].TotalCommission += v.Commission;
 
                                 for (int n = 1; n < 4; n++)
@@ -189,8 +189,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                         CommissionView bv = new CommissionView();
                                         bv.Customer = customer;
-                                        bv.Commission = sf.ADSLExternalSetting.GetCommission(v.SettlementAmount, n);
-                                        bv.CommissionRate = sf.ADSLExternalSetting.GetCommissionRate(n);
+                                        bv.Commission = sf.MetroEExternalSetting[1].GetCommission(v.SettlementAmount, n);
+                                        bv.CommissionRate = sf.MetroEExternalSetting[1].GetCommissionRate(n);
                                         bv.SettlementAmount += v.SettlementAmount;
                                         cv[bagentid].Add(bv);
 
@@ -337,7 +337,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     .Append("from customerbillinginfo ")
                     .Append("where custid in (")
                     .Append("select custid from customer where agentid = @agentid and status = 1)");
-                    //.Append("dateadd(month, contractperiod, realcommencementdate) > current_timestamp");
+                //.Append("dateadd(month, contractperiod, realcommencementdate) > current_timestamp");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);

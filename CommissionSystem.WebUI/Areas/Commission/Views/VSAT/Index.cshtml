@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "V-SAT";
+}
+
+<div ng-controller="VSATCtrl" ng-init="init()">
+    @{ Html.RenderPartial("ADSL/_SearchForm"); }
+    @{ Html.RenderPartial("ADSL/_CommissionResult"); }
+</div>
+
+<script src="~/Areas/Commission/js/vsat/controller.js"></script>

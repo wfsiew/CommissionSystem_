@@ -13,7 +13,7 @@ using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
-    public class ADSLCommission : IDisposable
+    public class VSATCommission : IDisposable
     {
         public DbHelper Db { get; set; }
         public int AgentID { get; set; }
@@ -27,10 +27,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public ADSLCommission()
+        public VSATCommission()
         {
             Db = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
-            ProductKeyword = "%ADSL%";
+            ProductKeyword = "%V- SAT%";
         }
 
         public void SetCommission()
@@ -116,7 +116,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                 av[agentid].TotalSettlement += v.SettlementAmount;
 
-                                v.Commission = sf.ADSLInternalSetting.GetDirectCommission(v.SettlementAmount);
+                                v.Commission = sf.VSATInternalSetting.GetDirectCommission(v.SettlementAmount);
                                 av[agentid].TotalCommission += v.Commission;
 
                                 for (int n = 1; n < 3; n++)
@@ -142,8 +142,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                         CommissionView bv = new CommissionView();
                                         bv.Customer = customer;
-                                        bv.Commission = sf.ADSLInternalSetting.GetCommission(v.SettlementAmount, n);
-                                        bv.CommissionRate = sf.ADSLInternalSetting.GetCommissionRate(n);
+                                        bv.Commission = sf.VSATInternalSetting.GetCommission(v.SettlementAmount, n);
+                                        bv.CommissionRate = sf.VSATInternalSetting.GetCommissionRate(n);
                                         bv.SettlementAmount += v.SettlementAmount;
                                         cv[bagentid].Add(bv);
 
@@ -158,12 +158,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                             else
                             {
-                                v.CommissionRate = sf.ADSLExternalSetting.Commission;
+                                v.CommissionRate = sf.VSATExternalSetting.Commission;
                                 v.SettlementAmount += amount;
 
                                 av[agentid].TotalSettlement += v.SettlementAmount;
 
-                                v.Commission = sf.ADSLExternalSetting.GetDirectCommission(v.SettlementAmount);
+                                v.Commission = sf.VSATExternalSetting.GetDirectCommission(v.SettlementAmount);
                                 av[agentid].TotalCommission += v.Commission;
 
                                 for (int n = 1; n < 4; n++)
@@ -189,8 +189,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                         CommissionView bv = new CommissionView();
                                         bv.Customer = customer;
-                                        bv.Commission = sf.ADSLExternalSetting.GetCommission(v.SettlementAmount, n);
-                                        bv.CommissionRate = sf.ADSLExternalSetting.GetCommissionRate(n);
+                                        bv.Commission = sf.VSATExternalSetting.GetCommission(v.SettlementAmount, n);
+                                        bv.CommissionRate = sf.VSATExternalSetting.GetCommissionRate(n);
                                         bv.SettlementAmount += v.SettlementAmount;
                                         cv[bagentid].Add(bv);
 
@@ -337,7 +337,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     .Append("from customerbillinginfo ")
                     .Append("where custid in (")
                     .Append("select custid from customer where agentid = @agentid and status = 1)");
-                    //.Append("dateadd(month, contractperiod, realcommencementdate) > current_timestamp");
+                //.Append("dateadd(month, contractperiod, realcommencementdate) > current_timestamp");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);

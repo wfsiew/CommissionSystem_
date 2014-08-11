@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "Corporate Internet Premium";
+}
+
+<div ng-controller="CorporateInternetPremiumCtrl" ng-init="init()">
+    @{ Html.RenderPartial("ADSL/_SearchForm"); }
+    @{ Html.RenderPartial("ADSL/_CommissionResult"); }
+</div>
+
+<script src="~/Areas/Commission/js/corporateinternetpremium/controller.js"></script>

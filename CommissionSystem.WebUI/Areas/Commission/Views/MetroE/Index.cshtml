@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "Metro-E";
+}
+
+<div ng-controller="MetroECtrl" ng-init="init()">
+    @{ Html.RenderPartial("ADSL/_SearchForm"); }
+    @{ Html.RenderPartial("ADSL/_CommissionResult"); }
+</div>
+
+<script src="~/Areas/Commission/js/metroe/controller.js"></script>
