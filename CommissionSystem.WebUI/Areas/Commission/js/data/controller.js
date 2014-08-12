@@ -93,6 +93,18 @@
         return a;
     }
 
+    $scope.getRowCss = function (o) {
+        var a = '';
+
+        if (o.Status == 0)
+            a = 'alert alert-danger';
+
+        else if (o.Status == 4)
+            a = 'alert alert-warning';
+
+        return a;
+    }
+
     $scope.init = function () {
         var url = route.data.agents;
         $http.get(url).success(function (data) {

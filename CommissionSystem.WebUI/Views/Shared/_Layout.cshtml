@@ -60,12 +60,11 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-3 col-md-2 sidebar">
-                <ul class="nav nav-stacked nav-sidebar">
-                    <li><a href="">Commission</a></li>
-                    <li class="@(ViewBag.Menu == Constants.CORPORATE_DATA ? "active" : "")"><a href="@Url.Action("Index", "Data", new { area = "Commission" })">Corporate Data</a></li>
-                    <li class="@(ViewBag.Menu == Constants.FIBREPLUS)"><a href="@Url.Action("Index", "FibrePlus", new { area = "Commission" })">Fibre+</a></li>
-                    <li><a href="">Another nav item</a></li>
-                    <li><a href="">More navigation</a></li>
+                <ul class="nav nav-pills nav-stacked affix">
+                    <li><a href="#">Commission</a></li>
+                    <li class="@(ViewBag.Menu == Constants.CORPORATE_DATA ? "active" : null)"><a href="@Url.Action("Index", "Data", new { area = "Commission" })">Corporate Data</a></li>
+                    <li class="@(ViewBag.Menu == Constants.FIBREPLUS ? "active" : null)"><a href="@Url.Action("Index", "FibrePlus", new { area = "Commission" })">Fibre+</a></li>
+                    <li class="@(ViewBag.Menu == Constants.SPEEDPLUS ? "active" : null)"><a href="@Url.Action("Index", "SpeedPlus", new { area = "Commission" })">Speed+</a></li>
                 </ul>
             </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

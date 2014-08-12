@@ -37,7 +37,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="k in result.CommissionViewDic[o.AgentID]">
+                <tr ng-repeat="k in result.CommissionViewDic[o.AgentID]" ng-class="getRowCss(k.Customer)">
                     <td class="tdRight">{{$index + 1}}.</td>
                     <td>{{k.Customer.CustID}}</td>
                     <td>{{k.Customer.Name}} {{getStatus(k.Customer)}}</td>
@@ -57,7 +57,7 @@
                         </div>
                         <div class="bold total">{{k.SettlementAmount | mycurrency:'RM'}}</div>
                     </td>
-                    <td>
+                    <td class="nowrap">
                         <br ng-repeat="se in k.Customer.SettlementList" />
                         (T x {{k.CommissionRate}})
                     </td>

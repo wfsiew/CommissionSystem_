@@ -23,6 +23,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
         public ActionResult Index()
         {
+            ViewBag.Menu = Constants.SPEEDPLUS;
             return View();
         }
 

@@ -14,5 +14,6 @@ namespace CommissionSystem.WebUI.Helpers
 
         public const string CORPORATE_DATA = "Corporate Data";
         public const string FIBREPLUS = "Fibre+";
+        public const string SPEEDPLUS = "Speed+";
     }
 }
