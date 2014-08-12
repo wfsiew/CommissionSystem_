@@ -1,7 +1,5 @@
 ﻿<!DOCTYPE html>
 
-@using CommissionSystem.WebUI.Helpers;
-
 <html ng-app="mvcapp">
 <head>
     <!-- Force latest IE rendering engine or ChromeFrame if installed -->
@@ -45,27 +43,11 @@
     <script src="~/js/directives.js"></script>
 </head>
 <body>
-    <div class="navbar navbar-fixed-top" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">Commission System</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">Profile</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    @{ Html.RenderPartial("_Header"); }
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-3 col-md-2 sidebar">
-                <ul class="nav nav-pills nav-stacked affix">
-                    <li><a href="#">Commission</a></li>
-                    <li class="@(ViewBag.Menu == Constants.CORPORATE_DATA ? "active" : null)"><a href="@Url.Action("Index", "Data", new { area = "Commission" })">Corporate Data</a></li>
-                    <li class="@(ViewBag.Menu == Constants.FIBREPLUS ? "active" : null)"><a href="@Url.Action("Index", "FibrePlus", new { area = "Commission" })">Fibre+</a></li>
-                    <li class="@(ViewBag.Menu == Constants.SPEEDPLUS ? "active" : null)"><a href="@Url.Action("Index", "SpeedPlus", new { area = "Commission" })">Speed+</a></li>
-                </ul>
+                @{ Html.RenderPartial("_LeftMenu"); }
             </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
                 <h2 class="page-header">@ViewBag.Title</h2>

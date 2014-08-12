@@ -297,6 +297,8 @@
     <Content Include="Scripts\jquery-2.1.1.min.map" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\_Header.cshtml" />
+    <Content Include="Views\Shared\_LeftMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
