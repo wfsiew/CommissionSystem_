@@ -12,7 +12,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
     public class CommissionMailController : MailerBase
     {
         public const string COMMISSIONNOTIFICATION_FIBREPLUS = "CommissionNotification_FibrePlus";
-        public const string COMMISSIONNOTIFICATION_ADSL = "CommissionNotification_ADSL";
+        public const string COMMISSIONNOTIFICATION_DATA = "CommissionNotification_Data";
 
         public EmailResult CommissionNotificationEmail(CommissionResult c, EmailInfo mail, ViewDataDictionary viewData, string view)
         {

@@ -12,10 +12,10 @@
         mail: utils.getUrl('/Commission/SpeedPlus/Mail')
     };
 
-    var adsl = {
-        commission: utils.getUrl('/Commission/ADSL/Commission'),
-        agents: utils.getUrl('/Commission/ADSL/Agents'),
-        mail: utils.getUrl('/Commission/ADSL/Mail')
+    var data = {
+        commission: utils.getUrl('/Commission/Data/Commission'),
+        agents: utils.getUrl('/Commission/Data/Agents'),
+        mail: utils.getUrl('/Commission/Data/Mail')
     };
 
     var corporateinternetpro = {
@@ -45,10 +45,6 @@
     return {
         fibreplus: fibreplus,
         speedplus: speedplus,
-        corporateinternetpro: corporateinternetpro,
-        corporateinternetpremium: corporateinternetpremium,
-        adsl: adsl,
-        metroe: metroe,
-        vsat: vsat
+        data: data
     };
 }());

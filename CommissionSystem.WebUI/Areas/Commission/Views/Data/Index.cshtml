@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "Corporate Data";
+}
+
+<div ng-controller="DataCtrl" ng-init="init()">
+    @{ Html.RenderPartial("_SearchForm"); }
+    @{ Html.RenderPartial("_CommissionResult"); }
+</div>
+
+<script src="~/Areas/Commission/js/data/controller.js"></script>

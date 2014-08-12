@@ -21,7 +21,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public Dictionary<string, List<CommissionView>> CommissionViewDic { get; set; }
         public List<AgentView> AgentViewList { get; set; }
 
-        public Attachment GetADSLCommissionResultData(DateTime dateFrom, DateTime dateTo)
+        public Attachment GetDataCommissionResultData(DateTime dateFrom, DateTime dateTo)
         {
             ExcelPackage pk = null;
             Attachment att = null;

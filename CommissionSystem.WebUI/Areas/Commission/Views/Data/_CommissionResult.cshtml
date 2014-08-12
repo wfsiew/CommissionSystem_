@@ -1,0 +1,74 @@
+﻿<div ng-show="result != null">
+    <div ng-repeat="o in result.AgentViewList">
+        <form class="form-horizontal well" role="form">
+            <div class="form-group">
+                <label class="col-sm-2 control-label bold">Commission Period :</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static bold">{{dateFrom | date:'dd MMM yyyy'}} - {{dateTo | date:'dd MMM yyyy'}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label bold">Agent :</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static bold">{{o.AgentID}}: {{o.AgentName}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label bold">Total Commission Payable :</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static bold">{{o.TotalCommission | mycurrency:'RM'}}</p>
+                </div>
+            </div>
+        </form>
+        <div class="alert alert-info" ng-hide="result.CommissionViewDic[o.AgentID].length > 0">
+            No customers found.
+        </div>
+        <table class="table table-condensed table-bordered table-hover table-striped" ng-show="result.CommissionViewDic[o.AgentID].length > 0">
+            <thead>
+                <tr>
+                    <th class="tdRight">No.</th>
+                    <th>CustID</th>
+                    <th>Name</th>
+                    <th>Desc</th>
+                    <th class="nowrap">Settlement Date</th>
+                    <th class="tdRight">Settlement Amount</th>
+                    <th>Comm Rate</th>
+                    <th class="tdRight">Comm Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="k in result.CommissionViewDic[o.AgentID]">
+                    <td class="tdRight">{{$index + 1}}.</td>
+                    <td>{{k.Customer.CustID}}</td>
+                    <td>{{k.Customer.Name}} {{getStatus(k.Customer)}}</td>
+                    <td>
+                        <div ng-repeat="bi in k.Customer.BillingInfoList">
+                            {{bi.ProductType.Description}}
+                        </div>
+                    </td>
+                    <td class="nowrap">
+                        <div ng-repeat="se in k.Customer.SettlementList">
+                            {{se.RealDate | datefilter | date:'dd MMM yyyy'}}
+                        </div>
+                    </td>
+                    <td class="tdRight">
+                        <div ng-repeat="se in k.Customer.SettlementList">
+                            {{se.Amount | mycurrency:'RM'}}
+                        </div>
+                        <div class="bold total">{{k.SettlementAmount | mycurrency:'RM'}}</div>
+                    </td>
+                    <td>
+                        <br ng-repeat="se in k.Customer.SettlementList" />
+                        (T x {{k.CommissionRate}})
+                    </td>
+                    <td class="tdRight">
+                        <br ng-repeat="se in k.Customer.SettlementList" />
+                        {{k.Commission | mycurrency:'RM'}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <hr />
+</div>
