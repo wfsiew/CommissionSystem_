@@ -7,6 +7,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
     public class CustomerSettlement
     {
+        public CustomerSettlement()
+        {
+            InvoiceList = new List<Invoice>();
+        }
+
         public int SettlementIdx { get; set; }
         public int CustID { get; set; }
         public string Comment { get; set; }
@@ -16,5 +21,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public string Reference { get; set; }
         public string ORNo { get; set; }
         public int PaymentMode { get; set; }
+        public List<Invoice> InvoiceList { get; set; }
     }
 }

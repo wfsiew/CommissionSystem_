@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommissionSystem.WebUI", "CommissionSystem.WebUI\CommissionSystem.WebUI.csproj", "{627EB775-C081-42E6-9E66-4D585BC29854}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommissionSystem.Domain", "CommissionSystem.Domain\CommissionSystem.Domain.csproj", "{ECC30A9C-1387-48D5-8A6F-A78D0CE77EA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestIDDDesc", "TestIDDDesc\TestIDDDesc.csproj", "{3AE50D9A-CA77-4B06-87EA-54ED469DB210}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{ECC30A9C-1387-48D5-8A6F-A78D0CE77EA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECC30A9C-1387-48D5-8A6F-A78D0CE77EA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECC30A9C-1387-48D5-8A6F-A78D0CE77EA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AE50D9A-CA77-4B06-87EA-54ED469DB210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AE50D9A-CA77-4B06-87EA-54ED469DB210}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AE50D9A-CA77-4B06-87EA-54ED469DB210}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AE50D9A-CA77-4B06-87EA-54ED469DB210}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -104,7 +104,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 }
                             }
 
-                            decimal amount = GetCustomerSettlementAmount(customer);
+                            List<Invoice> invoiceList = GetCustomerInvoice(customer);
+                            decimal amount = GetCustomerSettlementAmount(customer, invoiceList);
                             a.Amount += amount;
 
                             if (a.IsInternalData)
@@ -233,7 +234,68 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 Db.Dispose();
         }
 
-        private decimal GetCustomerSettlementAmount(Customer customer)
+        private List<Invoice> GetCustomerInvoice(Customer customer)
+        {
+            List<Invoice> l = new List<Invoice>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                DateTime dt = DateFrom.AddMonths(-1);
+                int day = customer.BillingDay;
+
+                DateTime dateFrom = new DateTime(dt.Year, dt.Month, day);
+                DateTime dateTo = new DateTime(DateFrom.Year, DateFrom.Month, day);
+
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select i.custid, i.invoicenumber, i.totalcurrentcharge, i.realinvoicedate, csa.settlementidx from invoice i ")
+                    .Append("left join customersettlementassigned csa on i.invoicenumber = csa.invoiceno ")
+                    .Append("where i.custid = @custid and i.realinvoicedate >= @datefrom and i.realinvoicedate < @dateto");
+                string q = sb.ToString();
+                SqlParameter p = new SqlParameter("@custid", SqlDbType.Int);
+                p.Value = customer.CustID;
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@datefrom", SqlDbType.DateTime);
+                p.Value = dateFrom;
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@dateto", SqlDbType.DateTime);
+                p.Value = dateTo;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    Invoice o = new Invoice();
+                    o.CustID = rd.Get<int>("custid");
+                    o.InvoiceNumber = rd.Get("invoicenumber");
+                    o.TotalCurrentCharge = rd.Get<decimal>("totalcurrentcharge");
+                    o.InvoiceDate = rd.GetDateTime("realinvoicedate");
+                    o.SettlementIdx = rd.Get<int>("settlementidx");
+
+                    l.Add(o);
+                }
+
+                rd.Close();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return l;
+        }
+
+        private decimal GetCustomerSettlementAmount(Customer customer, List<Invoice> l)
         {
             decimal amt = 0;
             SqlDataReader rd = null;
@@ -273,8 +335,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.ORNo = rd.Get("orno");
                     o.PaymentMode = rd.Get<int>("paymentmode");
 
-                    amt += o.Amount;
-                    customer.AddSettlement(o);
+                    var invoiceList = l.Where(x => x.SettlementIdx == o.SettlementIdx);
+
+                    if (invoiceList.Count() > 0)
+                    {
+                        o.InvoiceList = invoiceList.ToList();
+                        amt += o.Amount;
+                        customer.AddSettlement(o);
+                    }
                 }
 
                 rd.Close();
@@ -399,7 +467,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select custid, name, status from customer where agentid = @agentid");
+                sb.Append("select custid, name, billingday, status from customer where agentid = @agentid");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
@@ -412,6 +480,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     Customer o = new Customer();
                     o.CustID = rd.Get<int>("custid");
                     o.Name = rd.Get("name");
+                    o.BillingDay = rd.Get<int>("billingday");
                     o.Status = rd.Get<int>("status");
 
                     dic[o.CustID] = o;

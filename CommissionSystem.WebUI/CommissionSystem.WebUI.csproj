@@ -152,12 +152,16 @@
     <Compile Include="Areas\Commission\Models\CustomerBillingInfo.cs" />
     <Compile Include="Areas\Commission\Models\CustomerSettlement.cs" />
     <Compile Include="Areas\Commission\Models\DataCommission.cs" />
+    <Compile Include="Areas\Commission\Models\DCSCommission.cs" />
     <Compile Include="Areas\Commission\Models\EmailInfo.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
+    <Compile Include="Areas\Commission\Models\Invoice.cs" />
     <Compile Include="Areas\Commission\Models\ProductTypes.cs" />
     <Compile Include="Areas\Commission\Models\SalesParent.cs" />
     <Compile Include="Areas\Commission\Models\SpeedPlusCommission.cs" />
+    <Compile Include="Areas\Commission\Models\VoiceCommission.cs" />
+    <Compile Include="Areas\Commission\Models\CallRate.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

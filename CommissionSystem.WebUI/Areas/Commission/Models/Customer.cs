@@ -16,6 +16,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public int CustID { get; set; }
         public string Name { get; set; }
         public int CustomerType { get; set; }
+        public int BillingDay { get; set; }
         public int Status { get; set; }
         public List<CustomerBillingInfo> BillingInfoList { get; set; }
         public List<CustomerSettlement> SettlementList { get; private set; }
