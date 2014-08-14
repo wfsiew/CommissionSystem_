@@ -268,4 +268,16 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return att;
         }
     }
+
+    public class VoiceCommissionResult : CommissionResult
+    {
+        private static Logger Logger = LogManager.GetCurrentClassLogger();
+
+        public VoiceCommissionResult()
+        {
+            CommissionViewDic = new Dictionary<string, List<VoiceCommissionView>>();
+        }
+
+        public Dictionary<string, List<VoiceCommissionView>> CommissionViewDic { get; set; }
+    }
 }

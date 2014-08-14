@@ -12,6 +12,7 @@ namespace CommissionSystem.WebUI.Helpers
         public const string CALLBILLING2 = "CallBilling2";
         public const string RTCBROADBAND_CALLBILLING = "RTCBroadband_CallBilling";
 
+        public const string DISCOUNTED_CALL_SERVICE = "Discounted Call Service";
         public const string CORPORATE_DATA = "Corporate Data";
         public const string FIBREPLUS = "Fibre+";
         public const string SPEEDPLUS = "Speed+";

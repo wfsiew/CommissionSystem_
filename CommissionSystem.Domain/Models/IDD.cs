@@ -14,6 +14,7 @@ namespace CommissionSystem.Domain.Models
         public double Tier1 { get; set; }
         public double Tier2 { get; set; }
 
+        public static int MaxRate;
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
         public double GetCommissionRate(int level)
@@ -60,10 +61,17 @@ namespace CommissionSystem.Domain.Models
                 doc.Load(path);
                 XmlNodeList x = doc.SelectNodes("IDDList/IDD");
                 Dictionary<int, IDDInternal> l = new Dictionary<int, IDDInternal>();
+                bool first = true;
 
                 foreach (XmlNode n in x)
                 {
                     IDDInternal o = IDDInternal.Load(n);
+                    if (first)
+                    {
+                        MaxRate = o.IDD;
+                        first = false;
+                    }
+
                     l.Add(o.IDD, o);
                 }
 
@@ -111,6 +119,7 @@ namespace CommissionSystem.Domain.Models
         public double Tier2 { get; set; }
         public double Tier3 { get; set; }
 
+        public static int MaxRate;
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public double GetCommissionRate(int level)
@@ -161,10 +170,17 @@ namespace CommissionSystem.Domain.Models
                 doc.Load(path);
                 XmlNodeList x = doc.SelectNodes("IDDList/IDD");
                 Dictionary<int, IDDExternal> l = new Dictionary<int, IDDExternal>();
+                bool first = true;
 
                 foreach (XmlNode n in x)
                 {
                     IDDExternal o = IDDExternal.Load(n);
+                    if (first)
+                    {
+                        MaxRate = o.IDD;
+                        first = false;
+                    }
+
                     l.Add(o.IDD, o);
                 }
 

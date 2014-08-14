@@ -5,6 +5,7 @@ using System.Web;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CommissionSystem.WebUI.Models;
 using CommissionSystem.WebUI.Helpers;
@@ -13,22 +14,12 @@ using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
-    public class DataCommission : IDisposable
+    public class DiscountedCallServiceCommission : VoiceCommission
     {
-        public DbHelper Db { get; set; }
-        public int AgentID { get; set; }
-        public DateTime DateFrom { get; set; }
-        public DateTime DateTo { get; set; }
-        public List<SalesParent> AgentList { get; set; }
-        public Dictionary<int, List<SalesParent>> AgentDic { get; set; }
-        public Dictionary<string, List<CommissionView>> CommissionViewDic { get; set; }
-        public List<AgentView> AgentViewList { get; set; }
-
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public DataCommission()
+        public DiscountedCallServiceCommission() : base()
         {
-            Db = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
         }
 
         public void SetCommission()
@@ -38,7 +29,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
             try
             {
-                Dictionary<string, List<CommissionView>> cv = new Dictionary<string, List<CommissionView>>();
+                Dictionary<string, List<VoiceCommissionView>> cv = new Dictionary<string, List<VoiceCommissionView>>();
                 Dictionary<string, AgentView> av = new Dictionary<string, AgentView>();
                 Queue<List<SalesParent>> qa = new Queue<List<SalesParent>>();
                 List<int> levels = AgentDic.Keys.ToList();
@@ -60,7 +51,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         agentid = a.SParentID.ToString();
 
                         if (!cv.ContainsKey(agentid))
-                            cv[agentid] = new List<CommissionView>();
+                            cv[agentid] = new List<VoiceCommissionView>();
 
                         if (!av.ContainsKey(agentid))
                             av[agentid] = a.GetAgentInfo();
@@ -91,7 +82,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             if (!a.CustomerList.Exists(x => x.CustID == customer.CustID))
                                 a.AddCustomer(customer);
 
-                            CommissionView v = new CommissionView();
+                            VoiceCommissionView v = new VoiceCommissionView();
                             v.Customer = customer;
                             cv[agentid].Add(v);
 
@@ -104,18 +95,39 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 }
                             }
 
-                            GetCustomerInvoice(customer);
+                            CallCharge callCharge = GetCustomerInvoice(customer);
                             decimal amount = GetCustomerSettlementAmount(customer);
                             a.Amount += amount;
 
-                            if (a.IsInternalData)
+                            string desc = GetRatePlanDescription(customer);
+                            CallRate cr = GetIDDSTDMOBRate(desc);
+
+                            int iddrate = 0;
+                            double stdrate = 0;
+                            double mobrate = 0;
+
+                            if (a.IsInternalVoice)
                             {
-                                v.CommissionRate = sf.ADSLInternalSetting.Commission;
-                                v.SettlementAmount += amount;
+                                iddrate = cr.IDD > IDDInternal.MaxRate ? IDDInternal.MaxRate : cr.IDD;
+                                stdrate = cr.STD > DiscountedCallServiceInternal.MaxRate ? DiscountedCallServiceInternal.MaxRate : cr.STD;
+                                mobrate = cr.MOB > DiscountedCallServiceInternal.MaxRate ? DiscountedCallServiceInternal.MaxRate : cr.MOB;
 
-                                av[agentid].TotalSettlement += v.SettlementAmount;
+                                v.CommissionRateIDD = sf.IDDInternalSetting[iddrate].Commission;
+                                v.CommissionRateSTD = sf.DiscountedCallServiceInternalSetting[stdrate].Commission;
+                                v.CommissionRateMOB = sf.DiscountedCallServiceInternalSetting[mobrate].Commission;
 
-                                v.Commission = sf.ADSLInternalSetting.GetDirectCommission(v.SettlementAmount);
+                                v.CallCharge += callCharge.Total;
+                                v.CallChargeIDD += callCharge.IDD;
+                                v.CallChargeSTD += callCharge.STD;
+                                v.CallChargeMOB += callCharge.MOB;
+
+                                av[agentid].TotalSettlement += v.CallCharge;
+
+                                v.CommissionIDD = sf.IDDInternalSetting[iddrate].GetDirectCommission(v.CallChargeIDD);
+                                v.CommissionSTD = sf.DiscountedCallServiceInternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD);
+                                v.CommissionMOB = sf.DiscountedCallServiceInternalSetting[mobrate].GetDirectCommission(v.CallChargeMOB);
+
+                                v.Commission = v.CommissionIDD + v.CommissionSTD + v.CommissionMOB;
                                 if (customer.Status != 1)
                                     v.Commission = 0;
 
@@ -140,22 +152,34 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                             continue;
 
                                         if (!cv.ContainsKey(bagentid))
-                                            cv[bagentid] = new List<CommissionView>();
+                                            cv[bagentid] = new List<VoiceCommissionView>();
 
-                                        CommissionView bv = new CommissionView();
+                                        VoiceCommissionView bv = new VoiceCommissionView();
                                         bv.Customer = customer;
-                                        bv.Commission = sf.ADSLInternalSetting.GetCommission(v.SettlementAmount, n);
+
+                                        bv.CommissionRateIDD = sf.IDDInternalSetting[iddrate].GetCommissionRate(n);
+                                        bv.CommissionRateSTD = sf.DiscountedCallServiceInternalSetting[stdrate].GetCommissionRate(n);
+                                        bv.CommissionRateMOB = sf.DiscountedCallServiceInternalSetting[mobrate].GetCommissionRate(n);
+
+                                        bv.CallCharge += v.CallCharge;
+                                        bv.CallChargeIDD += v.CallChargeIDD;
+                                        bv.CallChargeSTD += v.CallChargeSTD;
+                                        bv.CallChargeMOB += v.CallChargeMOB;
+
+                                        bv.CommissionIDD = sf.IDDInternalSetting[iddrate].GetCommission(v.CallChargeIDD, n);
+                                        bv.CommissionSTD = sf.DiscountedCallServiceInternalSetting[stdrate].GetCommission(v.CallChargeSTD, n);
+                                        bv.CommissionMOB = sf.DiscountedCallServiceInternalSetting[mobrate].GetCommission(v.CallChargeMOB, n);
+
+                                        bv.Commission = bv.CommissionIDD + bv.CommissionSTD + bv.CommissionMOB;
                                         if (customer.Status != 1)
                                             bv.Commission = 0;
 
-                                        bv.CommissionRate = sf.ADSLInternalSetting.GetCommissionRate(n);
-                                        bv.SettlementAmount += v.SettlementAmount;
                                         cv[bagentid].Add(bv);
 
                                         if (!av.ContainsKey(bagentid))
                                             av[bagentid] = b.GetAgentInfo();
 
-                                        av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                        av[bagentid].TotalSettlement += bv.CallCharge;
                                         av[bagentid].TotalCommission += bv.Commission;
                                     }
                                 }
@@ -163,12 +187,26 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                             else
                             {
-                                v.CommissionRate = sf.ADSLExternalSetting.Commission;
-                                v.SettlementAmount += amount;
+                                iddrate = cr.IDD > IDDExternal.MaxRate ? IDDExternal.MaxRate : cr.IDD;
+                                stdrate = cr.STD > DiscountedCallServiceExternal.MaxRate ? DiscountedCallServiceExternal.MaxRate : cr.STD;
+                                mobrate = cr.MOB > DiscountedCallServiceExternal.MaxRate ? DiscountedCallServiceExternal.MaxRate : cr.MOB;
 
-                                av[agentid].TotalSettlement += v.SettlementAmount;
+                                v.CommissionRateIDD = sf.IDDExternalSetting[iddrate].Commission;
+                                v.CommissionRateSTD = sf.DiscountedCallServiceExternalSetting[stdrate].Commission;
+                                v.CommissionRateMOB = sf.DiscountedCallServiceExternalSetting[mobrate].Commission;
 
-                                v.Commission = sf.ADSLExternalSetting.GetDirectCommission(v.SettlementAmount);
+                                v.CallCharge += callCharge.Total;
+                                v.CallChargeIDD += callCharge.IDD;
+                                v.CallChargeSTD += callCharge.STD;
+                                v.CallChargeMOB += callCharge.MOB;
+
+                                av[agentid].TotalSettlement += v.CallCharge;
+
+                                v.CommissionIDD = sf.IDDExternalSetting[iddrate].GetDirectCommission(v.CallChargeIDD);
+                                v.CommissionSTD = sf.DiscountedCallServiceExternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD);
+                                v.CommissionMOB = sf.DiscountedCallServiceExternalSetting[mobrate].GetDirectCommission(v.CallChargeMOB);
+
+                                v.Commission = v.CommissionIDD + v.CommissionSTD + v.CommissionMOB;
                                 if (customer.Status != 1)
                                     v.Commission = 0;
 
@@ -193,22 +231,34 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                             continue;
 
                                         if (!cv.ContainsKey(bagentid))
-                                            cv[bagentid] = new List<CommissionView>();
+                                            cv[bagentid] = new List<VoiceCommissionView>();
 
-                                        CommissionView bv = new CommissionView();
+                                        VoiceCommissionView bv = new VoiceCommissionView();
                                         bv.Customer = customer;
-                                        bv.Commission = sf.ADSLExternalSetting.GetCommission(v.SettlementAmount, n);
+
+                                        bv.CommissionRateIDD = sf.IDDExternalSetting[iddrate].GetCommissionRate(n);
+                                        bv.CommissionRateSTD = sf.DiscountedCallServiceExternalSetting[stdrate].GetCommissionRate(n);
+                                        bv.CommissionRateMOB = sf.DiscountedCallServiceExternalSetting[mobrate].GetCommissionRate(n);
+
+                                        bv.CallCharge += v.CallCharge;
+                                        bv.CallChargeIDD += v.CallChargeIDD;
+                                        bv.CallChargeSTD += v.CallChargeSTD;
+                                        bv.CallChargeMOB += v.CallChargeMOB;
+
+                                        bv.CommissionIDD = sf.IDDExternalSetting[iddrate].GetCommission(v.CallChargeIDD, n);
+                                        bv.CommissionSTD = sf.DiscountedCallServiceExternalSetting[stdrate].GetCommission(v.CallChargeSTD, n);
+                                        bv.CommissionMOB = sf.DiscountedCallServiceExternalSetting[mobrate].GetCommission(v.CallChargeMOB, n);
+
+                                        bv.Commission = bv.CommissionIDD + bv.CommissionSTD + bv.CommissionMOB;
                                         if (customer.Status != 1)
                                             bv.Commission = 0;
 
-                                        bv.CommissionRate = sf.ADSLExternalSetting.GetCommissionRate(n);
-                                        bv.SettlementAmount += v.SettlementAmount;
                                         cv[bagentid].Add(bv);
 
                                         if (!av.ContainsKey(bagentid))
                                             av[bagentid] = b.GetAgentInfo();
 
-                                        av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                        av[bagentid].TotalSettlement += bv.CallCharge;
                                         av[bagentid].TotalCommission += bv.Commission;
                                     }
                                 }
@@ -228,176 +278,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
         }
 
-        public void Dispose()
-        {
-            if (Db != null)
-                Db.Dispose();
-        }
-
-        private void GetCustomerInvoice(Customer customer)
-        {
-            SqlDataReader rd = null;
-
-            try
-            {
-                DateTime dt = DateFrom.AddMonths(-1);
-                int day = customer.BillingDay;
-
-                DateTime dateFrom = new DateTime(dt.Year, dt.Month, day);
-                DateTime dateTo = new DateTime(DateFrom.Year, DateFrom.Month, day);
-
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select i.custid, i.invoicenumber, i.totalcurrentcharge, i.realinvoicedate, csa.settlementidx from invoice i ")
-                    .Append("left join customersettlementassigned csa on i.invoicenumber = csa.invoiceno ")
-                    .Append("where i.custid = @custid and i.realinvoicedate >= @datefrom and i.realinvoicedate < @dateto");
-                string q = sb.ToString();
-                SqlParameter p = new SqlParameter("@custid", SqlDbType.Int);
-                p.Value = customer.CustID;
-                Db.AddParameter(p);
-
-                p = new SqlParameter("@datefrom", SqlDbType.DateTime);
-                p.Value = dateFrom;
-                Db.AddParameter(p);
-
-                p = new SqlParameter("@dateto", SqlDbType.DateTime);
-                p.Value = dateTo;
-                Db.AddParameter(p);
-
-                rd = Db.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
-                {
-                    Invoice o = new Invoice();
-                    o.CustID = rd.Get<int>("custid");
-                    o.InvoiceNumber = rd.Get("invoicenumber");
-                    o.TotalCurrentCharge = rd.Get<decimal>("totalcurrentcharge");
-                    o.InvoiceDate = rd.GetDateTime("realinvoicedate");
-                    o.SettlementIdx = rd.Get<int>("settlementidx");
-
-                    customer.AddInvoice(o);
-                }
-
-                rd.Close();
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-            }
-        }
-
-        private decimal GetCustomerSettlementAmount(Customer customer)
-        {
-            decimal amt = 0;
-            SqlDataReader rd = null;
-
-            try
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select settlementidx, custid, comment, amount, realdate, paymenttype, ")
-                    .Append("reference, orno, paymentmode from customersettlement ")
-                    .Append("where paymenttype = 1 and custid = @custid and ")
-                    .Append("productid <> 0 and paymenttype <> 3 and productid <> 41 and ")
-                    .Append("realdate >= @datefrom and realdate < @dateto");
-                string q = sb.ToString();
-                SqlParameter p = new SqlParameter("@custid", SqlDbType.Int);
-                p.Value = customer.CustID;
-                Db.AddParameter(p);
-
-                p = new SqlParameter("@datefrom", SqlDbType.DateTime);
-                p.Value = DateFrom;
-                Db.AddParameter(p);
-
-                p = new SqlParameter("@dateto", SqlDbType.DateTime);
-                p.Value = DateTo;
-                Db.AddParameter(p);
-
-                rd = Db.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
-                {
-                    CustomerSettlement o = new CustomerSettlement();
-                    o.SettlementIdx = rd.Get<int>("settlementidx");
-                    o.CustID = rd.Get<int>("custid");
-                    o.Comment = rd.Get("comment");
-                    o.Amount = rd.Get<decimal>("amount");
-                    o.RealDate = rd.GetDateTime("realdate");
-                    o.PaymentType = rd.Get<int>("paymenttype");
-                    o.Reference = rd.Get("reference");
-                    o.ORNo = rd.Get("orno");
-                    o.PaymentMode = rd.Get<int>("paymentmode");
-
-                    var invoiceList = customer.InvoiceList.Where(x => x.SettlementIdx == o.SettlementIdx);
-
-                    if (invoiceList.Count() > 0)
-                    {
-                        amt += o.Amount;
-                        customer.AddSettlement(o);
-                    }
-                }
-
-                rd.Close();
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-            }
-
-            return amt;
-        }
-
-        private Dictionary<int, ProductTypes> GetProductTypes()
-        {
-            Dictionary<int, ProductTypes> dic = new Dictionary<int, ProductTypes>();
-            SqlDataReader rd = null;
-
-            try
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select productid, description from producttypes");
-                string q = sb.ToString();
-
-                rd = Db.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
-                {
-                    ProductTypes o = new ProductTypes();
-                    o.ProductID = rd.Get<int>("productid");
-                    o.Description = rd.Get("description");
-
-                    dic[o.ProductID] = o;
-                }
-
-                rd.Close();
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-            }
-
-            return dic;
-        }
-
         private List<CustomerBillingInfo> GetCustomerBillingInfos()
         {
             List<CustomerBillingInfo> l = new List<CustomerBillingInfo>();
@@ -410,12 +290,17 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 sb.Append("select custid, rental, productid, amount, realcommencementdate ")
                     .Append("from customerbillinginfo ")
                     .Append("where custid in (")
-                    .Append("select custid from customer where agentid = @agentid)");
+                    .Append("select custid from customer where agentid = @agentid and serviceid = 13 and ")
+                    .Append("name not like @keyword)");
                 //.Append("dateadd(month, contractperiod, realcommencementdate) > current_timestamp");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
                 p.Value = AgentID;
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@keyword", SqlDbType.VarChar);
+                p.Value = "%Leased Line%";
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
@@ -463,11 +348,16 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select custid, name, billingday, status from customer where agentid = @agentid");
+                sb.Append("select custid, name, rateplanid, billingday, status from customer where agentid = @agentid and serviceid = 13 and ")
+                    .Append("name not like @keyword");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
                 p.Value = AgentID;
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@keyword", SqlDbType.VarChar);
+                p.Value = "%Leased Line%";
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
@@ -476,6 +366,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     Customer o = new Customer();
                     o.CustID = rd.Get<int>("custid");
                     o.Name = rd.Get("name");
+                    o.RatePlanID = rd.Get<int>("rateplanid");
                     o.BillingDay = rd.Get<int>("billingday");
                     o.Status = rd.Get<int>("status");
 
@@ -498,47 +389,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             }
 
             return dic;
-        }
-
-        private bool IsCustomerExist(int magentid, int custid)
-        {
-            bool a = false;
-            SqlDataReader rd = null;
-
-            try
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select top 1 custid from salesforcedetail where magentid = @magentid and custid = @custid");
-                string q = sb.ToString();
-
-                SqlParameter p = new SqlParameter("@magentid", magentid);
-                p.Value = magentid;
-                Db.AddParameter(p);
-
-                p = new SqlParameter("@custid", SqlDbType.Int);
-                p.Value = custid;
-                Db.AddParameter(p);
-
-                rd = Db.ExecuteReader(q, CommandType.Text);
-                if (rd.Read())
-                    a = true;
-
-                rd.Close();
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-            }
-
-            return a;
         }
     }
 }

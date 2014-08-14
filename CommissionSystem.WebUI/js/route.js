@@ -18,33 +18,16 @@
         mail: utils.getUrl('/Commission/Data/Mail')
     };
 
-    var corporateinternetpro = {
-        commission: utils.getUrl('/Commission/CorporateInternetPro/Commission'),
-        agents: utils.getUrl('/Commission/CorporateInternetPro/Agents'),
-        mail: utils.getUrl('/Commission/CorporateInternetPro/Mail')
-    };
-
-    var corporateinternetpremium = {
-        commission: utils.getUrl('/Commission/CorporateInternetPremium/Commission'),
-        agents: utils.getUrl('/Commission/CorporateInternetPremium/Agents'),
-        mail: utils.getUrl('/Commission/CorporateInternetPremium/Mail')
-    };
-
-    var metroe = {
-        commission: utils.getUrl('/Commission/MetroE/Commission'),
-        agents: utils.getUrl('/Commission/MetroE/Agents'),
-        mail: utils.getUrl('/Commission/MetroE/Mail')
-    };
-
-    var vsat = {
-        commission: utils.getUrl('/Commission/VSAT/Commission'),
-        agents: utils.getUrl('/Commission/VSAT/Agents'),
-        mail: utils.getUrl('/Commission/VSAT/Mail')
+    var dcs = {
+        commission: utils.getUrl('/Commission/DiscountedCallService/Commission'),
+        agents: utils.getUrl('/Commission/DiscountedCallService/Agents'),
+        mail: utils.getUrl('/Commission/DiscountedCallService/Mail')
     };
 
     return {
         fibreplus: fibreplus,
         speedplus: speedplus,
-        data: data
+        data: data,
+        dcs: dcs
     };
 }());

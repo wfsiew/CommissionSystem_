@@ -8,11 +8,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 {
     public class CallRate
     {
-        private double idd;
+        private int idd;
         private double std;
         private double mob;
 
-        public double IDD
+        public int IDD
         {
             get
             {
@@ -21,7 +21,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
             set
             {
-                idd = value * 0.01;
+                idd = value;
             }
         }
 
