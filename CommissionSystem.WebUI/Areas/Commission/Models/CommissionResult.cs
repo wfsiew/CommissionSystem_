@@ -278,6 +278,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             CommissionViewDic = new Dictionary<string, List<VoiceCommissionView>>();
         }
 
-        public Dictionary<string, List<VoiceCommissionView>> CommissionViewDic { get; set; }
+        new public Dictionary<string, List<VoiceCommissionView>> CommissionViewDic { get; set; }
     }
 }

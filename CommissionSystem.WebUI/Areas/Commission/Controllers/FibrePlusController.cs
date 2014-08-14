@@ -72,9 +72,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                 if (req.AgentID != 0)
                 {
-                    var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
-                    c.CommissionViewDic[k.Key] = k.Value;
-                    c.AgentViewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
+                    if (o.CommissionViewDic.Keys.Count > 0)
+                    {
+                        var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
+                        c.CommissionViewDic[k.Key] = k.Value;
+                        c.AgentViewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
+                    }
                 }
 
                 else
