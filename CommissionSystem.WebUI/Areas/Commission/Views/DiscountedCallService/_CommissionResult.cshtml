@@ -1,3 +1,118 @@
-﻿<div>
-    {{result | json}}
+﻿<div ng-show="result != null">
+    <div ng-repeat="o in result.AgentViewList">
+        <form class="form-horizontal well" role="form">
+            <div class="form-group">
+                <label class="col-sm-2 control-label bold">Commission Period :</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static bold">{{dateFrom | date:'dd MMM yyyy'}} - {{dateTo | date:'dd MMM yyyy'}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label bold">Agent :</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static bold">{{o.AgentID}}: {{o.AgentName}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label bold">Total Commission Payable :</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static bold">{{o.TotalCommission | mycurrency:'RM'}}</p>
+                </div>
+            </div>
+        </form>
+        <div class="alert alert-info" ng-hide="result.CommissionViewDic[o.AgentID].length > 0">
+            No customers found.
+        </div>
+        <table class="table table-condensed table-bordered table-hover table-striped" ng-show="result.CommissionViewDic[o.AgentID].length > 0">
+            <thead>
+                <tr>
+                    <th class="tdRight">No.</th>
+                    <th>CustID</th>
+                    <th>Name</th>
+                    <th>Desc</th>
+                    <th class="nowrap">Settlement Date</th>
+                    <th class="tdRight">Settlement Amount</th>
+                    <th>Comm Rate</th>
+                    <th class="tdRight">Comm Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="k in result.CommissionViewDic[o.AgentID]" ng-class="getRowCss(k.Customer)">
+                    <td class="tdRight">{{$index + 1}}.</td>
+                    <td>{{k.Customer.CustID}}</td>
+                    <td>{{k.Customer.Name}} {{getStatus(k.Customer)}}</td>
+                    <td>
+                        <div ng-repeat="bi in k.Customer.BillingInfoList">
+                            {{bi.ProductType.Description}}
+                        </div>
+                    </td>
+                    <td class="nowrap">
+                        <div ng-repeat="se in k.Customer.SettlementList">
+                            {{se.RealDate | datefilter | date:'dd MMM yyyy'}}
+                            <br ng-repeat="i in se.InvoiceList" />
+                            <br />
+                            <br ng-repeat="i in se.InvoiceList" />
+                            <br />
+                            <br />
+                            <br ng-repeat="i in se.InvoiceList" />
+                            <br />
+                        </div>
+                    </td>
+                    <td class="tdRight nowrap">
+                        <div ng-repeat="se in k.Customer.SettlementList">
+                            <div ng-repeat="i in se.InvoiceList">
+                                <span class="label label-default">IDD</span> {{i.CallChargesIDD | mycurrency:'RM'}}
+                            </div>
+                            <div class="bold total">{{k.CallChargeIDD | mycurrency:'RM'}}</div>
+                            <br />
+                            <div ng-repeat="i in se.InvoiceList">
+                                <span class="label label-default">STD</span> {{i.CallChargesSTD | mycurrency:'RM'}}
+                            </div>
+                            <div class="bold total">{{k.CallChargeSTD | mycurrency:'RM'}}</div>
+                            <br />
+                            <div ng-repeat="i in se.InvoiceList">
+                                <span class="label label-default">MOB</span> {{i.CallChargesMOB | mycurrency:'RM'}}
+                            </div>
+                            <div class="bold total">{{k.CallChargeMOB | mycurrency:'RM'}}</div>
+                            <br />
+                            <div class="bold total">
+                                <span class="label label-default">Total</span> {{k.CallCharge | mycurrency:'RM'}}
+                            </div>
+                        </div> 
+                    </td>
+                    <td class="nowrap">
+                        <div ng-repeat="se in k.Customer.SettlementList">
+                            <br ng-repeat="i in se.InvoiceList" />
+                            (T x {{k.CommissionRateIDD}})
+                            <br />
+                            <br />
+                            <br ng-repeat="i in se.InvoiceList" />
+                            (T x {{k.CommissionRateSTD}})
+                            <br />
+                            <br />
+                            <br ng-repeat="i in se.InvoiceList" />
+                            (T x {{k.CommissionRateMOB}})
+                        </div>
+                    </td>
+                    <td class="tdRight">
+                        <div ng-repeat="se in k.Customer.SettlementList">
+                            <br ng-repeat="i in se.InvoiceList" />
+                            {{k.CommissionIDD | mycurrency:'RM'}}
+                            <br />
+                            <br />
+                            <br ng-repeat="i in se.InvoiceList" />
+                            {{k.CommissionSTD | mycurrency:'RM'}}
+                            <br />
+                            <br />
+                            <br ng-repeat="i in se.InvoiceList" />
+                            {{k.CommissionMOB | mycurrency:'RM'}}
+                            <div class="bold total">{{k.Commission | mycurrency:'RM'}}</div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <hr />
 </div>

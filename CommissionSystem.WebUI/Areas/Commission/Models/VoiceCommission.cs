@@ -50,35 +50,30 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 Db.Dispose();
         }
 
-        protected CallCharge GetCustomerInvoice(Customer customer)
+        protected List<Invoice> GetCustomerInvoice(Customer customer, CallCharge c)
         {
-            CallCharge c = new CallCharge();
+            List<Invoice> l = new List<Invoice>();
             SqlDataReader rd = null;
 
             try
             {
-                DateTime dt = DateFrom.AddMonths(-1);
-                int day = customer.BillingDay;
-
-                DateTime dateFrom = new DateTime(dt.Year, dt.Month, day);
-                DateTime dateTo = new DateTime(DateFrom.Year, DateFrom.Month, day);
-
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select i.custid, i.invoicenumber, i.callcharge, i.callchargesidd, i.callchargesstd, i.callchargesmob, ")
                     .Append("i.totalcurrentcharge, i.realinvoicedate, csa.settlementidx from invoice i ")
                     .Append("left join customersettlementassigned csa on i.invoicenumber = csa.invoiceno ")
-                    .Append("where i.custid = @custid and i.realinvoicedate >= @datefrom and i.realinvoicedate < @dateto");
+                    .Append("where i.custid = @custid and csa.settlementidx in (")
+                    .Append("select settlementidx from customersettlement where custid = @custid and realdate >= @datefrom and realdate < @dateto)");
                 string q = sb.ToString();
                 SqlParameter p = new SqlParameter("@custid", SqlDbType.Int);
                 p.Value = customer.CustID;
                 Db.AddParameter(p);
 
                 p = new SqlParameter("@datefrom", SqlDbType.DateTime);
-                p.Value = dateFrom;
+                p.Value = DateFrom;
                 Db.AddParameter(p);
 
                 p = new SqlParameter("@dateto", SqlDbType.DateTime);
-                p.Value = dateTo;
+                p.Value = DateTo;
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
@@ -100,8 +95,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     c.STD += o.CallChargesSTD;
                     c.MOB += o.CallChargesMOB;
 
-                    customer.AddInvoice(o);
-                    Logger.Trace("{0}-{1} {2} {3}", o.CustID, o.CallChargesIDD, o.CallChargesSTD, o.CallChargesMOB);
+                    l.Add(o);
                 }
 
                 rd.Close();
@@ -119,10 +113,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     rd.Dispose();
             }
 
-            return c;
+            return l;
         }
 
-        protected decimal GetCustomerSettlementAmount(Customer customer)
+        protected decimal GetCustomerSettlementAmount(Customer customer, List<Invoice> l)
         {
             decimal amt = 0;
             SqlDataReader rd = null;
@@ -161,11 +155,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.ORNo = rd.Get("orno");
                     o.PaymentMode = rd.Get<int>("paymentmode");
 
-                    var invoiceList = customer.InvoiceList.Where(x => x.SettlementIdx == o.SettlementIdx);
+                    var invoiceList = l.Where(x => x.SettlementIdx == o.SettlementIdx);
 
                     if (invoiceList.Count() > 0)
                     {
                         amt += o.Amount;
+                        o.InvoiceList = invoiceList.ToList();
                         customer.AddSettlement(o);
                     }
                 }

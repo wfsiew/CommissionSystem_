@@ -104,8 +104,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 }
                             }
 
-                            GetCustomerInvoice(customer);
-                            decimal amount = GetCustomerSettlementAmount(customer);
+                            List<Invoice> invoiceList = GetCustomerInvoice(customer);
+                            decimal amount = GetCustomerSettlementAmount(customer, invoiceList);
                             a.Amount += amount;
 
                             if (a.IsInternalData)
@@ -234,8 +234,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 Db.Dispose();
         }
 
-        private void GetCustomerInvoice(Customer customer)
+        private List<Invoice> GetCustomerInvoice(Customer customer)
         {
+            List<Invoice> l = new List<Invoice>();
             SqlDataReader rd = null;
 
             try
@@ -273,7 +274,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.InvoiceDate = rd.GetDateTime("realinvoicedate");
                     o.SettlementIdx = rd.Get<int>("settlementidx");
 
-                    customer.AddInvoice(o);
+                    l.Add(o);
                 }
 
                 rd.Close();
@@ -290,9 +291,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 if (rd != null)
                     rd.Dispose();
             }
+
+            return l;
         }
 
-        private decimal GetCustomerSettlementAmount(Customer customer)
+        private decimal GetCustomerSettlementAmount(Customer customer, List<Invoice> l)
         {
             decimal amt = 0;
             SqlDataReader rd = null;
@@ -332,7 +335,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.ORNo = rd.Get("orno");
                     o.PaymentMode = rd.Get<int>("paymentmode");
 
-                    var invoiceList = customer.InvoiceList.Where(x => x.SettlementIdx == o.SettlementIdx);
+                    var invoiceList = l.Where(x => x.SettlementIdx == o.SettlementIdx);
 
                     if (invoiceList.Count() > 0)
                     {

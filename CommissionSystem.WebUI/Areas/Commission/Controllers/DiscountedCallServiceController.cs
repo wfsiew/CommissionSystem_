@@ -134,13 +134,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 ViewData["DateFrom"] = Utils.FormatDateTime(req.DateFrom);
                 ViewData["DateTo"] = Utils.FormatDateTime(req.DateTo);
 
-                Attachment att = c.GetDataCommissionResultData(req.DateFrom, req.DateTo);
+                Attachment att = c.GetVoiceCommissionResultData(req.DateFrom, req.DateTo);
 
                 if (att != null)
                     emailInfo.AttList = new List<Attachment> { att };
 
                 new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData,
-                    CommissionMailController.COMMISSIONNOTIFICATION_DATA).DeliverAsync();
+                    CommissionMailController.COMMISSIONNOTIFICATION_VOICE).DeliverAsync();
 
                 r["success"] = 1;
             }

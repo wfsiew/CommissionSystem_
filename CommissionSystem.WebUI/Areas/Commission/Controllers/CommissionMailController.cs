@@ -13,8 +13,29 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
     {
         public const string COMMISSIONNOTIFICATION_FIBREPLUS = "CommissionNotification_FibrePlus";
         public const string COMMISSIONNOTIFICATION_DATA = "CommissionNotification_Data";
+        public const string COMMISSIONNOTIFICATION_VOICE = "CommissionNotification_Voice";
 
         public EmailResult CommissionNotificationEmail(CommissionResult c, EmailInfo mail, ViewDataDictionary viewData, string view)
+        {
+            foreach (string email in mail.ToList)
+            {
+                To.Add(email);
+            }
+
+            foreach (Attachment att in mail.AttList)
+            {
+                Attachments.Add(att.Filename, att.Data);
+            }
+
+            From = string.Format("{0} {1}", mail.DisplayName, Constants.MAIL_SENDER);
+            Subject = mail.Subject;
+
+            ViewData = viewData;
+
+            return Email(view, c);
+        }
+
+        public EmailResult CommissionNotificationEmail(VoiceCommissionResult c, EmailInfo mail, ViewDataDictionary viewData, string view)
         {
             foreach (string email in mail.ToList)
             {
