@@ -96,8 +96,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             }
 
                             CallCharge callCharge = new CallCharge();
-                            List<Invoice> invoiceList = GetCustomerInvoice(customer, callCharge);
-                            decimal amount = GetCustomerSettlementAmount(customer, invoiceList);
+                            List<Invoice> invoiceList = GetCustomerInvoice(customer);
+                            decimal amount = GetCustomerSettlementAmount(customer, invoiceList, callCharge);
                             a.Amount += amount;
 
                             string desc = GetRatePlanDescription(customer);
@@ -113,6 +113,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 stdrate = cr.STD > DiscountedCallServiceInternal.MaxRate ? DiscountedCallServiceInternal.MaxRate : cr.STD;
                                 mobrate = cr.MOB > DiscountedCallServiceInternal.MaxRate ? DiscountedCallServiceInternal.MaxRate : cr.MOB;
 
+                                Logger.Trace("{0} {1}", customer.CustID, stdrate);
                                 v.CommissionRateIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].Commission : 0;
                                 v.CommissionRateSTD = stdrate > 0 ? sf.DiscountedCallServiceInternalSetting[stdrate].Commission : 0;
                                 v.CommissionRateMOB = mobrate > 0 ? sf.DiscountedCallServiceInternalSetting[mobrate].Commission : 0;
@@ -124,9 +125,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                 av[agentid].TotalSettlement += v.CallCharge;
 
-                                v.CommissionIDD = sf.IDDInternalSetting[iddrate].GetDirectCommission(v.CallChargeIDD);
-                                v.CommissionSTD = sf.DiscountedCallServiceInternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD);
-                                v.CommissionMOB = sf.DiscountedCallServiceInternalSetting[mobrate].GetDirectCommission(v.CallChargeMOB);
+                                v.CommissionIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].GetDirectCommission(v.CallChargeIDD) : 0;
+                                v.CommissionSTD = stdrate > 0 ? sf.DiscountedCallServiceInternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD) : 0;
+                                v.CommissionMOB = mobrate > 0 ? sf.DiscountedCallServiceInternalSetting[mobrate].GetDirectCommission(v.CallChargeMOB) : 0;
 
                                 v.Commission = v.CommissionIDD + v.CommissionSTD + v.CommissionMOB;
                                 if (customer.Status != 1)
@@ -167,9 +168,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                         bv.CallChargeSTD += v.CallChargeSTD;
                                         bv.CallChargeMOB += v.CallChargeMOB;
 
-                                        bv.CommissionIDD = sf.IDDInternalSetting[iddrate].GetCommission(v.CallChargeIDD, n);
-                                        bv.CommissionSTD = sf.DiscountedCallServiceInternalSetting[stdrate].GetCommission(v.CallChargeSTD, n);
-                                        bv.CommissionMOB = sf.DiscountedCallServiceInternalSetting[mobrate].GetCommission(v.CallChargeMOB, n);
+                                        bv.CommissionIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].GetCommission(v.CallChargeIDD, n) : 0;
+                                        bv.CommissionSTD = stdrate > 0 ? sf.DiscountedCallServiceInternalSetting[stdrate].GetCommission(v.CallChargeSTD, n) : 0;
+                                        bv.CommissionMOB = mobrate > 0 ? sf.DiscountedCallServiceInternalSetting[mobrate].GetCommission(v.CallChargeMOB, n) : 0;
 
                                         bv.Commission = bv.CommissionIDD + bv.CommissionSTD + bv.CommissionMOB;
                                         if (customer.Status != 1)
@@ -192,9 +193,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 stdrate = cr.STD > DiscountedCallServiceExternal.MaxRate ? DiscountedCallServiceExternal.MaxRate : cr.STD;
                                 mobrate = cr.MOB > DiscountedCallServiceExternal.MaxRate ? DiscountedCallServiceExternal.MaxRate : cr.MOB;
 
-                                v.CommissionRateIDD = sf.IDDExternalSetting[iddrate].Commission;
-                                v.CommissionRateSTD = sf.DiscountedCallServiceExternalSetting[stdrate].Commission;
-                                v.CommissionRateMOB = sf.DiscountedCallServiceExternalSetting[mobrate].Commission;
+                                v.CommissionRateIDD = iddrate > 0 ? sf.IDDExternalSetting[iddrate].Commission : 0;
+                                v.CommissionRateSTD = stdrate > 0 ? sf.DiscountedCallServiceExternalSetting[stdrate].Commission : 0;
+                                v.CommissionRateMOB = mobrate > 0 ? sf.DiscountedCallServiceExternalSetting[mobrate].Commission : 0;
 
                                 v.CallCharge += callCharge.Total;
                                 v.CallChargeIDD += callCharge.IDD;

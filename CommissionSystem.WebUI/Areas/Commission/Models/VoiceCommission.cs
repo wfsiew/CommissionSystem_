@@ -50,7 +50,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 Db.Dispose();
         }
 
-        protected List<Invoice> GetCustomerInvoice(Customer customer, CallCharge c)
+        protected List<Invoice> GetCustomerInvoice(Customer customer)
         {
             List<Invoice> l = new List<Invoice>();
             SqlDataReader rd = null;
@@ -90,11 +90,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     o.InvoiceDate = rd.GetDateTime("realinvoicedate");
                     o.SettlementIdx = rd.Get<int>("settlementidx");
 
-                    c.Total += o.CallCharge;
-                    c.IDD += o.CallChargesIDD;
-                    c.STD += o.CallChargesSTD;
-                    c.MOB += o.CallChargesMOB;
-
                     l.Add(o);
                 }
 
@@ -116,10 +111,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             return l;
         }
 
-        protected decimal GetCustomerSettlementAmount(Customer customer, List<Invoice> l)
+        protected decimal GetCustomerSettlementAmount(Customer customer, List<Invoice> l, CallCharge c)
         {
             decimal amt = 0;
             SqlDataReader rd = null;
+            Dictionary<string, bool> m = new Dictionary<string, bool>();
 
             try
             {
@@ -159,9 +155,26 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                     if (invoiceList.Count() > 0)
                     {
-                        amt += o.Amount;
-                        o.InvoiceList = invoiceList.ToList();
-                        customer.AddSettlement(o);
+                        foreach (Invoice i in invoiceList)
+                        {
+                            DateTime dt = i.InvoiceDate.AddDays(Constants.MAX_INVOICE_DAY);
+                            if (o.RealDate <= dt)
+                            {
+                                amt += o.Amount;
+                                o.AddInvoice(i);
+                                customer.AddSettlement(o);
+
+                                if (!m.ContainsKey(i.InvoiceNumber))
+                                {
+                                    m[i.InvoiceNumber] = true;
+                                    o.CallCharge += i.CallCharge;
+                                    c.Total += i.CallCharge;
+                                    c.IDD += i.CallChargesIDD;
+                                    c.STD += i.CallChargesSTD;
+                                    c.MOB += i.CallChargesMOB;
+                                }
+                            }
+                        }
                     }
                 }
 

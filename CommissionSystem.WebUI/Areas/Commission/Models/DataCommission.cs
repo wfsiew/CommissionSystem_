@@ -339,8 +339,15 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                     if (invoiceList.Count() > 0)
                     {
-                        amt += o.Amount;
-                        customer.AddSettlement(o);
+                        foreach (Invoice i in invoiceList)
+                        {
+                            DateTime dt = i.InvoiceDate.AddDays(Constants.MAX_INVOICE_DAY);
+                            if (o.RealDate <= dt)
+                            {
+                                amt += o.Amount;
+                                customer.AddSettlement(o);
+                            }
+                        } 
                     }
                 }
 

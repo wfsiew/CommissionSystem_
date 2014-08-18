@@ -50,10 +50,7 @@
                         <div ng-repeat="se in k.Customer.SettlementList">
                             {{se.RealDate | datefilter | date:'dd MMM yyyy'}}
                             <br ng-repeat="i in se.InvoiceList" />
-                            <br />
                             <br ng-repeat="i in se.InvoiceList" />
-                            <br />
-                            <br />
                             <br ng-repeat="i in se.InvoiceList" />
                             <br />
                         </div>
@@ -61,50 +58,48 @@
                     <td class="tdRight nowrap">
                         <div ng-repeat="se in k.Customer.SettlementList">
                             <div ng-repeat="i in se.InvoiceList">
-                                <span class="label label-default">IDD</span> {{i.CallChargesIDD | mycurrency:'RM'}}
+                                <span class="label label-default pull-left">IDD</span> {{i.CallChargesIDD | mycurrency:'RM'}}
                             </div>
-                            <div class="bold total">{{k.CallChargeIDD | mycurrency:'RM'}}</div>
-                            <br />
                             <div ng-repeat="i in se.InvoiceList">
-                                <span class="label label-default">STD</span> {{i.CallChargesSTD | mycurrency:'RM'}}
+                                <span class="label label-default pull-left">STD</span> {{i.CallChargesSTD | mycurrency:'RM'}}
                             </div>
-                            <div class="bold total">{{k.CallChargeSTD | mycurrency:'RM'}}</div>
-                            <br />
                             <div ng-repeat="i in se.InvoiceList">
-                                <span class="label label-default">MOB</span> {{i.CallChargesMOB | mycurrency:'RM'}}
+                                <span class="label label-default pull-left">MOB</span> {{i.CallChargesMOB | mycurrency:'RM'}}
                             </div>
-                            <div class="bold total">{{k.CallChargeMOB | mycurrency:'RM'}}</div>
-                            <br />
                             <div class="bold total">
-                                <span class="label label-default">Total</span> {{k.CallCharge | mycurrency:'RM'}}
+                                <span class="label label-default pull-left">Total</span> {{se.CallCharge | mycurrency:'RM'}}
                             </div>
-                        </div> 
+                        </div>
+                        <div class="bold total">
+                            <span class="label label-default pull-left">Total IDD</span> {{k.CallChargeIDD | mycurrency:'RM'}}<br />
+                            <span class="label label-default pull-left">Total STD</span> {{k.CallChargeSTD | mycurrency:'RM'}}<br />
+                            <span class="label label-default pull-left">Total MOB</span> {{k.CallChargeMOB | mycurrency:'RM'}}<br />
+                            <span class="label label-default pull-left">Total</span> {{k.CallCharge | mycurrency:'RM'}}
+                        </div>
                     </td>
                     <td class="nowrap">
                         <div ng-repeat="se in k.Customer.SettlementList">
                             <br ng-repeat="i in se.InvoiceList" />
-                            (T x {{k.CommissionRateIDD}})
-                            <br />
-                            <br />
                             <br ng-repeat="i in se.InvoiceList" />
-                            (T x {{k.CommissionRateSTD}})
-                            <br />
-                            <br />
                             <br ng-repeat="i in se.InvoiceList" />
+                            <br />
+                        </div>
+                        <div>
+                            (T x {{k.CommissionRateIDD}})<br />
+                            (T x {{k.CommissionRateSTD}})<br />
                             (T x {{k.CommissionRateMOB}})
                         </div>
                     </td>
                     <td class="tdRight">
                         <div ng-repeat="se in k.Customer.SettlementList">
                             <br ng-repeat="i in se.InvoiceList" />
-                            {{k.CommissionIDD | mycurrency:'RM'}}
-                            <br />
-                            <br />
                             <br ng-repeat="i in se.InvoiceList" />
-                            {{k.CommissionSTD | mycurrency:'RM'}}
-                            <br />
-                            <br />
                             <br ng-repeat="i in se.InvoiceList" />
+                            <br />
+                        </div>
+                        <div>
+                            {{k.CommissionIDD | mycurrency:'RM'}}<br />
+                            {{k.CommissionSTD | mycurrency:'RM'}}<br />
                             {{k.CommissionMOB | mycurrency:'RM'}}
                             <div class="bold total">{{k.Commission | mycurrency:'RM'}}</div>
                         </div>

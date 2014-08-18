@@ -21,6 +21,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public string Reference { get; set; }
         public string ORNo { get; set; }
         public int PaymentMode { get; set; }
-        public List<Invoice> InvoiceList { get; set; }
+        public decimal CallCharge { get; set; }
+        public List<Invoice> InvoiceList { get; private set; }
+
+        public void AddInvoice(Invoice o)
+        {
+            InvoiceList.Add(o);
+        }
     }
 }
