@@ -113,7 +113,15 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 stdrate = cr.STD > DiscountedCallServiceInternal.MaxRate ? DiscountedCallServiceInternal.MaxRate : cr.STD;
                                 mobrate = cr.MOB > DiscountedCallServiceInternal.MaxRate ? DiscountedCallServiceInternal.MaxRate : cr.MOB;
 
-                                Logger.Trace("{0} {1}", customer.CustID, stdrate);
+                                if (!sf.IDDInternalSetting.ContainsKey(iddrate))
+                                    iddrate = 0;
+
+                                if (!sf.DiscountedCallServiceInternalSetting.ContainsKey(stdrate))
+                                    stdrate = 0;
+
+                                if (!sf.DiscountedCallServiceInternalSetting.ContainsKey(mobrate))
+                                    mobrate = 0;
+
                                 v.CommissionRateIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].Commission : 0;
                                 v.CommissionRateSTD = stdrate > 0 ? sf.DiscountedCallServiceInternalSetting[stdrate].Commission : 0;
                                 v.CommissionRateMOB = mobrate > 0 ? sf.DiscountedCallServiceInternalSetting[mobrate].Commission : 0;
@@ -192,6 +200,15 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                 iddrate = cr.IDD > IDDExternal.MaxRate ? IDDExternal.MaxRate : cr.IDD;
                                 stdrate = cr.STD > DiscountedCallServiceExternal.MaxRate ? DiscountedCallServiceExternal.MaxRate : cr.STD;
                                 mobrate = cr.MOB > DiscountedCallServiceExternal.MaxRate ? DiscountedCallServiceExternal.MaxRate : cr.MOB;
+
+                                if (!sf.IDDExternalSetting.ContainsKey(iddrate))
+                                    iddrate = 0;
+
+                                if (!sf.DiscountedCallServiceExternalSetting.ContainsKey(stdrate))
+                                    stdrate = 0;
+
+                                if (!sf.DiscountedCallServiceExternalSetting.ContainsKey(mobrate))
+                                    mobrate = 0;
 
                                 v.CommissionRateIDD = iddrate > 0 ? sf.IDDExternalSetting[iddrate].Commission : 0;
                                 v.CommissionRateSTD = stdrate > 0 ? sf.DiscountedCallServiceExternalSetting[stdrate].Commission : 0;
