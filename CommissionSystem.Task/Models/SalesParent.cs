@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
 
-namespace CommissionSystem.WebUI.Areas.Commission.Models
+namespace CommissionSystem.Task.Models
 {
     public class SalesParent
     {
@@ -33,7 +33,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         private Dictionary<int, bool> childiDDic;
         private Dictionary<int, bool> parentIDDic;
         private Dictionary<int, bool> customerDic;
-        
+
         public void AddParentAgent(SalesParent o)
         {
             if (!parentIDDic.ContainsKey(o.SParentID))

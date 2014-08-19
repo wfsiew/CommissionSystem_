@@ -37,6 +37,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                 SettingFactory sf = SettingFactory.Instance;
                 Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
                 Dictionary<string, bool> t = new Dictionary<string, bool>();
+                Dictionary<int, bool> ad = new Dictionary<int, bool>();
 
                 for (int i = 0; i < levels.Count; i++)
                 {
@@ -56,8 +57,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                         if (!av.ContainsKey(agentid))
                             av[agentid] = a.GetAgentInfo();
 
+                        if (ad.ContainsKey(AgentID))
+                            continue;
+
                         Dictionary<int, Customer> customerDic = GetCustomers();
                         List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
+                        ad[AgentID] = true;
 
                         foreach (KeyValuePair<int, Customer> d in customerDic)
                         {
@@ -78,9 +83,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             List<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID).ToList();
 
                             customer.BillingInfoList = ebi;
-
-                            if (!a.CustomerList.Exists(x => x.CustID == customer.CustID))
-                                a.AddCustomer(customer);
+                            a.AddCustomer(customer);
 
                             VoiceCommissionView v = new VoiceCommissionView();
                             v.Customer = customer;
@@ -310,7 +313,10 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                     .Append("from customerbillinginfo ")
                     .Append("where custid in (")
                     .Append("select custid from customer where agentid = @agentid and serviceid = 13 and ")
-                    .Append("name not like @keyword)");
+                    .Append("name not like @keyword) ")
+                    .Append("and custid in (")
+                    .Append("select custid from customersettlement where paymenttype <> 2 and ")
+                    .Append("realdate >= @datefrom and realdate < @dateto)");
                 //.Append("dateadd(month, contractperiod, realcommencementdate) > current_timestamp");
                 string q = sb.ToString();
 
@@ -320,6 +326,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                 p = new SqlParameter("@keyword", SqlDbType.VarChar);
                 p.Value = "%Leased Line%";
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@datefrom", SqlDbType.DateTime);
+                p.Value = DateFrom;
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@dateto", SqlDbType.DateTime);
+                p.Value = DateTo;
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
@@ -368,7 +382,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select custid, name, rateplanid, billingday, status from customer where agentid = @agentid and serviceid = 13 and ")
-                    .Append("name not like @keyword");
+                    .Append("name not like @keyword and custid in (")
+                    .Append("select custid from customersettlement where paymenttype <> 2 and ")
+                    .Append("realdate >= @datefrom and realdate < @dateto)");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
@@ -377,6 +393,14 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                 p = new SqlParameter("@keyword", SqlDbType.VarChar);
                 p.Value = "%Leased Line%";
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@datefrom", SqlDbType.DateTime);
+                p.Value = DateFrom;
+                Db.AddParameter(p);
+
+                p = new SqlParameter("@dateto", SqlDbType.DateTime);
+                p.Value = DateTo;
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);

@@ -11,6 +11,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         {
             BillingInfoList = new List<CustomerBillingInfo>();
             SettlementList = new List<CustomerSettlement>();
+            settlementdic = new Dictionary<int, bool>();
         }
 
         public int CustID { get; set; }
@@ -21,6 +22,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public int Status { get; set; }
         public List<CustomerBillingInfo> BillingInfoList { get; set; }
         public List<CustomerSettlement> SettlementList { get; private set; }
+        private Dictionary<int, bool> settlementdic;
 
         public void AddBillingInfo(CustomerBillingInfo o)
         {
@@ -29,12 +31,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
         public void AddSettlement(CustomerSettlement o)
         {
-            SettlementList.Add(o);
+            if (!settlementdic.ContainsKey(o.SettlementIdx))
+            {
+                settlementdic[o.SettlementIdx] = true;
+                SettlementList.Add(o);
+            }
         }
-    }
-
-    public class ADSLCustomer : Customer
-    {
-        public int MasterAgentID { get; set; }
     }
 }

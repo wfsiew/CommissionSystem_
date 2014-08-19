@@ -10,6 +10,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public CustomerSettlement()
         {
             InvoiceList = new List<Invoice>();
+            invoiceDic = new Dictionary<string, bool>();
         }
 
         public int SettlementIdx { get; set; }
@@ -23,10 +24,15 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
         public int PaymentMode { get; set; }
         public decimal CallCharge { get; set; }
         public List<Invoice> InvoiceList { get; private set; }
+        private Dictionary<string, bool> invoiceDic;
 
         public void AddInvoice(Invoice o)
         {
-            InvoiceList.Add(o);
+            if (!invoiceDic.ContainsKey(o.InvoiceNumber))
+            {
+                invoiceDic[o.InvoiceNumber] = true;
+                InvoiceList.Add(o);
+            }
         }
     }
 }
