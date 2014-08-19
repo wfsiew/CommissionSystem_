@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ProtoBuf;
 
 namespace CommissionSystem.Task.Models
 {
+    [ProtoContract]
     public class ProductTypes
     {
+        [ProtoMember(1)]
         public int ProductID { get; set; }
+        [ProtoMember(2)]
         public string Description { get; set; }
+        [ProtoMember(3)]
         public decimal InitialAmount { get; set; }
 
         public bool IsRebate

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RateList>
+  <Rate value="0.18" comm="0.05" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.17" comm="0.05" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.16" comm="0.05" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.15" comm="0.04" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.14" comm="0.04" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.13" comm="0.04" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.12" comm="0.04" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.11" comm="0.03" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.10" comm="0.03" tier1="0.01" tier2="0.003"></Rate>
+  <Rate value="0.09" comm="0.02" tier1="0.003" tier2="0.001"></Rate>
+  <Rate value="0.08" comm="0.02" tier1="0.003" tier2="0.001"></Rate>
+  <Rate value="0.07" comm="0.01" tier1="0.003" tier2="0.001"></Rate>
+  <Rate value="0.06" comm="0.005" tier1="0" tier2="0"></Rate>
+</RateList>

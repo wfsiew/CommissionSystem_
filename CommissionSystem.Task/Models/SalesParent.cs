@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ProtoBuf;
 
 namespace CommissionSystem.Task.Models
 {
+    [ProtoContract]
     public class SalesParent
     {
         public SalesParent()
@@ -17,18 +19,31 @@ namespace CommissionSystem.Task.Models
             customerDic = new Dictionary<int, bool>();
         }
 
+        [ProtoMember(1)]
         public int SParentID { get; set; }
+        [ProtoMember(2)]
         public string SParentName { get; set; }
+        [ProtoMember(3)]
         public string GeographyCode { get; set; }
+        [ProtoMember(4)]
         public int RptParentID { get; set; }
+        [ProtoMember(5)]
         public int MasterAgentID { get; set; }
+        [ProtoMember(6)]
         public List<SalesParent> ChildAgentList { get; private set; }
+        [ProtoMember(7)]
         public List<SalesParent> ParentAgentList { get; private set; }
+        [ProtoMember(8)]
         public decimal Amount { get; set; }
+        [ProtoMember(9)]
         public decimal DirectCommission { get; set; }
+        [ProtoMember(10)]
         public decimal SubCommission { get; set; }
+        [ProtoMember(11)]
         public double CommissionRate { get; set; }
+        [ProtoMember(12)]
         public double TierCommissionRate { get; set; }
+        [ProtoMember(13)]
         public List<Customer> CustomerList { get; private set; }
         private Dictionary<int, bool> childiDDic;
         private Dictionary<int, bool> parentIDDic;
