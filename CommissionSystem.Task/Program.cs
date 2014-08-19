@@ -12,25 +12,60 @@ namespace CommissionSystem.Task
     {
         static void Main(string[] args)
         {
-            SettingFactory sf = SettingFactory.Instance;
-            DiscountedCallServiceTask o = new DiscountedCallServiceTask();
+            //SettingFactory sf = SettingFactory.Instance;
+            //DiscountedCallServiceTask o = new DiscountedCallServiceTask();
 
-            DateTime dateFrom = new DateTime(2014, 6, 1);
-            DateTime dateTo = new DateTime(2014, 6, 30);
+            //DateTime dateFrom = new DateTime(2014, 6, 1);
+            //DateTime dateTo = new DateTime(2014, 6, 30);
 
-            o.DateFrom = dateFrom;
-            o.DateTo = dateTo.AddDays(1);
+            //o.DateFrom = dateFrom;
+            //o.DateTo = dateTo.AddDays(1);
 
-            o.Run();
+            //o.Run();
             
-            using (FileStream f = File.Create("CommViewDic.bin"))
+            //using (FileStream f = File.Create("CommViewDic.bin"))
+            //{
+            //    Serializer.Serialize<Dictionary<string, List<VoiceCommissionView>>>(f, o.CommissionViewDic);
+            //}
+
+            //using (FileStream f = File.Create("AgentViewList.bin"))
+            //{
+            //    Serializer.Serialize<List<AgentView>>(f, o.AgentViewList);
+            //}
+
+            Dictionary<string, List<VoiceCommissionView>> x = null;
+            using (var f = File.OpenRead("CommViewDic.bin"))
             {
-                Serializer.Serialize(f, o.CommissionViewDic);
+                x = Serializer.Deserialize<Dictionary<string, List<VoiceCommissionView>>>(f);
             }
 
-            using (FileStream f = File.Create("AgentViewList.bin"))
+            List<AgentView> l = null;
+            using (var f = File.OpenRead("AgentViewList.bin"))
             {
-                Serializer.Serialize<List<AgentView>>(f, o.AgentViewList);
+                l = Serializer.Deserialize<List<AgentView>>(f);
+            }
+
+            var k = l.Find(a => a.AgentID == 2220310);
+            Console.WriteLine("{0}: {1}", k.AgentID, k.AgentName);
+            var v = x[k.AgentID.ToString()];
+            Console.WriteLine(v.Count);
+            foreach (var g in v)
+            {
+                if (g.Customer == null)
+                {
+                    Console.WriteLine("null");
+                    continue;
+                }
+
+                foreach (var s in g.Customer.SettlementList)
+                {
+                    foreach (var i in s.InvoiceList)
+                    {
+                        Console.WriteLine("{0} {1} {2} {3}", s.RealDate, i.CallChargesIDD, i.CallChargesSTD, i.CallChargesMOB);
+                    }
+
+                    Console.WriteLine();
+                }
             }
 
             Console.WriteLine("done");
