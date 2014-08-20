@@ -11,7 +11,7 @@ using NLog;
 
 namespace CommissionSystem.Task.Models
 {
-    public class DiscountedCallServiceTask : VoiceTask
+    public class SIPTask : VoiceTask
     {
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -113,21 +113,21 @@ namespace CommissionSystem.Task.Models
                             if (a.IsInternalVoice)
                             {
                                 iddrate = cr.IDD > IDDInternal.MaxRate ? IDDInternal.MaxRate : cr.IDD;
-                                stdrate = cr.STD > DiscountedCallServiceInternal.MaxRate ? DiscountedCallServiceInternal.MaxRate : cr.STD;
-                                mobrate = cr.MOB > DiscountedCallServiceInternal.MaxRate ? DiscountedCallServiceInternal.MaxRate : cr.MOB;
+                                stdrate = cr.STD > SIPInternal.MaxRate ? SIPInternal.MaxRate : cr.STD;
+                                mobrate = cr.MOB > SIPInternal.MaxRate ? SIPInternal.MaxRate : cr.MOB;
 
                                 if (!sf.IDDInternalSetting.ContainsKey(iddrate))
                                     iddrate = 0;
 
-                                if (!sf.DiscountedCallServiceInternalSetting.ContainsKey(stdrate))
+                                if (!sf.SIPInternalSetting.ContainsKey(stdrate))
                                     stdrate = 0;
 
-                                if (!sf.DiscountedCallServiceInternalSetting.ContainsKey(mobrate))
+                                if (!sf.SIPInternalSetting.ContainsKey(mobrate))
                                     mobrate = 0;
 
                                 v.CommissionRateIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].Commission : 0;
-                                v.CommissionRateSTD = stdrate > 0 ? sf.DiscountedCallServiceInternalSetting[stdrate].Commission : 0;
-                                v.CommissionRateMOB = mobrate > 0 ? sf.DiscountedCallServiceInternalSetting[mobrate].Commission : 0;
+                                v.CommissionRateSTD = stdrate > 0 ? sf.SIPInternalSetting[stdrate].Commission : 0;
+                                v.CommissionRateMOB = mobrate > 0 ? sf.SIPInternalSetting[mobrate].Commission : 0;
 
                                 v.CallCharge += callCharge.Total;
                                 v.CallChargeIDD += callCharge.IDD;
@@ -137,8 +137,8 @@ namespace CommissionSystem.Task.Models
                                 av[agentid].TotalSettlement += v.CallCharge;
 
                                 v.CommissionIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].GetDirectCommission(v.CallChargeIDD) : 0;
-                                v.CommissionSTD = stdrate > 0 ? sf.DiscountedCallServiceInternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD) : 0;
-                                v.CommissionMOB = mobrate > 0 ? sf.DiscountedCallServiceInternalSetting[mobrate].GetDirectCommission(v.CallChargeMOB) : 0;
+                                v.CommissionSTD = stdrate > 0 ? sf.SIPInternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD) : 0;
+                                v.CommissionMOB = mobrate > 0 ? sf.SIPInternalSetting[mobrate].GetDirectCommission(v.CallChargeMOB) : 0;
 
                                 v.Commission = v.CommissionIDD + v.CommissionSTD + v.CommissionMOB;
                                 if (customer.Status != 1)
@@ -171,8 +171,8 @@ namespace CommissionSystem.Task.Models
                                         bv.Customer = customer;
 
                                         bv.CommissionRateIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].GetCommissionRate(n) : 0;
-                                        bv.CommissionRateSTD = stdrate > 0 ? sf.DiscountedCallServiceInternalSetting[stdrate].GetCommissionRate(n) : 0;
-                                        bv.CommissionRateMOB = mobrate > 0 ? sf.DiscountedCallServiceInternalSetting[mobrate].GetCommissionRate(n) : 0;
+                                        bv.CommissionRateSTD = stdrate > 0 ? sf.SIPInternalSetting[stdrate].GetCommissionRate(n) : 0;
+                                        bv.CommissionRateMOB = mobrate > 0 ? sf.SIPInternalSetting[mobrate].GetCommissionRate(n) : 0;
 
                                         bv.CallCharge += v.CallCharge;
                                         bv.CallChargeIDD += v.CallChargeIDD;
@@ -180,8 +180,8 @@ namespace CommissionSystem.Task.Models
                                         bv.CallChargeMOB += v.CallChargeMOB;
 
                                         bv.CommissionIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].GetCommission(v.CallChargeIDD, n) : 0;
-                                        bv.CommissionSTD = stdrate > 0 ? sf.DiscountedCallServiceInternalSetting[stdrate].GetCommission(v.CallChargeSTD, n) : 0;
-                                        bv.CommissionMOB = mobrate > 0 ? sf.DiscountedCallServiceInternalSetting[mobrate].GetCommission(v.CallChargeMOB, n) : 0;
+                                        bv.CommissionSTD = stdrate > 0 ? sf.SIPInternalSetting[stdrate].GetCommission(v.CallChargeSTD, n) : 0;
+                                        bv.CommissionMOB = mobrate > 0 ? sf.SIPInternalSetting[mobrate].GetCommission(v.CallChargeMOB, n) : 0;
 
                                         bv.Commission = bv.CommissionIDD + bv.CommissionSTD + bv.CommissionMOB;
                                         if (customer.Status != 1)
@@ -201,21 +201,21 @@ namespace CommissionSystem.Task.Models
                             else
                             {
                                 iddrate = cr.IDD > IDDExternal.MaxRate ? IDDExternal.MaxRate : cr.IDD;
-                                stdrate = cr.STD > DiscountedCallServiceExternal.MaxRate ? DiscountedCallServiceExternal.MaxRate : cr.STD;
-                                mobrate = cr.MOB > DiscountedCallServiceExternal.MaxRate ? DiscountedCallServiceExternal.MaxRate : cr.MOB;
+                                stdrate = cr.STD > SIPExternal.MaxRate ? SIPExternal.MaxRate : cr.STD;
+                                mobrate = cr.MOB > SIPExternal.MaxRate ? SIPExternal.MaxRate : cr.MOB;
 
                                 if (!sf.IDDExternalSetting.ContainsKey(iddrate))
                                     iddrate = 0;
 
-                                if (!sf.DiscountedCallServiceExternalSetting.ContainsKey(stdrate))
+                                if (!sf.SIPExternalSetting.ContainsKey(stdrate))
                                     stdrate = 0;
 
-                                if (!sf.DiscountedCallServiceExternalSetting.ContainsKey(mobrate))
+                                if (!sf.SIPExternalSetting.ContainsKey(mobrate))
                                     mobrate = 0;
 
                                 v.CommissionRateIDD = iddrate > 0 ? sf.IDDExternalSetting[iddrate].Commission : 0;
-                                v.CommissionRateSTD = stdrate > 0 ? sf.DiscountedCallServiceExternalSetting[stdrate].Commission : 0;
-                                v.CommissionRateMOB = mobrate > 0 ? sf.DiscountedCallServiceExternalSetting[mobrate].Commission : 0;
+                                v.CommissionRateSTD = stdrate > 0 ? sf.SIPExternalSetting[stdrate].Commission : 0;
+                                v.CommissionRateMOB = mobrate > 0 ? sf.SIPExternalSetting[mobrate].Commission : 0;
 
                                 v.CallCharge += callCharge.Total;
                                 v.CallChargeIDD += callCharge.IDD;
@@ -225,8 +225,8 @@ namespace CommissionSystem.Task.Models
                                 av[agentid].TotalSettlement += v.CallCharge;
 
                                 v.CommissionIDD = iddrate > 0 ? sf.IDDExternalSetting[iddrate].GetDirectCommission(v.CallChargeIDD) : 0;
-                                v.CommissionSTD = stdrate > 0 ? sf.DiscountedCallServiceExternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD) : 0;
-                                v.CommissionMOB = mobrate > 0 ? sf.DiscountedCallServiceExternalSetting[mobrate].GetDirectCommission(v.CallChargeMOB) : 0;
+                                v.CommissionSTD = stdrate > 0 ? sf.SIPExternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD) : 0;
+                                v.CommissionMOB = mobrate > 0 ? sf.SIPExternalSetting[mobrate].GetDirectCommission(v.CallChargeMOB) : 0;
 
                                 v.Commission = v.CommissionIDD + v.CommissionSTD + v.CommissionMOB;
                                 if (customer.Status != 1)
@@ -259,8 +259,8 @@ namespace CommissionSystem.Task.Models
                                         bv.Customer = customer;
 
                                         bv.CommissionRateIDD = iddrate > 0 ? sf.IDDExternalSetting[iddrate].GetCommissionRate(n) : 0;
-                                        bv.CommissionRateSTD = stdrate > 0 ? sf.DiscountedCallServiceExternalSetting[stdrate].GetCommissionRate(n) : 0;
-                                        bv.CommissionRateMOB = mobrate > 0 ? sf.DiscountedCallServiceExternalSetting[mobrate].GetCommissionRate(n) : 0;
+                                        bv.CommissionRateSTD = stdrate > 0 ? sf.SIPExternalSetting[stdrate].GetCommissionRate(n) : 0;
+                                        bv.CommissionRateMOB = mobrate > 0 ? sf.SIPExternalSetting[mobrate].GetCommissionRate(n) : 0;
 
                                         bv.CallCharge += v.CallCharge;
                                         bv.CallChargeIDD += v.CallChargeIDD;
@@ -268,8 +268,8 @@ namespace CommissionSystem.Task.Models
                                         bv.CallChargeMOB += v.CallChargeMOB;
 
                                         bv.CommissionIDD = iddrate > 0 ? sf.IDDExternalSetting[iddrate].GetCommission(v.CallChargeIDD, n) : 0;
-                                        bv.CommissionSTD = stdrate > 0 ? sf.DiscountedCallServiceExternalSetting[stdrate].GetCommission(v.CallChargeSTD, n) : 0;
-                                        bv.CommissionMOB = mobrate > 0 ? sf.DiscountedCallServiceExternalSetting[mobrate].GetCommission(v.CallChargeMOB, n) : 0;
+                                        bv.CommissionSTD = stdrate > 0 ? sf.SIPExternalSetting[stdrate].GetCommission(v.CallChargeSTD, n) : 0;
+                                        bv.CommissionMOB = mobrate > 0 ? sf.SIPExternalSetting[mobrate].GetCommission(v.CallChargeMOB, n) : 0;
 
                                         bv.Commission = bv.CommissionIDD + bv.CommissionSTD + bv.CommissionMOB;
                                         if (customer.Status != 1)

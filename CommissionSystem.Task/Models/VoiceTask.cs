@@ -358,5 +358,256 @@ namespace CommissionSystem.Task.Models
 
             return a;
         }
+
+        protected void GetAgentHierarchy(int agentID, List<SalesParent> l, Dictionary<int, List<SalesParent>> dic)
+        {
+            DbHelper d = null;
+            SqlDataReader rd = null;
+
+            try
+            {
+                if (agentID == 0)
+                {
+                    GetTopLevelAgents(l, dic);
+                    return;
+                }
+
+                Dictionary<int, bool> t = new Dictionary<int, bool>();
+                Dictionary<int, SalesParent> m = GetAgents_();
+                d = new DbHelper(DbHelper.GetConStr(Constants.CALLBILLING2));
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select distinct sfid, magentid from salesforcedetail ")
+                    .Append("where sfid = @sfid and sfid in ")
+                    .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
+                p.Value = agentID;
+                d.AddParameter(p);
+
+                rd = d.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    int sfid = rd.Get<int>("sfid");
+                    int magentid = rd.Get<int>("magentid");
+
+                    SalesParent a = m[sfid];
+
+                    if (m.ContainsKey(magentid))
+                    {
+                        SalesParent b = m[magentid];
+                        b.AddChildAgent(a);
+                    }
+
+                    if (!t.ContainsKey(sfid))
+                    {
+                        t[sfid] = true;
+                        l.Add(a);
+                    }
+                }
+
+                rd.Close();
+                AddAgentsToDic(dic, l, 0);
+                GetChildAgents(l, dic, m, d, 0);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+
+                if (d != null)
+                    d.Dispose();
+            }
+        }
+
+        private void GetTopLevelAgents(List<SalesParent> l, Dictionary<int, List<SalesParent>> dic)
+        {
+            DbHelper d = null;
+            SqlDataReader rd = null;
+
+            try
+            {
+                Dictionary<int, SalesParent> m = GetAgents_();
+                d = new DbHelper(DbHelper.GetConStr(Constants.CALLBILLING2));
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select distinct sfid, magentid from salesforcedetail ")
+                    .Append("where magentid = 0 and sfid <> 0 and sfid in ")
+                    .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
+                string q = sb.ToString();
+
+                rd = d.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    int sfid = rd.Get<int>("sfid");
+                    int magentid = rd.Get<int>("magentid");
+
+                    SalesParent a = m[sfid];
+                    l.Add(a);
+                }
+
+                rd.Close();
+                AddAgentsToDic(dic, l, 0);
+                GetChildAgents(l, dic, m, d, 0);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+
+                if (d != null)
+                    d.Dispose();
+            }
+        }
+
+        private void GetChildAgents(List<SalesParent> parentList, Dictionary<int, List<SalesParent>> dic,
+            Dictionary<int, SalesParent> m, DbHelper d, int parentLevel)
+        {
+            SqlDataReader rd = null;
+            int level = 0;
+
+            try
+            {
+                Stack<List<SalesParent>> st = new Stack<List<SalesParent>>();
+                Stack<int> sl = new Stack<int>();
+                st.Push(parentList);
+                sl.Push(parentLevel);
+
+                while (st.Count > 0)
+                {
+                    List<SalesParent> lp = st.Pop();
+                    level = sl.Pop();
+
+                    for (int i = 0; i < lp.Count; i++)
+                    {
+                        SalesParent parent = lp[i];
+                        List<SalesParent> l = new List<SalesParent>();
+                        Dictionary<int, bool> t = new Dictionary<int, bool>();
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("select distinct sfid, magentid from salesforcedetail ")
+                            .Append("where magentid = @magentid and sfid in ")
+                            .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
+                        string q = sb.ToString();
+
+                        SqlParameter p = new SqlParameter("@magentid", SqlDbType.Int);
+                        p.Value = parent.SParentID;
+                        d.AddParameter(p);
+
+                        rd = d.ExecuteReader(q, CommandType.Text);
+                        while (rd.Read())
+                        {
+                            int sfid = rd.Get<int>("sfid");
+                            int magentid = rd.Get<int>("magentid");
+
+                            SalesParent a = m[sfid];
+
+                            parent.AddChildAgent(a);
+
+                            if (!t.ContainsKey(sfid))
+                            {
+                                t[sfid] = true;
+                                l.Add(a);
+                            }
+                        }
+
+                        rd.Close();
+                        AddAgentsToDic(dic, l, level + 1);
+
+                        if (l.Count > 0)
+                        {
+                            st.Push(l);
+                            sl.Push(level + 1);
+                        }
+                    }
+                }
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+        }
+
+        private void AddAgentsToDic(Dictionary<int, List<SalesParent>> dic, List<SalesParent> l, int level)
+        {
+            if (l == null)
+                return;
+
+            if (l.Count < 1)
+                return;
+
+            if (dic.ContainsKey(level))
+            {
+                List<SalesParent> la = dic[level];
+                la.AddRange(l);
+                dic[level] = la;
+            }
+
+            else
+            {
+                dic[level] = l;
+            }
+        }
+
+        private Dictionary<int, SalesParent> GetAgents_()
+        {
+            Dictionary<int, SalesParent> m = new Dictionary<int, SalesParent>();
+            DbHelper d = null;
+            SqlDataReader rd = null;
+
+            try
+            {
+                d = new DbHelper(DbHelper.GetConStr(Constants.CALLBILLING2));
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select distinct sparentid, sparentname, geographycode, rptparentid from salesparent ")
+                    .Append("where sparentname not like 'XX%' ")
+                    .Append("order by sparentname");
+                string q = sb.ToString();
+
+                rd = d.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    SalesParent a = new SalesParent();
+                    a.SParentID = rd.Get<int>("sparentid");
+                    a.SParentName = rd.Get("sparentname");
+                    a.GeographyCode = rd.Get("geographycode");
+                    a.RptParentID = rd.Get<int>("rptparentid");
+
+                    m[a.SParentID] = a;
+                }
+
+                rd.Close();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+
+                if (d != null)
+                    d.Dispose();
+            }
+
+            return m;
+        }
     }
 }
