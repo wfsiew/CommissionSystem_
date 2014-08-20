@@ -60,8 +60,8 @@ namespace CommissionSystem.Task
 
             try
             {
-                Action X = (Action)((AsyncResult)ar).AsyncDelegate;
-                X.EndInvoke(ar);
+                Action x = (Action)((AsyncResult)ar).AsyncDelegate;
+                x.EndInvoke(ar);
 
                 DiscountedCallServiceTask o = (DiscountedCallServiceTask)ar.AsyncState;
                 ar.AsyncWaitHandle.Close();
