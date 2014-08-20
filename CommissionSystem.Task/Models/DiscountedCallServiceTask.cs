@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using CommissionSystem.Domain.Models;
+using CommissionSystem.Domain.ProtoBufModels;
 using CommissionSystem.Task.Helpers;
 using NLog;
 
@@ -315,7 +316,7 @@ namespace CommissionSystem.Task.Models
                     .Append("select custid from customer where agentid = @agentid and serviceid = 13 and ")
                     .Append("name not like @keyword) ")
                     .Append("and custid in (")
-                    .Append("select custid from customersettlement where paymenttype <> 2 and ")
+                    .Append("select distinct custid from customersettlement where paymenttype <> 2 and ")
                     .Append("realdate >= @datefrom and realdate < @dateto)");
                 //.Append("dateadd(month, contractperiod, realcommencementdate) > current_timestamp");
                 string q = sb.ToString();
@@ -383,7 +384,7 @@ namespace CommissionSystem.Task.Models
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select custid, name, rateplanid, billingday, status from customer where agentid = @agentid and serviceid = 13 and ")
                     .Append("name not like @keyword and custid in (")
-                    .Append("select custid from customersettlement where paymenttype <> 2 and ")
+                    .Append("select distinct custid from customersettlement where paymenttype <> 2 and ")
                     .Append("realdate >= @datefrom and realdate < @dateto)");
                 string q = sb.ToString();
 

@@ -8,6 +8,8 @@ using System.Data.SqlClient;
 using CommissionSystem.WebUI.Models;
 using CommissionSystem.WebUI.Helpers;
 using CommissionSystem.Domain.Models;
+using CommissionSystem.Domain.ProtoBufModels;
+using CommissionSystem.Domain.Helpers;
 using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Models

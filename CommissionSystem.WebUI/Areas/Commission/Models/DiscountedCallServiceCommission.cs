@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CommissionSystem.WebUI.Models;
 using CommissionSystem.WebUI.Helpers;
 using CommissionSystem.Domain.Models;
+using CommissionSystem.Domain.ProtoBufModels;
 using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Models

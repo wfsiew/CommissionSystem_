@@ -18,5 +18,6 @@ namespace CommissionSystem.WebUI.Helpers
         public const string SPEEDPLUS = "Speed+";
 
         public const int MAX_INVOICE_DAY = 99;
+        public const int PAGE_SIZE = 10;
     }
 }

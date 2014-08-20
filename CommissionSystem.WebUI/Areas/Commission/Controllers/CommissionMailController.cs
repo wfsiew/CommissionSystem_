@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using ActionMailer.Net.Mvc;
 using CommissionSystem.WebUI.Areas.Commission.Models;
 using CommissionSystem.WebUI.Helpers;
+using CommissionSystem.Domain.ProtoBufModels;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 {

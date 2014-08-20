@@ -5,13 +5,13 @@ using System.Text;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using CommissionSystem.Domain.ProtoBufModels;
+using CommissionSystem.Domain.Helpers;
 using CommissionSystem.Task.Helpers;
-using ProtoBuf;
 using NLog;
 
 namespace CommissionSystem.Task.Models
 {
-    [ProtoContract]
     public class VoiceTask : IDisposable
     {
         public DbHelper Db { get; set; }
@@ -20,9 +20,7 @@ namespace CommissionSystem.Task.Models
         public DateTime DateTo { get; set; }
         public List<SalesParent> AgentList { get; set; }
         public Dictionary<int, List<SalesParent>> AgentDic { get; set; }
-        [ProtoMember(1)]
         public Dictionary<string, List<VoiceCommissionView>> CommissionViewDic { get; set; }
-        [ProtoMember(2)]
         public List<AgentView> AgentViewList { get; set; }
 
         private Regex IDDRegex { get; set; }

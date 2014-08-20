@@ -5,10 +5,15 @@ using System.Web;
 using System.Web.Mvc;
 using System.Text;
 using System.Data;
+using System.IO;
 using System.Data.SqlClient;
 using CommissionSystem.WebUI.Models;
 using CommissionSystem.WebUI.Areas.Commission.Models;
 using CommissionSystem.WebUI.Helpers;
+using CommissionSystem.Domain.ProtoBufModels;
+using CommissionSystem.Domain.Helpers;
+using ProtoBuf;
+using PagedList;
 using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Controllers
@@ -48,46 +53,69 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         [HttpPost]
         public ActionResult Commission(FibrePlusRequest req)
         {
-            DiscountedCallServiceCommission o = null;
             Dictionary<string, object> r = new Dictionary<string, object>();
+            FileStream fs = null;
 
             try
             {
-                Dictionary<int, List<SalesParent>> dic = new Dictionary<int, List<SalesParent>>();
-                List<SalesParent> l = new List<SalesParent>();
-                GetAgentHierarchy(req.AgentID, l, dic);
-
-                DateTime dateFrom = req.DateFrom;
-                DateTime dateTo = req.DateTo;
-
-                o = new DiscountedCallServiceCommission();
-                o.AgentDic = dic;
-                o.AgentList = l;
-                o.DateFrom = req.DateFrom;
-                o.DateTo = req.DateTo.AddDays(1);
-                o.SetCommission();
-
+                VoiceCommissionResult re = new VoiceCommissionResult();
                 VoiceCommissionResult c = new VoiceCommissionResult();
 
-                if (req.AgentID != 0)
+                if (req.Load)
                 {
-                    if (o.CommissionViewDic.Keys.Count > 0)
-                    {
-                        var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
-                        c.CommissionViewDic[k.Key] = k.Value;
-                        c.AgentViewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
-                    }
+                    c = Session[COMMISSION_RESULT] as VoiceCommissionResult;
                 }
 
                 else
                 {
-                    c.CommissionViewDic = o.CommissionViewDic;
-                    c.AgentViewList = o.AgentViewList;
+                    string file = GetFile(req.DateFrom);
+                    if (string.IsNullOrEmpty(file))
+                        throw new UIException(string.Format("The Commission for {0:MMMM yyyy} is not available yet, please contact the respective personel to generate the commission", req.DateFrom));
+
+                    fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    re = Serializer.Deserialize<VoiceCommissionResult>(fs);
                 }
 
+                if (!req.Load)
+                {
+                    if (req.AgentID != 0)
+                    {
+                        if (re.CommissionViewDic.Keys.Count > 0)
+                        {
+                            if (re.CommissionViewDic.ContainsKey(req.AgentID.ToString()))
+                            {
+                                var k = re.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
+                                c.CommissionViewDic[k.Key] = k.Value;
+                                c.AgentViewList.Add(re.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        c = re;
+                    }
+
+                    Session[COMMISSION_RESULT] = c;
+                }
+
+                re = new VoiceCommissionResult();
+
+                int pageSize = Constants.PAGE_SIZE;
+                int pageNumber = (req.Page ?? 1);
+
+                var l = c.AgentViewList.ToPagedList(pageNumber, pageSize);
+                foreach (AgentView k in l)
+                {
+                    re.CommissionViewDic[k.AgentID.ToString()] = c.CommissionViewDic[k.AgentID.ToString()];
+                }
+
+                re.AgentViewList = l.ToList();
+                Pager pager = new Pager(l.TotalItemCount, l.PageNumber, l.PageSize);
+
                 r["success"] = 1;
-                r["result"] = c;
-                Session[COMMISSION_RESULT] = c;
+                r["result"] = re;
+                r["pager"] = pager;
             }
 
             catch (Exception e)
@@ -99,8 +127,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             finally
             {
-                if (o != null)
-                    o.Dispose();
+                if (fs != null)
+                    fs.Dispose();
             }
 
             return Json(r, JsonRequestBehavior.AllowGet);
@@ -165,6 +193,19 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         {
             List<SalesParent> l = GetAgents();
             return Json(l, JsonRequestBehavior.AllowGet);
+        }
+
+        private string GetFile(DateTime dt)
+        {
+            string c = HttpContext.Server.MapPath("~/result");
+            string file = Path.Combine(c, string.Format("voice/dcs/{0:yyyy}/{1:MM}/CommResult.bin", dt, dt));
+
+            if (!System.IO.File.Exists(file))
+            {
+                file = null;
+            }
+
+            return file;
         }
 
         private void GetTopLevelAgents(List<SalesParent> l, Dictionary<int, List<SalesParent>> dic)

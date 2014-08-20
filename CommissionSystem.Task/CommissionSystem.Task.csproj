@@ -55,24 +55,11 @@
   <ItemGroup>
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\DbHelper.cs" />
-    <Compile Include="Helpers\Utils.cs" />
-    <Compile Include="Models\AgentView.cs" />
-    <Compile Include="Models\CallCharge.cs" />
-    <Compile Include="Models\CallRate.cs" />
-    <Compile Include="Models\CommissionResult.cs" />
-    <Compile Include="Models\CommissionView.cs" />
-    <Compile Include="Models\Customer.cs" />
-    <Compile Include="Models\CustomerBillingInfo.cs" />
-    <Compile Include="Models\CustomerSettlement.cs" />
     <Compile Include="Models\DiscountedCallServiceTask.cs" />
-    <Compile Include="Models\EmailInfo.cs" />
-    <Compile Include="Models\Invoice.cs" />
-    <Compile Include="Models\ProductTypes.cs" />
     <Compile Include="Models\SettingFactory.cs" />
     <Compile Include="Models\VoiceTask.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Models\SalesParent.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Setting\adsl\external.xml" />
