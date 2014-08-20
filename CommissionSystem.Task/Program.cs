@@ -38,6 +38,7 @@ namespace CommissionSystem.Task
             ProcessData(dateFrom, dateTo);
             //ProcessDCS(dateFrom, dateTo);
             ProcessSIP(dateFrom, dateTo);
+            ProcessE1(dateFrom, dateTo);
 
             Console.ReadKey();
         }
@@ -80,6 +81,20 @@ namespace CommissionSystem.Task
             Action a = new Action(o.Run);
             AsyncCallback cb = new AsyncCallback(SIPCompleteCallback);
             Logger.Trace("SIP process started: {0}", DateTime.Now);
+            IAsyncResult ar = a.BeginInvoke(cb, o);
+            ar.AsyncWaitHandle.WaitOne();
+        }
+
+        private static void ProcessE1(DateTime dateFrom, DateTime dateTo)
+        {
+            E1Task o = new E1Task();
+
+            o.DateFrom = dateFrom;
+            o.DateTo = dateTo;
+
+            Action a = new Action(o.Run);
+            AsyncCallback cb = new AsyncCallback(E1CompleteCallback);
+            Logger.Trace("E1 process started: {0}", DateTime.Now);
             IAsyncResult ar = a.BeginInvoke(cb, o);
             ar.AsyncWaitHandle.WaitOne();
         }
@@ -247,6 +262,62 @@ namespace CommissionSystem.Task
             }
 
             Console.WriteLine("done sip");
+        }
+
+        private static void E1CompleteCallback(IAsyncResult ar)
+        {
+            FileStream fs = null;
+            E1Task o = null;
+
+            try
+            {
+                Action x = (Action)((AsyncResult)ar).AsyncDelegate;
+                x.EndInvoke(ar);
+
+                o = (E1Task)ar.AsyncState;
+                ar.AsyncWaitHandle.Close();
+
+                string path = "../result/voice";
+                CreateDir(path);
+
+                string dcspath = Path.Combine(path, "e1");
+                CreateDir(dcspath);
+
+                DateTime dt = o.DateFrom;
+                string year = Path.Combine(dcspath, dt.Year.ToString());
+                CreateDir(year);
+
+                string month = Path.Combine(year, string.Format("{0:MM}", dt));
+                CreateDir(month);
+
+                string file = Path.Combine(month, "CommResult.bin");
+
+                VoiceCommissionResult re = new VoiceCommissionResult();
+                re.CommissionViewDic = o.CommissionViewDic;
+                re.AgentViewList = o.AgentViewList;
+
+                fs = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
+                Serializer.Serialize<VoiceCommissionResult>(fs, re);
+                fs.Close();
+
+                Logger.Trace("E1 process ended: {0}", DateTime.Now);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+            }
+
+            finally
+            {
+                if (fs != null)
+                    fs.Dispose();
+
+                if (o != null)
+                    o.Dispose();
+            }
+
+            Console.WriteLine("done e1");
         }
 
         private static void CreateDir(string path)

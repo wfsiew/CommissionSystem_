@@ -57,6 +57,7 @@
     <Compile Include="Helpers\DbHelper.cs" />
     <Compile Include="Models\DataTask.cs" />
     <Compile Include="Models\DiscountedCallServiceTask.cs" />
+    <Compile Include="Models\E1Task.cs" />
     <Compile Include="Models\SettingFactory.cs" />
     <Compile Include="Models\SIPTask.cs" />
     <Compile Include="Models\VoiceTask.cs" />
