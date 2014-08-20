@@ -42,6 +42,13 @@ namespace CommissionSystem.Task.Models
 
             try
             {
+                Dictionary<int, List<SalesParent>> dic = new Dictionary<int, List<SalesParent>>();
+                List<SalesParent> agentlist = new List<SalesParent>();
+                GetAgentHierarchy(0, agentlist, dic);
+
+                AgentDic = dic;
+                AgentList = agentlist;
+
                 Dictionary<string, List<CommissionView>> cv = new Dictionary<string, List<CommissionView>>();
                 Dictionary<string, AgentView> av = new Dictionary<string, AgentView>();
                 Queue<List<SalesParent>> qa = new Queue<List<SalesParent>>();

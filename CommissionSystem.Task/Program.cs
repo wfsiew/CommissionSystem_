@@ -35,9 +35,24 @@ namespace CommissionSystem.Task
                 dateTo = new DateTime(x.Year, x.Month, 1);
             }
 
-            ProcessDCS(dateFrom, dateTo);
+            ProcessData(dateFrom, dateTo);
+            //ProcessDCS(dateFrom, dateTo);
 
             Console.ReadKey();
+        }
+
+        private static void ProcessData(DateTime dateFrom, DateTime dateTo)
+        {
+            DataTask o = new DataTask();
+
+            o.DateFrom = dateFrom;
+            o.DateTo = dateTo;
+
+            Action a = new Action(o.Run);
+            AsyncCallback cb = new AsyncCallback(DataCompleteCallback);
+            Logger.Trace("Data process started: {0}", DateTime.Now);
+            IAsyncResult ar = a.BeginInvoke(cb, o);
+            ar.AsyncWaitHandle.WaitOne();
         }
 
         private static void ProcessDCS(DateTime dateFrom, DateTime dateTo)
@@ -48,22 +63,76 @@ namespace CommissionSystem.Task
             o.DateTo = dateTo;
 
             Action a = new Action(o.Run);
-            AsyncCallback cbdcs = new AsyncCallback(DCSCompleteCallback);
+            AsyncCallback cb = new AsyncCallback(DCSCompleteCallback);
             Logger.Trace("DCS process started: {0}", DateTime.Now);
-            IAsyncResult ar = a.BeginInvoke(cbdcs, o);
+            IAsyncResult ar = a.BeginInvoke(cb, o);
             ar.AsyncWaitHandle.WaitOne();
         }
 
-        private static void DCSCompleteCallback(IAsyncResult ar)
+        private static void DataCompleteCallback(IAsyncResult ar)
         {
             FileStream fs = null;
+            DataTask o = null;
 
             try
             {
                 Action x = (Action)((AsyncResult)ar).AsyncDelegate;
                 x.EndInvoke(ar);
 
-                DiscountedCallServiceTask o = (DiscountedCallServiceTask)ar.AsyncState;
+                o = (DataTask)ar.AsyncState;
+                ar.AsyncWaitHandle.Close();
+
+                string path = "../result/data";
+                CreateDir(path);
+
+                DateTime dt = o.DateFrom;
+                string year = Path.Combine(path, dt.Year.ToString());
+                CreateDir(year);
+
+                string month = Path.Combine(year, string.Format("{0:MM}", dt));
+                CreateDir(month);
+
+                string file = Path.Combine(month, "CommResult.bin");
+
+                CommissionResult re = new CommissionResult();
+                re.CommissionViewDic = o.CommissionViewDic;
+                re.AgentViewList = o.AgentViewList;
+
+                fs = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
+                Serializer.Serialize<CommissionResult>(fs, re);
+                fs.Close();
+
+                Logger.Trace("DCata process ended: {0}", DateTime.Now);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+            }
+
+            finally
+            {
+                if (fs != null)
+                    fs.Dispose();
+
+                if (o != null)
+                    o.Dispose();
+            }
+
+            Console.WriteLine("done data");
+        }
+
+        private static void DCSCompleteCallback(IAsyncResult ar)
+        {
+            FileStream fs = null;
+            DiscountedCallServiceTask o = null;
+
+            try
+            {
+                Action x = (Action)((AsyncResult)ar).AsyncDelegate;
+                x.EndInvoke(ar);
+
+                o = (DiscountedCallServiceTask)ar.AsyncState;
                 ar.AsyncWaitHandle.Close();
 
                 string path = "../result/voice";
@@ -101,9 +170,12 @@ namespace CommissionSystem.Task
             {
                 if (fs != null)
                     fs.Dispose();
+
+                if (o != null)
+                    o.Dispose();
             }
 
-            Console.WriteLine("done");
+            Console.WriteLine("done dcs");
         }
 
         private static void CreateDir(string path)
