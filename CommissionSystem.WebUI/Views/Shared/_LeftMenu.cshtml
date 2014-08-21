@@ -28,6 +28,44 @@
     
 </ul>*@
 
-<div class="wrapper row-offcanvas row-offcanvas-left">
-
-</div>
+<!-- Left side column. contains the logo and sidebar -->
+<aside class="left-side sidebar-offcanvas">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-bar-chart-o"></i>
+                    <span>Charts</span>
+                    <i class="fa fa-angle-left pull-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a href="pages/charts/morris.html"><i class="fa fa-angle-double-right"></i> Morris</a></li>
+                    <li><a href="pages/charts/flot.html"><i class="fa fa-angle-double-right"></i> Flot</a></li>
+                    <li><a href="pages/charts/inline.html"><i class="fa fa-angle-double-right"></i> Inline charts</a></li>
+                </ul>
+            </li>
+            <li class="treeview active">
+                <a href="#">
+                    <i class="fa fa-th"></i>
+                    <span>Products</span>
+                    <i class="fa fa-angle-left pull-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    <li class="treeview active">
+                        <a href="#">
+                            <i class="fa fa-th"></i>
+                            <span>Corporate Voice</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class="@(ViewBag.Menu == Constants.DISCOUNTED_CALL_SERVICE ? "active" : null)"><a href="@Url.Action("Index", "DiscountedCallService", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Discounted Call Service</a></li>
+                            <li class="@(ViewBag.Menu == Constants.SIP ? "active" : null)"><a href="@Url.Action("Index", "SIP", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> SIP</a></li>
+                            <li class="@(ViewBag.Menu == Constants.E1 ? "active" : null)"><a href="@Url.Action("Index", "E1", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> E1</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+</aside>

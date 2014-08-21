@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using CommissionSystem.WebUI.Helpers;
+
+<!DOCTYPE html>
 
 <html ng-app="mvcapp">
 <head>
@@ -12,18 +14,25 @@
     <title>@ViewBag.Title</title>
 
     <link href="~/css/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/bootstrap/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/css/bootstrap/css/ionicons.min.css" rel="stylesheet" />
+    <link href="~/css/bootstrap/css/AdminLTE.css" rel="stylesheet" />
     <link href="~/css/bootstrap/css/select2.css" rel="stylesheet" />
-    <link href="~/css/bootstrap/font-awesome.min.css" rel="stylesheet" />
-    <link href="~/css/bootstrap/ionicons.min.css" rel="stylesheet" />
-    <link href="~/css/bootstrap/AdminLTE.css" rel="stylesheet" />
     <link href="~/css/lib/toastr.min.css" rel="stylesheet" />
     <link href="~/css/lib/loading-bar.css" rel="stylesheet" />
     <link href="~/css/lib/angular-motion.min.css" rel="stylesheet" />
     <link href="~/css/app.css" rel="stylesheet" />
 
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
     <script src="~/js/lib/jquery-1.10.2.min.js"></script>
     <script src="~/js/lib/jquery.blockUI.js"></script>
     <script src="~/js/lib/bootstrap.min.js"></script>
+    <script src="~/js/lib/AdminLTE/app.js"></script>
     <script src="~/js/lib/angular.min.js"></script>
     <script src="~/js/lib/angular-route.min.js"></script>
     <script src="~/js/lib/angular-animate.min.js"></script>
@@ -47,19 +56,21 @@
 </head>
 <body class="skin-blue">
     @{ Html.RenderPartial("_Header"); }
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-4 col-md-3 sidebar">
-                @{ Html.RenderPartial("_LeftMenu"); }
-            </div>
-            <div class="col-sm-9 col-sm-offset-4 col-md-10 col-md-offset-3 main">
-                <h2 class="page-header">@ViewBag.Title</h2>
-                <div class="row">
-                    @RenderBody()
-                </div>
-            </div>
-        </div>
+    <div class="wrapper row-offcanvas row-offcanvas-left">
+        @{ Html.RenderPartial("_LeftMenu"); }
+        <!-- Right side column. Contains the navbar and content of the page -->
+        <aside class="right-side">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>@ViewBag.Title</h1>
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                @RenderBody()
+            </section>
+        </aside>
     </div>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>
