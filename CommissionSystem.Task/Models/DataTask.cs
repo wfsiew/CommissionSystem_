@@ -249,12 +249,6 @@ namespace CommissionSystem.Task.Models
 
             try
             {
-                DateTime dt = DateFrom.AddMonths(-1);
-                int day = customer.BillingDay;
-
-                DateTime dateFrom = new DateTime(dt.Year, dt.Month, day);
-                DateTime dateTo = new DateTime(DateFrom.Year, DateFrom.Month, day);
-
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select i.custid, i.invoicenumber, i.totalcurrentcharge, i.realinvoicedate, csa.settlementidx from invoice i ")
                     .Append("left join customersettlementassigned csa on i.invoicenumber = csa.invoiceno ")
@@ -266,11 +260,11 @@ namespace CommissionSystem.Task.Models
                 Db.AddParameter(p);
 
                 p = new SqlParameter("@datefrom", SqlDbType.DateTime);
-                p.Value = dateFrom;
+                p.Value = DateFrom;
                 Db.AddParameter(p);
 
                 p = new SqlParameter("@dateto", SqlDbType.DateTime);
-                p.Value = dateTo;
+                p.Value = DateTo;
                 Db.AddParameter(p);
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
@@ -353,7 +347,7 @@ namespace CommissionSystem.Task.Models
                             DateTime dt = i.InvoiceDate.AddDays(Constants.MAX_INVOICE_DAY);
                             if (o.RealDate <= dt)
                             {
-                                amt += o.Amount;
+                                amt += i.TotalCurrentCharge;
                                 customer.AddSettlement(o);
                             }
                         }

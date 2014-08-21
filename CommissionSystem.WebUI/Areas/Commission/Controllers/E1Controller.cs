@@ -12,23 +12,23 @@ using CommissionSystem.WebUI.Areas.Commission.Models;
 using CommissionSystem.WebUI.Helpers;
 using CommissionSystem.Domain.ProtoBufModels;
 using CommissionSystem.Domain.Helpers;
-using PagedList;
 using ProtoBuf;
+using PagedList;
 using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 {
-    public class DataController : Controller
+    public class E1Controller : Controller
     {
-        private const string COMMISSION_RESULT = "DATA_COMMISSION_RESULT";
+        private const string COMMISSION_RESULT = "E1_COMMISSION_RESULT";
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
         //
-        // GET: /Commission/Data/
+        // GET: /Commission/E1/
 
         public ActionResult Index()
         {
-            ViewBag.Menu = Constants.CORPORATE_DATA;
+            ViewBag.Menu = Constants.E1;
             return View();
         }
 
@@ -58,12 +58,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             try
             {
-                CommissionResult re = new CommissionResult();
-                CommissionResult c = new CommissionResult();
+                VoiceCommissionResult re = new VoiceCommissionResult();
+                VoiceCommissionResult c = new VoiceCommissionResult();
 
                 if (req.Load)
                 {
-                    c = Session[COMMISSION_RESULT] as CommissionResult;
+                    c = Session[COMMISSION_RESULT] as VoiceCommissionResult;
                 }
 
                 else
@@ -73,7 +73,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                         throw new UIException(string.Format("The Commission for {0:MMMM yyyy} is not available yet, please contact the respective personel to generate the commission", req.DateFrom));
 
                     fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    re = Serializer.Deserialize<CommissionResult>(fs);
+                    re = Serializer.Deserialize<VoiceCommissionResult>(fs);
                 }
 
                 if (!req.Load)
@@ -99,7 +99,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                     Session[COMMISSION_RESULT] = c;
                 }
 
-                re = new CommissionResult();
+                re = new VoiceCommissionResult();
 
                 int pageSize = Constants.PAGE_SIZE;
                 int pageNumber = (req.Page ?? 1);
@@ -114,9 +114,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 Pager pager = new Pager(l.TotalItemCount, l.PageNumber, l.PageSize);
 
                 r["success"] = 1;
-                r["result"] = c;
+                r["result"] = re;
                 r["pager"] = pager;
-                Session[COMMISSION_RESULT] = c;
             }
 
             catch (Exception e)
@@ -151,11 +150,11 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 EmailInfo emailInfo = new EmailInfo
                 {
                     ToList = l,
-                    DisplayName = "Corporate Data Commission",
-                    Subject = "REDtone Corporate Data Commission"
+                    DisplayName = "E1 Commission",
+                    Subject = "REDtone E1 Commission"
                 };
 
-                CommissionResult c = Session[COMMISSION_RESULT] as CommissionResult;
+                VoiceCommissionResult c = Session[COMMISSION_RESULT] as VoiceCommissionResult;
 
                 if (c == null)
                     throw new UIException("There is no commission result");
@@ -163,13 +162,13 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 ViewData["DateFrom"] = Utils.FormatDateTime(req.DateFrom);
                 ViewData["DateTo"] = Utils.FormatDateTime(req.DateTo);
 
-                Attachment att = c.GetDataCommissionResultData(req.DateFrom, req.DateTo);
+                Attachment att = c.GetVoiceCommissionResultData(req.DateFrom, req.DateTo);
 
                 if (att != null)
                     emailInfo.AttList = new List<Attachment> { att };
 
                 new CommissionMailController().CommissionNotificationEmail(c, emailInfo, ViewData,
-                    CommissionMailController.COMMISSIONNOTIFICATION_DATA).DeliverAsync();
+                    CommissionMailController.COMMISSIONNOTIFICATION_VOICE).DeliverAsync();
 
                 r["success"] = 1;
             }
@@ -199,7 +198,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         private string GetFile(DateTime dt)
         {
             string c = HttpContext.Server.MapPath("~/result");
-            string file = Path.Combine(c, string.Format("data/{0:yyyy}/{1:MM}/CommResult_.bin", dt, dt));
+            string file = Path.Combine(c, string.Format("voice/e1/{0:yyyy}/{1:MM}/CommResult_.bin", dt, dt));
 
             if (!System.IO.File.Exists(file))
             {
@@ -217,7 +216,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             try
             {
                 Dictionary<int, SalesParent> m = GetAgents_();
-                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
+                d = new DbHelper(DbHelper.GetConStr(Constants.CALLBILLING2));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct sfid, magentid from salesforcedetail ")
                     .Append("where magentid = 0 and sfid <> 0 and sfid in ")
@@ -270,7 +269,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                 Dictionary<int, bool> t = new Dictionary<int, bool>();
                 Dictionary<int, SalesParent> m = GetAgents_();
-                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
+                d = new DbHelper(DbHelper.GetConStr(Constants.CALLBILLING2));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct sfid, magentid from salesforcedetail ")
                     .Append("where sfid = @sfid and sfid in ")
@@ -413,60 +412,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             }
         }
 
-        private void GetAgents(int agentID, List<SalesParent> l)
-        {
-            DbHelper d = null;
-            SqlDataReader rd = null;
-
-            try
-            {
-                if (agentID == 0)
-                {
-                    l = GetAgents();
-                    return;
-                }
-
-                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select sparentid, sparentname, geographycode, rptparentid from salesparent ")
-                    .Append("where sparentid = @sparentid");
-                string q = sb.ToString();
-
-                SqlParameter p = new SqlParameter("@sparentid", SqlDbType.Int);
-                p.Value = agentID;
-                d.AddParameter(p);
-
-                rd = d.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
-                {
-                    SalesParent a = new SalesParent();
-                    a.SParentID = rd.Get<int>("sparentid");
-                    a.SParentName = rd.Get("sparentname");
-                    a.GeographyCode = rd.Get("geographycode");
-                    a.RptParentID = rd.Get<int>("rptparentid");
-
-                    l.Add(a);
-                }
-
-                rd.Close();
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-
-                if (d != null)
-                    d.Dispose();
-            }
-        }
-
         private Dictionary<int, SalesParent> GetAgents_()
         {
             Dictionary<int, SalesParent> m = new Dictionary<int, SalesParent>();
@@ -475,7 +420,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             try
             {
-                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
+                d = new DbHelper(DbHelper.GetConStr(Constants.CALLBILLING2));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct sparentid, sparentname, geographycode, rptparentid from salesparent ")
                     .Append("where sparentname not like 'XX%' ")
@@ -522,7 +467,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             try
             {
-                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
+                d = new DbHelper(DbHelper.GetConStr(Constants.CALLBILLING2));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct sparentid, sparentname, geographycode, rptparentid from salesparent ")
                     .Append("where sparentname not like 'XX%' ")

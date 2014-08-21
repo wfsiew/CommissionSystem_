@@ -151,7 +151,9 @@
     <Compile Include="Areas\Commission\Controllers\CommissionMailController.cs" />
     <Compile Include="Areas\Commission\Controllers\DataController.cs" />
     <Compile Include="Areas\Commission\Controllers\DiscountedCallServiceController.cs" />
+    <Compile Include="Areas\Commission\Controllers\E1Controller.cs" />
     <Compile Include="Areas\Commission\Controllers\FibrePlusController.cs" />
+    <Compile Include="Areas\Commission\Controllers\SIPController.cs" />
     <Compile Include="Areas\Commission\Controllers\SpeedPlusController.cs" />
     <Compile Include="Areas\Commission\Models\ADSLCommission.cs" />
     <Compile Include="Areas\Commission\Models\Agent.cs" />
@@ -205,9 +207,11 @@
     <Content Include="App_Data\Setting\vsat\external.xml" />
     <Content Include="App_Data\Setting\vsat\internal.xml" />
     <Content Include="Areas\Commission\js\data\controller.js" />
-    <Content Include="Areas\Commission\js\discountedcallservice\controller.js" />
+    <Content Include="Areas\Commission\js\voice\discountedcallservice\controller.js" />
     <Content Include="Areas\Commission\js\fibreplus\controller.js" />
     <Content Include="Areas\Commission\js\speedplus\controller.js" />
+    <Content Include="Areas\Commission\js\voice\e1\controller.js" />
+    <Content Include="Areas\Commission\js\voice\sip\controller.js" />
     <Content Include="Content\PagedList.css" />
     <Content Include="css\app.css" />
     <Content Include="css\bootstrap\css\bootstrap-theme.css" />
@@ -271,9 +275,13 @@
     <Content Include="Areas\Commission\Views\CommissionMail\CommissionNotification_Data.html.cshtml" />
     <Content Include="js\lib\angular-touch.min.js.map" />
     <Content Include="Areas\Commission\Views\DiscountedCallService\Index.cshtml" />
-    <Content Include="Areas\Commission\Views\DiscountedCallService\_SearchForm.cshtml" />
+    <Content Include="Areas\Commission\Views\Shared\DiscountedCallService\_SearchForm.cshtml" />
     <Content Include="Areas\Commission\Views\DiscountedCallService\AgentSummary.cshtml" />
-    <Content Include="Areas\Commission\Views\DiscountedCallService\_CommissionResult.cshtml" />
+    <Content Include="Areas\Commission\Views\Shared\DiscountedCallService\_CommissionResult.cshtml" />
+    <Content Include="Areas\Commission\Views\SIP\Index.cshtml" />
+    <Content Include="Areas\Commission\Views\SIP\AgentSummary.cshtml" />
+    <Content Include="Areas\Commission\Views\E1\Index.cshtml" />
+    <Content Include="Areas\Commission\Views\E1\AgentSummary.cshtml" />
     <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />
@@ -327,6 +335,7 @@
       <Name>CommissionSystem.Domain</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

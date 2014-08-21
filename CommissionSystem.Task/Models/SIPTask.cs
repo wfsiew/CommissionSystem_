@@ -312,7 +312,7 @@ namespace CommissionSystem.Task.Models
                 sb.Append("select custid, rental, productid, amount, realcommencementdate ")
                     .Append("from customerbillinginfo ")
                     .Append("where custid in (")
-                    .Append("select custid from customer where agentid = @agentid and serviceid = 13 and ")
+                    .Append("select custid from customer where agentid = @agentid and serviceid = 33 and ")
                     .Append("name not like @keyword) ")
                     .Append("and custid in (")
                     .Append("select distinct custid from customersettlement where paymenttype <> 2 and ")
@@ -381,7 +381,7 @@ namespace CommissionSystem.Task.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select custid, name, rateplanid, billingday, status from customer where agentid = @agentid and serviceid = 13 and ")
+                sb.Append("select custid, name, rateplanid, billingday, status from customer where agentid = @agentid and serviceid = 33 and ")
                     .Append("name not like @keyword and custid in (")
                     .Append("select distinct custid from customersettlement where paymenttype <> 2 and ")
                     .Append("realdate >= @datefrom and realdate < @dateto)");

@@ -198,7 +198,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         private string GetFile(DateTime dt)
         {
             string c = HttpContext.Server.MapPath("~/result");
-            string file = Path.Combine(c, string.Format("voice/dcs/{0:yyyy}/{1:MM}/CommResult.bin", dt, dt));
+            string file = Path.Combine(c, string.Format("voice/dcs/{0:yyyy}/{1:MM}/CommResult_.bin", dt, dt));
 
             if (!System.IO.File.Exists(file))
             {

@@ -36,7 +36,7 @@ namespace CommissionSystem.Task
             }
 
             ProcessData(dateFrom, dateTo);
-            //ProcessDCS(dateFrom, dateTo);
+            ProcessDCS(dateFrom, dateTo);
             ProcessSIP(dateFrom, dateTo);
             ProcessE1(dateFrom, dateTo);
 
@@ -122,7 +122,7 @@ namespace CommissionSystem.Task
                 string month = Path.Combine(year, string.Format("{0:MM}", dt));
                 CreateDir(month);
 
-                string file = Path.Combine(month, "CommResult.bin");
+                string file = Path.Combine(month, "CommResult_.bin");
 
                 CommissionResult re = new CommissionResult();
                 re.CommissionViewDic = o.CommissionViewDic;
@@ -178,7 +178,7 @@ namespace CommissionSystem.Task
                 string month = Path.Combine(year, string.Format("{0:MM}", dt));
                 CreateDir(month);
 
-                string file = Path.Combine(month, "CommResult.bin");
+                string file = Path.Combine(month, "CommResult_.bin");
 
                 VoiceCommissionResult re = new VoiceCommissionResult();
                 re.CommissionViewDic = o.CommissionViewDic;
@@ -234,7 +234,7 @@ namespace CommissionSystem.Task
                 string month = Path.Combine(year, string.Format("{0:MM}", dt));
                 CreateDir(month);
 
-                string file = Path.Combine(month, "CommResult.bin");
+                string file = Path.Combine(month, "CommResult_.bin");
 
                 VoiceCommissionResult re = new VoiceCommissionResult();
                 re.CommissionViewDic = o.CommissionViewDic;
@@ -290,7 +290,7 @@ namespace CommissionSystem.Task
                 string month = Path.Combine(year, string.Format("{0:MM}", dt));
                 CreateDir(month);
 
-                string file = Path.Combine(month, "CommResult.bin");
+                string file = Path.Combine(month, "CommResult_.bin");
 
                 VoiceCommissionResult re = new VoiceCommissionResult();
                 re.CommissionViewDic = o.CommissionViewDic;

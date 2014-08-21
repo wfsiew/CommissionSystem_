@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "Commission - E1";
+}
+
+<div ng-controller="E1Ctrl" ng-init="init()">
+    @{ Html.RenderPartial("DiscountedCallService/_SearchForm"); }
+    @{ Html.RenderPartial("DiscountedCallService/_CommissionResult"); }
+</div>
+
+<script src="~/Areas/Commission/js/voice/e1/controller.js"></script>

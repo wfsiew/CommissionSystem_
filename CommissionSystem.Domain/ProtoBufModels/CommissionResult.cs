@@ -22,7 +22,7 @@ namespace CommissionSystem.Domain.ProtoBufModels
 
         [ProtoMember(1)]
         public Dictionary<string, List<CommissionView>> CommissionViewDic { get; set; }
-        [ProtoMember(1)]
+        [ProtoMember(2)]
         public List<AgentView> AgentViewList { get; set; }
 
         public Attachment GetDataCommissionResultData(DateTime dateFrom, DateTime dateTo)

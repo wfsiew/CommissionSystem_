@@ -3,6 +3,8 @@
 <ul class="nav nav-pills nav-stacked affix">
     <li><a href="">Commission</a></li>
     <li class="@(ViewBag.Menu == Constants.DISCOUNTED_CALL_SERVICE ? "active" : null)"><a href="@Url.Action("Index", "DiscountedCallService", new { area = "Commission" })">Discounted Call Service</a></li>
+    <li class="@(ViewBag.Menu == Constants.SIP ? "active" : null)"><a href="@Url.Action("Index", "SIP", new { area = "Commission" })">SIP</a></li>
+    <li class="@(ViewBag.Menu == Constants.E1 ? "active" : null)"><a href="@Url.Action("Index", "E1", new { area = "Commission" })">E1</a></li>
     <li class="@(ViewBag.Menu == Constants.CORPORATE_DATA ? "active" : null)"><a href="@Url.Action("Index", "Data", new { area = "Commission" })">Corporate Data</a></li>
     <li class="@(ViewBag.Menu == Constants.FIBREPLUS ? "active" : null)"><a href="@Url.Action("Index", "FibrePlus", new { area = "Commission" })">Fibre+</a></li>
     <li class="@(ViewBag.Menu == Constants.SPEEDPLUS ? "active" : null)"><a href="@Url.Action("Index", "SpeedPlus", new { area = "Commission" })">Speed+</a></li>
