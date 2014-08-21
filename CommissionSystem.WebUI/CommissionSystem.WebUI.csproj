@@ -214,6 +214,7 @@
     <Content Include="Areas\Commission\js\voice\sip\controller.js" />
     <Content Include="Content\PagedList.css" />
     <Content Include="css\app.css" />
+    <Content Include="css\bootstrap\AdminLTE.css" />
     <Content Include="css\bootstrap\css\bootstrap-theme.css" />
     <Content Include="css\bootstrap\css\bootstrap-theme.min.css" />
     <Content Include="css\bootstrap\css\bootstrap.css" />
@@ -221,7 +222,9 @@
     <Content Include="css\bootstrap\css\select2-spinner.gif" />
     <Content Include="css\bootstrap\css\select2.css" />
     <Content Include="css\bootstrap\css\select2.png" />
+    <Content Include="css\bootstrap\font-awesome.min.css" />
     <Content Include="css\bootstrap\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="css\bootstrap\ionicons.min.css" />
     <Content Include="css\lib\angular-motion.min.css" />
     <Content Include="css\lib\loading-bar.css" />
     <Content Include="css\lib\toastr-icon.png" />
@@ -354,7 +357,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>4110</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:8585/</IISUrl>
+          <IISUrl>http://localhost:8586/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
