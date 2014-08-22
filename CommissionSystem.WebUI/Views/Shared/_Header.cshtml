@@ -1,18 +1,5 @@
-﻿@*<div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">REDtone Commission System</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">Profile</a></li>
-            </ul>
-        </div>
-    </div>
-</div>*@
-
-<header class="header">
-    <a href="" class="logo">REDtone Commission System</a>
+﻿<header class="header">
+    <a href="" class="logo">REDtone Commission</a>
     <nav class="navbar navbar-static-top" role="navigation">
         <!-- Sidebar toggle button-->
         <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
@@ -31,19 +18,30 @@
                     <ul class="dropdown-menu">
                         <!-- User image -->
                         <li class="user-header bg-light-blue">
+                            <img src="~/css/bootstrap/img/avatar5.png" class="img-circle" alt="User Image" />
                             <p>
                                 username
                             </p>
                         </li>
                         <!-- Menu Body -->
-                        <li class="user-body"></li>
+                        <li class="user-body">
+                            <div class="col-xs-4 text-center">
+                                <a href="#">Followers</a>
+                            </div>
+                            <div class="col-xs-4 text-center">
+                                <a href="#">Sales</a>
+                            </div>
+                            <div class="col-xs-4 text-center">
+                                <a href="#">Friends</a>
+                            </div>
+                        </li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
                                 <a href="#" class="btn btn-default btn-flat">Profile</a>
                             </div>
                             <div class="pull-right">
-                                <a href="#" class="btn btn-default btn-flat">Logout</a>
+                                <a href="#" class="btn btn-default btn-flat">Sign out</a>
                             </div>
                         </li>
                     </ul>

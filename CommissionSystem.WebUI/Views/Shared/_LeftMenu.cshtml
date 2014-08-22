@@ -1,50 +1,10 @@
 ﻿@using CommissionSystem.WebUI.Helpers;
 
-@*<accordion close-others="false">
-    <accordion-group heading="Commission" is-open="true">
-        <accordion-group heading="Corporate Voice" is-open="true">
-            <ul class="nav nav-pills nav-stacked">
-                <li class="@(ViewBag.Menu == Constants.DISCOUNTED_CALL_SERVICE ? "active" : null)"><a href="@Url.Action("Index", "DiscountedCallService", new { area = "Commission" })">Discounted Call Service</a></li>
-                <li class="@(ViewBag.Menu == Constants.SIP ? "active" : null)"><a href="@Url.Action("Index", "SIP", new { area = "Commission" })">SIP</a></li>
-                <li class="@(ViewBag.Menu == Constants.E1 ? "active" : null)"><a href="@Url.Action("Index", "E1", new { area = "Commission" })">E1</a></li>
-                <li class="@(ViewBag.Menu == Constants.CORPORATE_DATA ? "active" : null)"><a href="@Url.Action("Index", "Data", new { area = "Commission" })">Corporate Data</a></li>
-                <li class="@(ViewBag.Menu == Constants.FIBREPLUS ? "active" : null)"><a href="@Url.Action("Index", "FibrePlus", new { area = "Commission" })">Fibre+</a></li>
-                <li class="@(ViewBag.Menu == Constants.SPEEDPLUS ? "active" : null)"><a href="@Url.Action("Index", "SpeedPlus", new { area = "Commission" })">Speed+</a></li>
-            </ul>
-        </accordion-group>
-        <ul class="nav nav-pills nav-stacked">
-            <li class="@(ViewBag.Menu == Constants.DISCOUNTED_CALL_SERVICE ? "active" : null)"><a href="@Url.Action("Index", "DiscountedCallService", new { area = "Commission" })">Discounted Call Service</a></li>
-            <li class="@(ViewBag.Menu == Constants.SIP ? "active" : null)"><a href="@Url.Action("Index", "SIP", new { area = "Commission" })">SIP</a></li>
-            <li class="@(ViewBag.Menu == Constants.E1 ? "active" : null)"><a href="@Url.Action("Index", "E1", new { area = "Commission" })">E1</a></li>
-            <li class="@(ViewBag.Menu == Constants.CORPORATE_DATA ? "active" : null)"><a href="@Url.Action("Index", "Data", new { area = "Commission" })">Corporate Data</a></li>
-            <li class="@(ViewBag.Menu == Constants.FIBREPLUS ? "active" : null)"><a href="@Url.Action("Index", "FibrePlus", new { area = "Commission" })">Fibre+</a></li>
-            <li class="@(ViewBag.Menu == Constants.SPEEDPLUS ? "active" : null)"><a href="@Url.Action("Index", "SpeedPlus", new { area = "Commission" })">Speed+</a></li>
-        </ul>
-    </accordion-group>
-</accordion>*@
-
-@*<ul class="nav nav-pills nav-stacked affix">
-    <li><a href="">Commission</a></li>
-    
-</ul>*@
-
 <!-- Left side column. contains the logo and sidebar -->
 <aside class="left-side sidebar-offcanvas">
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
         <ul class="sidebar-menu">
-            <li class="treeview">
-                <a href="#">
-                    <i class="fa fa-bar-chart-o"></i>
-                    <span>Charts</span>
-                    <i class="fa fa-angle-left pull-right"></i>
-                </a>
-                <ul class="treeview-menu">
-                    <li><a href="pages/charts/morris.html"><i class="fa fa-angle-double-right"></i> Morris</a></li>
-                    <li><a href="pages/charts/flot.html"><i class="fa fa-angle-double-right"></i> Flot</a></li>
-                    <li><a href="pages/charts/inline.html"><i class="fa fa-angle-double-right"></i> Inline charts</a></li>
-                </ul>
-            </li>
             <li class="treeview active">
                 <a href="#">
                     <i class="fa fa-th"></i>
@@ -52,7 +12,7 @@
                     <i class="fa fa-angle-left pull-right"></i>
                 </a>
                 <ul class="treeview-menu">
-                    <li class="treeview active">
+                    <li class="treeview @UIHelperr.GetCorporateVoiceMenuCss(ViewBag.Menu)">
                         <a href="#">
                             <i class="fa fa-th"></i>
                             <span>Corporate Voice</span>
@@ -63,6 +23,24 @@
                             <li class="@(ViewBag.Menu == Constants.SIP ? "active" : null)"><a href="@Url.Action("Index", "SIP", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> SIP</a></li>
                             <li class="@(ViewBag.Menu == Constants.E1 ? "active" : null)"><a href="@Url.Action("Index", "E1", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> E1</a></li>
                         </ul>
+                    </li>
+                    <li class="@UIHelperr.GetCorporateMenuCss(ViewBag.Menu)">
+                        <a href="@Url.Action("Index", "Data", new { area = "Commission" })">
+                            <i class="fa fa-th"></i>
+                            <span>Corporate Data</span>
+                        </a>
+                    </li>
+                    <li class="@(ViewBag.Menu == Constants.FIBREPLUS ? "active" : null)">
+                        <a href="@Url.Action("Index", "FibrePlus", new { area = "Commission" })">
+                            <i class="fa fa-th"></i>
+                            <span>Fibre+</span>
+                        </a>
+                    </li>
+                    <li class="@(ViewBag.Menu == Constants.SPEEDPLUS ? "active" : null)">
+                        <a href="@Url.Action("Index", "SpeedPlus", new { area = "Commission" })">
+                            <i class="fa fa-th"></i>
+                            <span>Speed+</span>
+                        </a>
                     </li>
                 </ul>
             </li>

@@ -169,6 +169,7 @@
     </Compile>
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\DbHelper.cs" />
+    <Compile Include="Helpers\UIHelper.cs" />
     <Compile Include="Models\Pager.cs" />
     <Compile Include="Models\SettingFactory.cs" />
     <Compile Include="Models\UIException.cs" />

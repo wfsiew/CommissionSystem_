@@ -165,8 +165,8 @@ namespace CommissionSystem.Task.Models
                                 if (!m.ContainsKey(i.InvoiceNumber))
                                 {
                                     m[i.InvoiceNumber] = true;
-                                    o.CallCharge += i.CallCharge;
-                                    c.Total += i.CallCharge;
+                                    o.CallCharge += i.CallChargesIDD + i.CallChargesSTD + i.CallChargesMOB;
+                                    c.Total += o.CallCharge;
                                     c.IDD += i.CallChargesIDD;
                                     c.STD += i.CallChargesSTD;
                                     c.MOB += i.CallChargesMOB;

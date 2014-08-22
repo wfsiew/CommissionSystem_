@@ -47,5 +47,10 @@ namespace CommissionSystem.Domain.ProtoBufModels
                 SettlementList.Add(o);
             }
         }
+
+        public bool HasSettlement(CustomerSettlement o)
+        {
+            return settlementdic.ContainsKey(o.SettlementIdx);
+        }
     }
 }

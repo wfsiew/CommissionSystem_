@@ -347,7 +347,9 @@ namespace CommissionSystem.Task.Models
                             DateTime dt = i.InvoiceDate.AddDays(Constants.MAX_INVOICE_DAY);
                             if (o.RealDate <= dt)
                             {
-                                amt += i.TotalCurrentCharge;
+                                if (!customer.HasSettlement(o))
+                                    amt += o.Amount;
+
                                 customer.AddSettlement(o);
                             }
                         }
