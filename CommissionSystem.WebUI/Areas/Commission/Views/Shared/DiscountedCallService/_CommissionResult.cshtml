@@ -71,10 +71,18 @@
                             </div>
                         </div>
                         <div class="bold total">
-                            <span class="label label-default pull-left">Total IDD</span> {{k.CallChargeIDD | mycurrency:'RM'}}<br />
-                            <span class="label label-default pull-left">Total STD</span> {{k.CallChargeSTD | mycurrency:'RM'}}<br />
-                            <span class="label label-default pull-left">Total MOB</span> {{k.CallChargeMOB | mycurrency:'RM'}}<br />
-                            <span class="label label-default pull-left">Total</span> {{k.CallCharge | mycurrency:'RM'}}
+                            <div>
+                                <span class="label label-default pull-left">Total IDD</span> {{k.CallChargeIDD | mycurrency:'RM'}}
+                            </div>
+                            <div>
+                                <span class="label label-default pull-left">Total STD</span> {{k.CallChargeSTD | mycurrency:'RM'}}
+                            </div>
+                            <div>
+                                <span class="label label-default pull-left">Total MOB</span> {{k.CallChargeMOB | mycurrency:'RM'}}
+                            </div>
+                            <div>
+                                <span class="label label-default pull-left">Total</span> {{k.CallCharge | mycurrency:'RM'}}
+                            </div>
                         </div>
                     </td>
                     <td class="nowrap">
@@ -85,9 +93,9 @@
                             <br />
                         </div>
                         <div>
-                            (T x {{k.CommissionRateIDD}})<br />
-                            (T x {{k.CommissionRateSTD}})<br />
-                            (T x {{k.CommissionRateMOB}})
+                            <div>(T x {{k.CommissionRateIDD}})</div>
+                            <div>(T x {{k.CommissionRateSTD}})</div>
+                            <div>(T x {{k.CommissionRateMOB}})</div>
                         </div>
                     </td>
                     <td class="tdRight">
@@ -98,9 +106,9 @@
                             <br />
                         </div>
                         <div>
-                            {{k.CommissionIDD | mycurrency:'RM'}}<br />
-                            {{k.CommissionSTD | mycurrency:'RM'}}<br />
-                            {{k.CommissionMOB | mycurrency:'RM'}}
+                            <div>{{k.CommissionIDD | mycurrency:'RM'}}</div>
+                            <div>{{k.CommissionSTD | mycurrency:'RM'}}</div>
+                            <div>{{k.CommissionMOB | mycurrency:'RM'}}</div>
                             <div class="bold total">{{k.Commission | mycurrency:'RM'}}</div>
                         </div>
                     </td>

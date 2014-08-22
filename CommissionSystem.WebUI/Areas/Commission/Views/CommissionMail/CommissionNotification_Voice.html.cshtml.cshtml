@@ -1,4 +1,4 @@
-﻿@model CommissionSystem.Domain.ProtoBufModels.CommissionResult
+﻿@model CommissionSystem.Domain.ProtoBufModels.VoiceCommissionResult
 
 @using CommissionSystem.Domain.ProtoBufModels;
 @using CommissionSystem.Domain.Helpers;
@@ -39,6 +39,28 @@
 
     thead {
         display: table-header-group;
+    }
+
+    .label {
+        border: 1px solid #000;
+        display: inline;
+        padding: .2em .6em .3em;
+        font-size: 75%;
+        font-weight: bold;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: .25em;
+    }
+
+    .label-default {
+        background-color: #999;
+    }
+
+    .pull-left {
+        float: left !important;
     }
 
     tr,
@@ -309,6 +331,9 @@
     else
     {
         StringBuilder sbamt = new StringBuilder();
+        StringBuilder sbidd = new StringBuilder();
+        StringBuilder sbstd = new StringBuilder();
+        StringBuilder sbmob = new StringBuilder();
         StringBuilder sbbr = new StringBuilder();
         <br />
         <table class="table table-bordered table-condensed table-hover table-striped">
@@ -327,7 +352,7 @@
             <tbody>
                 @for (int i = 0; i < Model.CommissionViewDic[a.AgentID.ToString()].Count; i++)
                 {
-                    CommissionView k = Model.CommissionViewDic[a.AgentID.ToString()][i];
+                    VoiceCommissionView k = Model.CommissionViewDic[a.AgentID.ToString()][i];
                     <tr>
                         <td class="tdRight">@(i + 1).</td>
                         <td>@k.Customer.CustID</td>
@@ -349,24 +374,83 @@
                             {
                                 <div>
                                     @Utils.FormatDateTime(se.RealDate)
+
+                                    @{
+                                        sbbr.Append("<div>");
+                                        sbamt.Append("<div>");
+                                        
+                                        sbidd.Clear();
+                                        sbstd.Clear();
+                                        sbmob.Clear();
+                                        
+                                        int n = se.InvoiceList.Count;
+                                        for (int j = 0; j < n; j++)
+                                        {
+                                            sbbr.Append("<br /><br />");
+                                            Invoice inv = se.InvoiceList[j];
+                                            <br />
+                                            sbidd.Append("<div>");
+                                            sbidd.AppendFormat(@"<span class=""label label-default pull-left"">IDD</span> {0}", Utils.FormatCurrency(inv.CallChargesIDD));
+                                            sbidd.Append("</div>");
+
+                                            sbstd.Append("<div>");
+                                            sbstd.AppendFormat(@"<span class=""label label-default pull-left"">STD</span> {0}", Utils.FormatCurrency(inv.CallChargesSTD));
+                                            sbstd.Append("</div>");
+
+                                            sbmob.Append("<div>");
+                                            sbmob.AppendFormat(@"<span class=""label label-default pull-left"">MOB</span> {0}", Utils.FormatCurrency(inv.CallChargesMOB));
+                                            sbmob.Append("</div>");
+                                        }
+                                        
+                                        sbbr.Append("<br />");
+                                        
+                                        sbamt.Append(sbidd.ToString());
+                                        sbamt.Append(sbstd.ToString());
+                                        sbamt.Append(sbmob.ToString());
+                                        
+                                        sbamt.Append(@"<div class=""bold total"">");
+                                        sbamt.AppendFormat(@"<span class=""label label-default pull-left"">Total</span> {0}", Utils.FormatCurrency(se.CallCharge));
+                                        sbamt.Append("</div>");
+                                        
+                                        sbamt.Append("</div>");
+                                        sbbr.Append("</div>");
+                                    }
+                                    <br />
                                 </div>
-                                sbamt.AppendFormat("<div>{0}</div>", Utils.FormatCurrency(se.Amount));
-                                sbbr.Append("<br />");
                             }
                         </td>
-                        <td class="tdRight">
+                        <td class="tdRight nowrap">
                             @Html.Raw(sbamt.ToString())
                             <div class="bold total">
-                                @Utils.FormatCurrency(k.SettlementAmount)
+                                <div>
+                                    <span class="label label-default pull-left">Total IDD</span> @Utils.FormatCurrency(k.CallChargeIDD)
+                                </div>
+                                <div>
+                                    <span class="label label-default pull-left">Total STD</span> @Utils.FormatCurrency(k.CallChargeSTD)
+                                </div>
+                                <div>
+                                    <span class="label label-default pull-left">Total MOB</span> @Utils.FormatCurrency(k.CallChargeMOB)
+                                </div>
+                                <div>
+                                    <span class="label label-default pull-left">Total</span> @Utils.FormatCurrency(k.CallCharge)
+                                </div>
                             </div>
                         </td>
                         <td class="nowrap">
                             @Html.Raw(sbbr.ToString())
-                            (T x @k.CommissionRate)
+                            <div>
+                                <div>(T x @k.CommissionRateIDD)</div>
+                                <div>(T x @k.CommissionRateSTD)</div>
+                                <div>(T x @k.CommissionRateMOB)</div>
+                            </div>
                         </td>
                         <td class="tdRight">
-                           @Html.Raw(sbbr.ToString())
-                            @Utils.FormatCurrency(k.Commission)
+                            @Html.Raw(sbbr.ToString())
+                            <div class="bold total">
+                                <div>@Utils.FormatCurrency(k.CommissionIDD)</div>
+                                <div>@Utils.FormatCurrency(k.CommissionSTD)</div>
+                                <div>@Utils.FormatCurrency(k.CommissionMOB)</div>
+                            </div>
                         </td>
                     </tr>
                 }

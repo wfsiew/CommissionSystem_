@@ -132,7 +132,7 @@ namespace CommissionSystem.Task
                 Serializer.Serialize<CommissionResult>(fs, re);
                 fs.Close();
 
-                Logger.Trace("DCata process ended: {0}", DateTime.Now);
+                Logger.Trace("Data process ended: {0}", DateTime.Now);
             }
 
             catch (Exception e)

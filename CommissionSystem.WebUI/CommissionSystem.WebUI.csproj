@@ -155,14 +155,10 @@
     <Compile Include="Areas\Commission\Controllers\FibrePlusController.cs" />
     <Compile Include="Areas\Commission\Controllers\SIPController.cs" />
     <Compile Include="Areas\Commission\Controllers\SpeedPlusController.cs" />
-    <Compile Include="Areas\Commission\Models\ADSLCommission.cs" />
     <Compile Include="Areas\Commission\Models\Agent.cs" />
-    <Compile Include="Areas\Commission\Models\DataCommission.cs" />
-    <Compile Include="Areas\Commission\Models\DiscountedCallServiceCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
     <Compile Include="Areas\Commission\Models\SpeedPlusCommission.cs" />
-    <Compile Include="Areas\Commission\Models\VoiceCommission.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -353,6 +349,7 @@
     <Content Include="css\bootstrap\less\small-box.less" />
     <Content Include="css\bootstrap\less\timeline.less" />
     <Content Include="css\bootstrap\less\vars.less" />
+    <Content Include="Areas\Commission\Views\CommissionMail\CommissionNotification_Voice.html.cshtml.cshtml" />
     <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />

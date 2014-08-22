@@ -163,6 +163,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 ViewData["DateTo"] = Utils.FormatDateTime(req.DateTo);
 
                 Attachment att = c.GetVoiceCommissionResultData(req.DateFrom, req.DateTo);
+                att = null;
 
                 if (att != null)
                     emailInfo.AttList = new List<Attachment> { att };
