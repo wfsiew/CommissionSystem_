@@ -347,9 +347,7 @@
                             }
                             @foreach (CustomerSettlement se in k.Customer.SettlementList)
                             {
-                                <div>
-                                    @Utils.FormatDateTime(se.RealDate)
-                                </div>
+                                <div>@Utils.FormatDateTime(se.RealDate)</div>
                                 sbamt.AppendFormat("<div>{0}</div>", Utils.FormatCurrency(se.Amount));
                                 sbbr.Append("<br />");
                             }

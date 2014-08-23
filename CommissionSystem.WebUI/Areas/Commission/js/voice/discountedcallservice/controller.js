@@ -54,6 +54,34 @@
         });
     }
 
+    $scope.sendMail = function () {
+        var dateFrom = $scope.dateFrom;
+        var dateTo = $scope.dateTo;
+
+        var _dateFrom = utils.getDateStr(dateFrom);
+        var _dateTo = utils.getDateStr(dateTo);
+
+        var o = {
+            AgentID: $scope.agentID,
+            DateFrom: _dateFrom,
+            DateTo: _dateTo
+        };
+
+        var url = route.dcs.mail;
+        utils.blockUI();
+        $http.post(url, o).success(function (data) {
+            utils.unblockUI();
+            if (data.success == 1)
+                toastr.success('Mail has been sent successfully');
+
+            else
+                toastr.error(data.message);
+        }).error(function (data, status) {
+            utils.unblockUI();
+            bootbox.alert('Request failed');
+        });
+    }
+
     $scope.validate = function () {
         var o = null;
 

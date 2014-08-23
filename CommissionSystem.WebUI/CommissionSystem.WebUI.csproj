@@ -349,7 +349,7 @@
     <Content Include="css\bootstrap\less\small-box.less" />
     <Content Include="css\bootstrap\less\timeline.less" />
     <Content Include="css\bootstrap\less\vars.less" />
-    <Content Include="Areas\Commission\Views\CommissionMail\CommissionNotification_Voice.html.cshtml.cshtml" />
+    <Content Include="Areas\Commission\Views\CommissionMail\CommissionNotification_Voice.html.cshtml" />
     <None Include="Properties\PublishProfiles\CommissionSystem.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="js\lib\jquery-1.10.2.min.js" />
