@@ -352,7 +352,7 @@
                                 sbbr.Append("<br />");
                             }
                         </td>
-                        <td class="tdRight">
+                        <td class="tdRight nowrap>
                             @Html.Raw(sbamt.ToString())
                             <div class="bold total">
                                 @Utils.FormatCurrency(k.SettlementAmount)
@@ -362,7 +362,7 @@
                             @Html.Raw(sbbr.ToString())
                             (T x @k.CommissionRate)
                         </td>
-                        <td class="tdRight">
+                        <td class="tdRight nowrap">
                            @Html.Raw(sbbr.ToString())
                             @Utils.FormatCurrency(k.Commission)
                         </td>

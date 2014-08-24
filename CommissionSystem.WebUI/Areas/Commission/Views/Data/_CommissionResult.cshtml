@@ -51,7 +51,7 @@
                             {{se.RealDate | datefilter | date:'dd MMM yyyy'}}
                         </div>
                     </td>
-                    <td class="tdRight">
+                    <td class="tdRight nowrap">
                         <div ng-repeat="se in k.Customer.SettlementList">
                             {{se.Amount | mycurrency:'RM'}}
                         </div>
@@ -61,7 +61,7 @@
                         <br ng-repeat="se in k.Customer.SettlementList" />
                         (T x {{k.CommissionRate}})
                     </td>
-                    <td class="tdRight">
+                    <td class="tdRight nowrap">
                         <br ng-repeat="se in k.Customer.SettlementList" />
                         {{k.Commission | mycurrency:'RM'}}
                     </td>

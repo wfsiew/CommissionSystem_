@@ -114,9 +114,12 @@ namespace CommissionSystem.Domain.ProtoBufModels
 
                         ++col;
 
+                        ws.Cells[row, col].Style.WrapText = false;
                         ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                         ws.Cells[row, col++].Value = Utils.FormatCurrency(k.SettlementAmount);
+                        ws.Cells[row, col].Style.WrapText = false;
                         ws.Cells[row, col++].Value = string.Format("(T x {0})", k.CommissionRate);
+                        ws.Cells[row, col].Style.WrapText = false;
                         ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                         ws.Cells[row, col++].Value = Utils.FormatCurrency(k.Commission);
 
@@ -346,7 +349,7 @@ namespace CommissionSystem.Domain.ProtoBufModels
                     {
                         col = 1;
 
-                        CommissionView k = CommissionViewDic[a.AgentID.ToString()][i];
+                        VoiceCommissionView k = CommissionViewDic[a.AgentID.ToString()][i];
                         ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                         ws.Cells[row, col++].Value = string.Format("{0}.", i + 1);
 
@@ -376,20 +379,79 @@ namespace CommissionSystem.Domain.ProtoBufModels
                             ws.Cells[row++, col + 1].Value = "IDD";
                             foreach (Invoice inv in se.InvoiceList)
                             {
+                                ws.Cells[row, col + 1].Style.WrapText = false;
                                 ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                                 ws.Cells[row++, col + 1].Value = Utils.FormatCurrency(inv.CallChargesIDD);
                             }
+
+                            ws.Cells[row++, col + 1].Value = "STD";
+                            foreach (Invoice inv in se.InvoiceList)
+                            {
+                                ws.Cells[row, col + 1].Style.WrapText = false;
+                                ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                                ws.Cells[row++, col + 1].Value = Utils.FormatCurrency(inv.CallChargesSTD);
+                            }
+
+                            ws.Cells[row++, col + 1].Value = "MOB";
+                            foreach (Invoice inv in se.InvoiceList)
+                            {
+                                ws.Cells[row, col + 1].Style.WrapText = false;
+                                ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                                ws.Cells[row++, col + 1].Value = Utils.FormatCurrency(inv.CallChargesMOB);
+                            }
+
+                            ws.Cells[row++, col + 1].Value = "Total";
+                            ws.Cells[row, col + 1].Style.WrapText = false;
+                            ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row++, col + 1].Value = Utils.FormatCurrency(se.CallCharge);
+
+                            ws.Cells[row++, col + 1].Value = "Total IDD";
+                            ws.Cells[row, col + 1].Style.WrapText = false;
+                            ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row, col + 1].Value = Utils.FormatCurrency(k.CallChargeIDD);
+
+                            ws.Cells[row, col + 2].Style.WrapText = false;
+                            ws.Cells[row, col + 2].Value = string.Format("(T x {0})", k.CommissionRateIDD);
+                            ws.Cells[row, col + 3].Style.WrapText = false;
+                            ws.Cells[row, col + 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row, col + 3].Value = Utils.FormatCurrency(k.CommissionIDD);
+
+                            ++row;
+
+                            ws.Cells[row++, col + 1].Value = "Total STD";
+                            ws.Cells[row, col + 1].Style.WrapText = false;
+                            ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row, col + 1].Value = Utils.FormatCurrency(k.CallChargeSTD);
+
+                            ws.Cells[row, col + 2].Style.WrapText = false;
+                            ws.Cells[row, col + 2].Value = string.Format("(T x {0})", k.CommissionRateSTD);
+                            ws.Cells[row, col + 3].Style.WrapText = false;
+                            ws.Cells[row, col + 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row, col + 3].Value = Utils.FormatCurrency(k.CommissionSTD);
+
+                            ++row;
+
+                            ws.Cells[row++, col + 1].Value = "Total MOB";
+                            ws.Cells[row, col + 1].Style.WrapText = false;
+                            ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row, col + 1].Value = Utils.FormatCurrency(k.CallChargeMOB);
+
+                            ws.Cells[row, col + 2].Style.WrapText = false;
+                            ws.Cells[row, col + 2].Value = string.Format("(T x {0})", k.CommissionRateMOB);
+                            ws.Cells[row, col + 3].Style.WrapText = false;
+                            ws.Cells[row, col + 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row, col + 3].Value = Utils.FormatCurrency(k.CommissionMOB);
+
+                            ++row;
+
+                            ws.Cells[row, col + 3].Style.WrapText = false;
+                            ws.Cells[row, col + 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row, col + 3].Value = Utils.FormatCurrency(k.Commission);
+
+                            ws.Cells[row++, col + 1].Value = "Total";
+                            ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                            ws.Cells[row++, col + 1].Value = Utils.FormatCurrency(k.CallCharge);
                         }
-
-                        ++col;
-
-                        ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-                        ws.Cells[row, col++].Value = Utils.FormatCurrency(k.SettlementAmount);
-                        ws.Cells[row, col++].Value = string.Format("(T x {0})", k.CommissionRate);
-                        ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-                        ws.Cells[row, col++].Value = Utils.FormatCurrency(k.Commission);
-
-                        ++row;
                     }
 
                     row += space;
