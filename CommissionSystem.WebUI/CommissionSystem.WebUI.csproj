@@ -402,6 +402,10 @@
       <Project>{ecc30a9c-1387-48d5-8a6f-a78d0ce77ea8}</Project>
       <Name>CommissionSystem.Domain</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CommissionSystem.Task\CommissionSystem.Task.csproj">
+      <Project>{be407d0b-6d62-40ad-8b06-6b9004d826fa}</Project>
+      <Name>CommissionSystem.Task</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

@@ -231,7 +231,7 @@ namespace CommissionSystem.Task.Helpers
         public static string GetConStr(string db)
         {
             string constr = string.Format("Server=192.168.138.120; Database={0}; User Id=CallBilling; Password=CBPWD12345", db);
-            constr = string.Format("Server=wfsiew-pc; Database={0}; User Id=sa; Password=root", db);
+            //constr = string.Format("Server=wfsiew-pc; Database={0}; User Id=sa; Password=root", db);
             return constr;
         }
 

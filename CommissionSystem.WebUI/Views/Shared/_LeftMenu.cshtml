@@ -44,6 +44,35 @@
                     </li>
                 </ul>
             </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-th"></i>
+                    <span>Agent Management</span>
+                    <i class="fa fa-angle-left pull-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-th"></i>
+                            <span>Corporate Voice</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class=""><a href="@Url.Action("AgentSummary", "DiscountedCallService", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Agent Structure</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-th"></i>
+                            <span>Corporate Data</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class=""><a href="@Url.Action("AgentSummary", "Data", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Agent Structure</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
         </ul>
     </section>
 </aside>

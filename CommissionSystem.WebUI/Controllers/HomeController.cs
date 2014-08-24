@@ -17,6 +17,5 @@ namespace CommissionSystem.WebUI.Controllers
         {
             return View();
         }
-
     }
 }

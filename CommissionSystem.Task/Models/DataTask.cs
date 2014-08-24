@@ -242,6 +242,47 @@ namespace CommissionSystem.Task.Models
             }
         }
 
+        public void GetTopLevelAgents(List<SalesParent> l, Dictionary<int, List<SalesParent>> dic)
+        {
+            SqlDataReader rd = null;
+
+            try
+            {
+                Dictionary<int, SalesParent> m = GetAgents_();
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select distinct sfid, magentid from salesforcedetail ")
+                    .Append("where magentid = 0 and sfid <> 0 and sfid in ")
+                    .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
+                string q = sb.ToString();
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    int sfid = rd.Get<int>("sfid");
+                    int magentid = rd.Get<int>("magentid");
+
+                    SalesParent a = m[sfid];
+                    l.Add(a);
+                }
+
+                rd.Close();
+                AddAgentsToDic(dic, l, 0);
+                GetChildAgents(l, dic, m, 0);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+        }
+
         private List<Invoice> GetCustomerInvoice(Customer customer)
         {
             List<Invoice> l = new List<Invoice>();
@@ -578,55 +619,8 @@ namespace CommissionSystem.Task.Models
             return a;
         }
 
-        private void GetTopLevelAgents(List<SalesParent> l, Dictionary<int, List<SalesParent>> dic)
-        {
-            DbHelper d = null;
-            SqlDataReader rd = null;
-
-            try
-            {
-                Dictionary<int, SalesParent> m = GetAgents_();
-                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select distinct sfid, magentid from salesforcedetail ")
-                    .Append("where magentid = 0 and sfid <> 0 and sfid in ")
-                    .Append("(select sparentid from salesparent where sparentname not like 'XX%')");
-                string q = sb.ToString();
-
-                rd = d.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
-                {
-                    int sfid = rd.Get<int>("sfid");
-                    int magentid = rd.Get<int>("magentid");
-
-                    SalesParent a = m[sfid];
-                    l.Add(a);
-                }
-
-                rd.Close();
-                AddAgentsToDic(dic, l, 0);
-                GetChildAgents(l, dic, m, d, 0);
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-
-                if (d != null)
-                    d.Dispose();
-            }
-        }
-
         private void GetAgentHierarchy(int agentID, List<SalesParent> l, Dictionary<int, List<SalesParent>> dic)
         {
-            DbHelper d = null;
             SqlDataReader rd = null;
 
             try
@@ -639,7 +633,6 @@ namespace CommissionSystem.Task.Models
 
                 Dictionary<int, bool> t = new Dictionary<int, bool>();
                 Dictionary<int, SalesParent> m = GetAgents_();
-                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct sfid, magentid from salesforcedetail ")
                     .Append("where sfid = @sfid and sfid in ")
@@ -648,9 +641,9 @@ namespace CommissionSystem.Task.Models
 
                 SqlParameter p = new SqlParameter("@sfid", SqlDbType.Int);
                 p.Value = agentID;
-                d.AddParameter(p);
+                Db.AddParameter(p);
 
-                rd = d.ExecuteReader(q, CommandType.Text);
+                rd = Db.ExecuteReader(q, CommandType.Text);
                 while (rd.Read())
                 {
                     int sfid = rd.Get<int>("sfid");
@@ -673,7 +666,7 @@ namespace CommissionSystem.Task.Models
 
                 rd.Close();
                 AddAgentsToDic(dic, l, 0);
-                GetChildAgents(l, dic, m, d, 0);
+                GetChildAgents(l, dic, m, 0);
             }
 
             catch (Exception e)
@@ -686,14 +679,11 @@ namespace CommissionSystem.Task.Models
             {
                 if (rd != null)
                     rd.Dispose();
-
-                if (d != null)
-                    d.Dispose();
             }
         }
 
         private void GetChildAgents(List<SalesParent> parentList, Dictionary<int, List<SalesParent>> dic,
-            Dictionary<int, SalesParent> m, DbHelper d, int parentLevel)
+            Dictionary<int, SalesParent> m, int parentLevel)
         {
             SqlDataReader rd = null;
             int level = 0;
@@ -723,9 +713,9 @@ namespace CommissionSystem.Task.Models
 
                         SqlParameter p = new SqlParameter("@magentid", SqlDbType.Int);
                         p.Value = parent.SParentID;
-                        d.AddParameter(p);
+                        Db.AddParameter(p);
 
-                        rd = d.ExecuteReader(q, CommandType.Text);
+                        rd = Db.ExecuteReader(q, CommandType.Text);
                         while (rd.Read())
                         {
                             int sfid = rd.Get<int>("sfid");
@@ -785,19 +775,17 @@ namespace CommissionSystem.Task.Models
         private Dictionary<int, SalesParent> GetAgents_()
         {
             Dictionary<int, SalesParent> m = new Dictionary<int, SalesParent>();
-            DbHelper d = null;
             SqlDataReader rd = null;
 
             try
             {
-                d = new DbHelper(DbHelper.GetConStr(Constants.RTCBROADBAND_CALLBILLING));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct sparentid, sparentname, geographycode, rptparentid from salesparent ")
                     .Append("where sparentname not like 'XX%' ")
                     .Append("order by sparentname");
                 string q = sb.ToString();
 
-                rd = d.ExecuteReader(q, CommandType.Text);
+                rd = Db.ExecuteReader(q, CommandType.Text);
                 while (rd.Read())
                 {
                     SalesParent a = new SalesParent();
@@ -821,9 +809,6 @@ namespace CommissionSystem.Task.Models
             {
                 if (rd != null)
                     rd.Dispose();
-
-                if (d != null)
-                    d.Dispose();
             }
 
             return m;
