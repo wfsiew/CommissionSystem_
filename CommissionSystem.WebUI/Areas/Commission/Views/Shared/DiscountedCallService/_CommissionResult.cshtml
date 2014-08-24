@@ -48,7 +48,9 @@
                     </td>
                     <td class="nowrap">
                         <div ng-repeat="se in k.Customer.SettlementList">
-                            <div>{{se.RealDate | datefilter | date:'dd MMM yyyy'}}</div>
+                            <div>
+                                {{se.RealDate | datefilter | date:'dd MMM yyyy'}}
+                            </div>
                             <br ng-repeat="i in se.InvoiceList" />
                             <br />
                             <br ng-repeat="i in se.InvoiceList" />

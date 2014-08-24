@@ -112,6 +112,7 @@ namespace CommissionSystem.Task.Models
         protected decimal GetCustomerSettlementAmount(Customer customer, List<Invoice> l, CallCharge c)
         {
             decimal amt = 0;
+            decimal t = 0;
             SqlDataReader rd = null;
             Dictionary<string, bool> m = new Dictionary<string, bool>();
 
@@ -165,8 +166,9 @@ namespace CommissionSystem.Task.Models
                                 if (!m.ContainsKey(i.InvoiceNumber))
                                 {
                                     m[i.InvoiceNumber] = true;
-                                    o.CallCharge += i.CallChargesIDD + i.CallChargesSTD + i.CallChargesMOB;
-                                    c.Total += o.CallCharge;
+                                    t = i.CallChargesIDD + i.CallChargesSTD + i.CallChargesMOB;
+                                    o.CallCharge += t;
+                                    c.Total += t;
                                     c.IDD += i.CallChargesIDD;
                                     c.STD += i.CallChargesSTD;
                                     c.MOB += i.CallChargesMOB;

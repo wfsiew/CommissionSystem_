@@ -372,8 +372,13 @@ namespace CommissionSystem.Domain.ProtoBufModels
                         {
                             ws.Cells[row, col].Style.WrapText = false;
                             ws.Cells[row, col].Value = Utils.FormatDateTime(se.RealDate);
-                            ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-                            ws.Cells[row++, col + 1].Value = Utils.FormatCurrency(se.Amount);
+
+                            ws.Cells[row++, col + 1].Value = "IDD";
+                            foreach (Invoice inv in se.InvoiceList)
+                            {
+                                ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                                ws.Cells[row++, col + 1].Value = Utils.FormatCurrency(inv.CallChargesIDD);
+                            }
                         }
 
                         ++col;

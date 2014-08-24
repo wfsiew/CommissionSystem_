@@ -377,10 +377,11 @@
 
                                     @{
                                         sbbr.Append("<div>");
+                                        sbbr.Append("<br /><br />");
+                                        sbbr.Append("<br /><br />");
+
                                         sbamt.Append("<div>");
-                                        sbbr.Append("<br /><br />");
-                                        sbbr.Append("<br /><br />");
-                                        
+
                                         sbidd.Clear();
                                         sbstd.Clear();
                                         sbmob.Clear();
@@ -399,37 +400,35 @@
                                         sbmob.Append(@"<span class=""label label-default"">MOB</span>");
                                         sbmob.Append("</div>");
                                         sbmob.Append("<br />");
-                                        
+
                                         int n = se.InvoiceList.Count;
                                         for (int j = 0; j < n; j++)
                                         {
+                                            <br /><br /><br />
                                             sbbr.Append("<br /><br /><br />");
                                             Invoice inv = se.InvoiceList[j];
-                                            <br /><br />
                                             sbidd.AppendFormat("<div>{0}</div>", Utils.FormatCurrency(inv.CallChargesIDD));
-
                                             sbstd.AppendFormat("<div>{0}</div>", Utils.FormatCurrency(inv.CallChargesSTD));
-
                                             sbmob.AppendFormat("<div>{0}</div>", Utils.FormatCurrency(inv.CallChargesMOB));
                                         }
-                                        
+
+                                    <br /><br /><br /><br />
                                         sbbr.Append("<br />");
-                                        
+
                                         sbamt.Append(sbidd.ToString());
                                         sbamt.Append(sbstd.ToString());
                                         sbamt.Append(sbmob.ToString());
-                                        
+
                                         sbamt.Append(@"<div class=""bold total"">");
                                         sbamt.Append(@"<div class=""pull-left"">");
                                         sbamt.Append(@"<span class=""label label-default"">Total</span>");
                                         sbamt.Append("</div>");
                                         sbamt.Append("<br />");
                                         sbamt.AppendFormat("<div>{0}</div>", Utils.FormatCurrency(se.CallCharge));
-                                        
+
                                         sbamt.Append("</div>");
                                         sbbr.Append("</div>");
                                     }
-                                    <br />
                                 </div>
                             }
                         </td>
