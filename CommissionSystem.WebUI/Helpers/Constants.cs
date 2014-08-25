@@ -19,6 +19,11 @@ namespace CommissionSystem.WebUI.Helpers
         public const string FIBREPLUS = "Fibre+";
         public const string SPEEDPLUS = "Speed+";
 
+        public const string AGENT_STRUCTURE_VOICE = "Agent Structure - Corporate Voice";
+        public const string AGENT_STRUCTURE_DATA = "Agent Structure - Corporate Data";
+        public const string AGENT_STRUCTURE_FIBREPLUS = "Agent Structure - Fibre+";
+        public const string AGENT_STRUCTURE_SPEEDPLUS = "Agent Structure - Speed+";
+
         public const int MAX_INVOICE_DAY = 99;
         public const int PAGE_SIZE = 10;
     }

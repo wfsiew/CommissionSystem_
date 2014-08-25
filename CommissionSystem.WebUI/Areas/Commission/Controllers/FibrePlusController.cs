@@ -5,13 +5,17 @@ using System.Web;
 using System.Web.Mvc;
 using System.Text;
 using System.Data;
+using System.IO;
 using System.Data.SqlClient;
 using CommissionSystem.WebUI.Models;
 using CommissionSystem.WebUI.Areas.Commission.Models;
 using CommissionSystem.WebUI.Helpers;
 using CommissionSystem.Domain.ProtoBufModels;
 using CommissionSystem.Domain.Helpers;
+using CommissionSystem.Task.Models;
+using PagedList;
 using OfficeOpenXml;
+using ProtoBuf;
 using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Controllers
@@ -32,11 +36,15 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
         public ActionResult AgentSummary()
         {
+            FibrePlusTask o = null;
+
             try
             {
+                ViewBag.Menu = Constants.AGENT_STRUCTURE_FIBREPLUS;
                 Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
                 List<Agent> l = new List<Agent>();
-                GetTopLevelAgents(l, dic);
+                o = new FibrePlusTask();
+                o.GetTopLevelAgents(l, dic);
                 ViewBag.list = l;
             }
 
@@ -45,87 +53,82 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 Logger.Debug("", e);
             }
 
+            finally
+            {
+                if (o != null)
+                    o.Dispose();
+            }
+
             return View();
         }
 
         [HttpPost]
         public ActionResult Commission(FibrePlusRequest req)
         {
-            FibrePlusCommission o = null;
             Dictionary<string, object> r = new Dictionary<string, object>();
+            FileStream fs = null;
 
             try
             {
-                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
-                List<Agent> l = new List<Agent>();
-                GetAgentHierarchy(req.AgentID, l, dic);
-
-                DateTime dateFrom = req.DateFrom;
-                DateTime dateTo = req.DateTo;
-
-                o = new FibrePlusCommission();
-                o.AgentDic = dic;
-                o.AgentList = l;
-                o.DateFrom = req.DateFrom;
-                o.DateTo = req.DateTo.AddDays(1);
-                o.SetCommission();
-
+                CommissionResult re = new CommissionResult();
                 CommissionResult c = new CommissionResult();
 
-                if (req.AgentID != 0)
+                if (req.Load)
                 {
-                    if (o.CommissionViewDic.Keys.Count > 0)
-                    {
-                        var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
-                        c.CommissionViewDic[k.Key] = k.Value;
-                        c.AgentViewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
-                    }
+                    c = Session[COMMISSION_RESULT] as CommissionResult;
                 }
 
                 else
                 {
-                    c.CommissionViewDic = o.CommissionViewDic;
-                    c.AgentViewList = o.AgentViewList;
+                    string file = GetFile(req.DateFrom);
+                    if (string.IsNullOrEmpty(file))
+                        throw new UIException(string.Format("The Commission for {0:MMMM yyyy} is not available yet, please contact the respective personel to generate the commission", req.DateFrom));
+
+                    fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    re = Serializer.Deserialize<CommissionResult>(fs);
                 }
 
+                if (!req.Load)
+                {
+                    if (req.AgentID != 0)
+                    {
+                        if (re.CommissionViewDic.Keys.Count > 0)
+                        {
+                            if (re.CommissionViewDic.ContainsKey(req.AgentID.ToString()))
+                            {
+                                var k = re.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
+                                c.CommissionViewDic[k.Key] = k.Value;
+                                c.AgentViewList.Add(re.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        c = re;
+                    }
+
+                    Session[COMMISSION_RESULT] = c;
+                }
+
+                re = new CommissionResult();
+
+                int pageSize = Constants.PAGE_SIZE;
+                int pageNumber = (req.Page ?? 1);
+
+                var l = c.AgentViewList.ToPagedList(pageNumber, pageSize);
+                foreach (AgentView k in l)
+                {
+                    re.CommissionViewDic[k.AgentID.ToString()] = c.CommissionViewDic[k.AgentID.ToString()];
+                }
+
+                re.AgentViewList = l.ToList();
+                Pager pager = new Pager(l.TotalItemCount, l.PageNumber, l.PageSize);
+
                 r["success"] = 1;
-                r["result"] = c;
+                r["result"] = re;
+                r["pager"] = pager;
                 Session[COMMISSION_RESULT] = c;
-
-                //Agent a = l.First();
-                
-                //Dictionary<string, object> m = new Dictionary<string, object>();
-                //List<int> lk = dic.Keys.ToList();
-                //lk.Sort();
-                //for (int i = 0; i < lk.Count; i++)
-                //{
-                //    List<Agent> la = dic[lk[i]];
-                //    object v = la.Select(x => new
-                //    {
-                //        AgentID = x.AgentID,
-                //        AgentName = x.AgentName,
-                //        AgentTeam = x.AgentTeam,
-                //        AgentType = x.AgentType,
-                //        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
-                //        AgentTeamType = x.ParentAgent == null ? "" : x.ParentAgent.AgentType,
-                //        Amount = x.Amount,
-                //        CommissionRate = x.CommissionRate,
-                //        TierCommissionRate = x.TierCommissionRate,
-                //        TotalCommission = x.TotalCommission,
-                //        CustomerList = x.CustomerList
-                //    });
-                //    m[lk[i].ToString()] = v;
-                //}
-
-                //List<string> ls = m.Keys.ToList();
-                //ls.Sort();
-
-                //r["success"] = 1;
-                //r["commission"] = a.TotalCommission;
-                //r["commissionrate"] = a.CommissionRate;
-                //r["tiercommissionrate"] = a.TierCommissionRate;
-                //r["agentlevels"] = ls;
-                //r["agentlist"] = m;
             }
 
             catch (Exception e)
@@ -137,8 +140,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             finally
             {
-                if (o != null)
-                    o.Dispose();
+                if (fs != null)
+                    fs.Dispose();
             }
 
             return Json(r, JsonRequestBehavior.AllowGet);
@@ -205,256 +208,17 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return Json(l, JsonRequestBehavior.AllowGet);
         }
 
-        private void GetTopLevelAgents(List<Agent> l, Dictionary<int, List<Agent>> dic)
+        private string GetFile(DateTime dt)
         {
-            DbHelper d = null;
-            SqlDataReader rd = null;
+            string c = HttpContext.Server.MapPath("~/result");
+            string file = Path.Combine(c, string.Format("fibre+/{0:yyyy}/{1:MM}/CommResult.bin", dt, dt));
 
-            try
+            if (!System.IO.File.Exists(file))
             {
-                d = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
-                    .Append("where a.agenttype = 'Master' ")
-                    .Append("order by a.agentname");
-                string q = sb.ToString();
-
-                rd = d.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
-                {
-                    Agent a = new Agent();
-                    a.AgentID = rd.Get<int>("agentid");
-                    a.AgentName = rd.Get("agentname");
-                    a.AgentType = rd.Get("agenttype", "AGT");
-                    a.AgentLevel = rd.Get("agentlevel");
-                    a.AgentTeam = rd.Get("agentteam");
-                    a.Level = 0;
-
-                    l.Add(a);
-                }
-
-                rd.Close();
-                AddAgentsToDic(dic, l, 0);
-                GetChildAgents(l, dic, d);
+                file = null;
             }
 
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-
-                if (d != null)
-                    d.Dispose();
-            }
-        }
-
-        private void GetAgentHierarchy(int agentID, List<Agent> l, Dictionary<int, List<Agent>> dic)
-        {
-            DbHelper d = null;
-            SqlDataReader rd = null;
-
-            try
-            {
-                if (agentID == 0)
-                {
-                    GetTopLevelAgents(l, dic);
-                    return;
-                }
-
-                d = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
-                StringBuilder sb = new StringBuilder();
-                sb.Append("select a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam, ")
-                    .Append("b.agentid as [agentteamid], b.agentname as [agentteamname], b.agenttype as [agentteamtype], b.agentlevel as [agentteamlevel] ")
-                    .Append("from agent a ")
-                    .Append("left join agent b on a.agentteam = b.agentid ")
-                    .Append("where a.agentid = @agentid");
-                string q = sb.ToString();
-
-                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
-                p.Value = agentID;
-                d.AddParameter(p);
-
-                rd = d.ExecuteReader(q, CommandType.Text);
-                while (rd.Read())
-                {
-                    Agent a = new Agent();
-                    a.AgentID = rd.Get<int>("agentid");
-                    a.AgentName = rd.Get("agentname");
-                    a.AgentType = rd.Get("agenttype", "AGT");
-                    a.AgentLevel = rd.Get("agentlevel");
-                    a.AgentTeam = rd.Get("agentteam");
-
-                    Agent b = new Agent();
-                    b.AgentID = rd.Get<int>("agentteamid");
-                    b.AgentName = rd.Get("agentteamname");
-                    b.AgentType = rd.Get("agentteamtype");
-                    b.AgentLevel = rd.Get("agentteamlevel");
-                    b.Level = 0;
-
-                    b.AddChildAgent(a);
-
-                    l.Add(a);
-                }
-
-                rd.Close();
-                AddAgentsToDic(dic, l, 1);
-                GetChildAgents(l, dic, d);
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-
-            finally
-            {
-                if (rd != null)
-                    rd.Dispose();
-
-                if (d != null)
-                    d.Dispose();
-            }
-        }
-
-        private void GetChildAgents(List<Agent> parentList, Dictionary<int, List<Agent>> dic, DbHelper d)
-        {
-            SqlDataReader rd = null;
-
-            try
-            {
-                Stack<List<Agent>> st = new Stack<List<Agent>>();
-                st.Push(parentList);
-                Dictionary<int, int> k = new Dictionary<int, int>();
-
-                while (st.Count > 0)
-                {
-                    List<Agent> lp = st.Pop();
-
-                    for (int i = 0; i < lp.Count; i++)
-                    {
-                        Agent parent = lp[i];
-                        List<Agent> l = new List<Agent>();
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
-                            .Append("where a.agentteam = @agentteam ")
-                            .Append("order by a.agentname");
-                        string q = sb.ToString();
-
-                        SqlParameter p = new SqlParameter("@agentteam", SqlDbType.VarChar);
-                        p.Value = parent.AgentID;
-                        d.AddParameter(p);
-
-                        rd = d.ExecuteReader(q, CommandType.Text);
-                        while (rd.Read())
-                        {
-                            Agent a = new Agent();
-                            a.AgentID = rd.Get<int>("agentid");
-                            a.AgentName = rd.Get("agentname");
-                            a.AgentType = rd.Get("agenttype", "AGT");
-                            a.AgentLevel = rd.Get("agentlevel");
-                            a.AgentTeam = rd.Get("agentteam");
-
-                            if (k.ContainsKey(a.AgentID))
-                                continue;
-
-                            parent.AddChildAgent(a);
-
-                            l.Add(a);
-
-                            k.Add(a.AgentID, a.AgentID);
-                        }
-
-                        rd.Close();
-                        AddAgentsToDic(dic, l, parent.Level + 1);
-
-                        if (l.Count > 0)
-                            st.Push(l);
-                    }
-                }
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
-        }
-
-        private void AddAgentsToDic(Dictionary<int, List<Agent>> dic, List<Agent> l, int level)
-        {
-            if (l == null)
-                return;
-
-            if (l.Count < 1)
-                return;
-
-            if (dic.ContainsKey(level))
-            {
-                List<Agent> la = dic[level];
-                la.AddRange(l);
-                dic[level] = la;
-            }
-
-            else
-            {
-                dic[level] = l;
-            }
-        }
-
-        // not used
-        private void GetChildAgents_(List<Agent> parentList, DbHelper d)
-        {
-            List<Agent> l = new List<Agent>();
-            SqlDataReader rd = null;
-
-            try
-            {
-                for (int i = 0; i < parentList.Count; i++)
-                {
-                    Agent parent = parentList[i];
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
-                        .Append("left join customer c on a.agentid = c.agentid ")
-                        .Append("where a.agentteam = @agentteam ")
-                        .Append("order by a.agentname");
-                    string q = sb.ToString();
-
-                    SqlParameter p = new SqlParameter("@agentteam", SqlDbType.VarChar);
-                    p.Value = parent.AgentID;
-                    d.AddParameter(p);
-
-                    rd = d.ExecuteReader(q, CommandType.Text);
-                    while (rd.Read())
-                    {
-                        Agent a = new Agent();
-                        a.AgentID = rd.Get<int>("agentid");
-                        a.AgentName = rd.Get("agentname");
-                        a.AgentType = rd.Get("agenttype", "AGT");
-                        a.AgentLevel = rd.Get("agentlevel");
-                        a.AgentTeam = rd.Get("agentteam");
-
-                        parent.AddChildAgent(a);
-
-                        l.Add(a);
-                    }
-
-                    rd.Close();
-                    GetChildAgents_(l, d);
-                }
-            }
-
-            catch (Exception e)
-            {
-                Logger.Debug("", e);
-                throw e;
-            }
+            return file;
         }
 
         private List<Agent> GetAgents()
@@ -468,8 +232,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 d = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
-                    .Append("left join customer c on a.agentid = c.agentid ")
-                    .Append("where c.customertype = 1 ")
                     .Append("order by a.agentname");
                 string q = sb.ToString();
 

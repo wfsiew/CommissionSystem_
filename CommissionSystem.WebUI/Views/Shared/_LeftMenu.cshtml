@@ -12,7 +12,7 @@
                     <i class="fa fa-angle-left pull-right"></i>
                 </a>
                 <ul class="treeview-menu">
-                    <li class="treeview @UIHelperr.GetCorporateVoiceMenuCss(ViewBag.Menu)">
+                    <li class="treeview @UIHelper.GetCorporateVoiceMenuCss(ViewBag.Menu)">
                         <a href="#">
                             <i class="fa fa-th"></i>
                             <span>Corporate Voice</span>
@@ -24,7 +24,7 @@
                             <li class="@(ViewBag.Menu == Constants.E1 ? "active" : null)"><a href="@Url.Action("Index", "E1", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> E1</a></li>
                         </ul>
                     </li>
-                    <li class="@UIHelperr.GetCorporateMenuCss(ViewBag.Menu)">
+                    <li class="@UIHelper.GetCorporateMenuCss(ViewBag.Menu)">
                         <a href="@Url.Action("Index", "Data", new { area = "Commission" })">
                             <i class="fa fa-th"></i>
                             <span>Corporate Data</span>
@@ -44,31 +44,51 @@
                     </li>
                 </ul>
             </li>
-            <li class="treeview">
+            <li class="treeview @UIHelper.GetAgentMenuCss(ViewBag.Menu)">
                 <a href="#">
                     <i class="fa fa-th"></i>
                     <span>Agent Management</span>
                     <i class="fa fa-angle-left pull-right"></i>
                 </a>
                 <ul class="treeview-menu">
-                    <li class="treeview">
+                    <li class="treeview @UIHelper.GetAgentCorporateVoiceMenuCss(ViewBag.Menu)">
                         <a href="#">
                             <i class="fa fa-th"></i>
                             <span>Corporate Voice</span>
                             <i class="fa fa-angle-left pull-right"></i>
                         </a>
                         <ul class="treeview-menu">
-                            <li class=""><a href="@Url.Action("AgentSummary", "DiscountedCallService", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Agent Structure</a></li>
+                            <li class="@(ViewBag.Menu == Constants.AGENT_STRUCTURE_VOICE ? "active" : null)"><a href="@Url.Action("AgentSummary", "DiscountedCallService", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Agent Structure</a></li>
                         </ul>
                     </li>
-                    <li class="treeview">
+                    <li class="treeview @UIHelper.GetAgentCorporateDataMenuCss(ViewBag.Menu)">
                         <a href="#">
                             <i class="fa fa-th"></i>
                             <span>Corporate Data</span>
                             <i class="fa fa-angle-left pull-right"></i>
                         </a>
                         <ul class="treeview-menu">
-                            <li class=""><a href="@Url.Action("AgentSummary", "Data", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Agent Structure</a></li>
+                            <li class="@(ViewBag.Menu == Constants.AGENT_STRUCTURE_DATA ? "active" : null)"><a href="@Url.Action("AgentSummary", "Data", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Agent Structure</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview @UIHelper.GetAgentFibrePlusMenuCss(ViewBag.Menu)">
+                        <a href="#">
+                            <i class="fa fa-th"></i>
+                            <span>Fibre+</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class="@(ViewBag.Menu == Constants.AGENT_STRUCTURE_FIBREPLUS ? "active" : null)"><a href="@Url.Action("AgentSummary", "FibrePlus", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Agent Structure</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview @UIHelper.GetAgentSpeedPlusMenuCss(ViewBag.Menu)">
+                        <a href="#">
+                            <i class="fa fa-th"></i>
+                            <span>Speed+</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class="@(ViewBag.Menu == Constants.AGENT_STRUCTURE_SPEEDPLUS ? "active" : null)"><a href="@Url.Action("AgentSummary", "SpeedPlus", new { area = "Commission" })"><i class="fa fa-angle-double-right"></i> Agent Structure</a></li>
                         </ul>
                     </li>
                 </ul>

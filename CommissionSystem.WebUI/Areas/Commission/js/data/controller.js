@@ -1,6 +1,7 @@
 ﻿function DataCtrl($scope, $http, $modal) {
     $scope.agentID = '';
     $scope.agents = [];
+    $scope.page = 1;
 
     $scope.openDateFrom = function ($event) {
         $event.preventDefault();

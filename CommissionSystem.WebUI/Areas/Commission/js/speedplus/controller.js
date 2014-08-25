@@ -1,6 +1,7 @@
 ﻿function SpeedPlusCtrl($scope, $http) {
     $scope.agentID = '';
     $scope.agents = [];
+    $scope.page = 1;
 
     $scope.openDateFrom = function ($event) {
         $event.preventDefault();
@@ -14,35 +15,35 @@
         $scope.openedDateTo = true;
     }
 
+    $scope.pageChanged = function () {
+        var o = $scope.validate();
+        if (o == null)
+            return;
+
+        o.Load = true;
+        o.Page = $scope.page;
+
+        $scope.getResult(o);
+    }
+
     $scope.showCommission = function () {
-        if ($scope.agentID == '') {
-            bootbox.alert('Please select agent');
+        var o = $scope.validate();
+        if (o == null)
             return;
-        }
 
-        var dateFrom = $scope.dateFrom;
-        var dateTo = $scope.dateTo;
+        o.Page = 1;
+        $scope.getResult(o);
+    }
 
-        if (dateFrom == null || dateTo == null) {
-            bootbox.alert('Date From and Date To are required');
-            return;
-        }
-
-        var _dateFrom = utils.getDateStr(dateFrom);
-        var _dateTo = utils.getDateStr(dateTo);
-
-        var o = {
-            AgentID: $scope.agentID,
-            DateFrom: _dateFrom,
-            DateTo: _dateTo
-        };
-
+    $scope.getResult = function (o) {
         var url = route.speedplus.commission;
         utils.blockUI();
         $http.post(url, o).success(function (data) {
             utils.unblockUI();
             if (data.success == 1) {
                 $scope.result = data.result;
+                $scope.pager = data.pager;
+                $scope.page = $scope.pager.PageNum;
             }
 
             else
@@ -79,6 +80,35 @@
             utils.unblockUI();
             bootbox.alert('Request failed');
         });
+    }
+
+    $scope.validate = function () {
+        var o = null;
+
+        if ($scope.agentID == '') {
+            bootbox.alert('Please select agent');
+            return;
+        }
+
+        var dateFrom = $scope.dateFrom;
+        var dateTo = $scope.dateTo;
+
+        if (dateFrom == null || dateTo == null) {
+            bootbox.alert('Date From and Date To are required');
+            return;
+        }
+
+        var _dateFrom = utils.getDateStr(dateFrom);
+        var _dateTo = utils.getDateStr(dateTo);
+
+        var o = {
+            AgentID: $scope.agentID,
+            DateFrom: _dateFrom,
+            DateTo: _dateTo,
+            Load: false
+        };
+
+        return o;
     }
 
     $scope.init = function () {

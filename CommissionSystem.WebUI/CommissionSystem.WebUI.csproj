@@ -155,7 +155,6 @@
     <Compile Include="Areas\Commission\Controllers\FibrePlusController.cs" />
     <Compile Include="Areas\Commission\Controllers\SIPController.cs" />
     <Compile Include="Areas\Commission\Controllers\SpeedPlusController.cs" />
-    <Compile Include="Areas\Commission\Models\Agent.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusCommission.cs" />
     <Compile Include="Areas\Commission\Models\FibrePlusRequest.cs" />
     <Compile Include="Areas\Commission\Models\SpeedPlusCommission.cs" />

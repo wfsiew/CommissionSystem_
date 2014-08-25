@@ -5,12 +5,17 @@ using System.Web;
 using System.Web.Mvc;
 using System.Text;
 using System.Data;
+using System.IO;
 using System.Data.SqlClient;
 using CommissionSystem.WebUI.Models;
 using CommissionSystem.WebUI.Areas.Commission.Models;
 using CommissionSystem.WebUI.Helpers;
 using CommissionSystem.Domain.ProtoBufModels;
 using CommissionSystem.Domain.Helpers;
+using CommissionSystem.Task.Models;
+using PagedList;
+using OfficeOpenXml;
+using ProtoBuf;
 using NLog;
 
 namespace CommissionSystem.WebUI.Areas.Commission.Controllers
@@ -33,6 +38,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         {
             try
             {
+                ViewBag.Menu = Constants.AGENT_STRUCTURE_SPEEDPLUS;
                 Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
                 List<Agent> l = new List<Agent>();
                 GetTopLevelAgents(l, dic);
@@ -50,81 +56,70 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
         [HttpPost]
         public ActionResult Commission(FibrePlusRequest req)
         {
-            SpeedPlusCommission o = null;
             Dictionary<string, object> r = new Dictionary<string, object>();
+            FileStream fs = null;
 
             try
             {
-                Dictionary<int, List<Agent>> dic = new Dictionary<int, List<Agent>>();
-                List<Agent> l = new List<Agent>();
-                GetAgentHierarchy(req.AgentID, l, dic);
-
-                DateTime dateFrom = req.DateFrom;
-                DateTime dateTo = req.DateTo;
-
-                o = new SpeedPlusCommission();
-                o.AgentDic = dic;
-                o.AgentList = l;
-                o.DateFrom = req.DateFrom;
-                o.DateTo = req.DateTo.AddDays(1);
-                o.SetCommission();
-
+                CommissionResult re = new CommissionResult();
                 CommissionResult c = new CommissionResult();
 
-                if (req.AgentID != 0)
+                if (req.Load)
                 {
-                    if (o.CommissionViewDic.Keys.Count > 0)
-                    {
-                        var k = o.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
-                        c.CommissionViewDic[k.Key] = k.Value;
-                        c.AgentViewList.Add(o.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
-                    }
+                    c = Session[COMMISSION_RESULT] as CommissionResult;
                 }
 
                 else
                 {
-                    c.CommissionViewDic = o.CommissionViewDic;
-                    c.AgentViewList = o.AgentViewList;
+                    string file = GetFile(req.DateFrom);
+                    if (string.IsNullOrEmpty(file))
+                        throw new UIException(string.Format("The Commission for {0:MMMM yyyy} is not available yet, please contact the respective personel to generate the commission", req.DateFrom));
+
+                    fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    re = Serializer.Deserialize<CommissionResult>(fs);
                 }
 
+                if (!req.Load)
+                {
+                    if (req.AgentID != 0)
+                    {
+                        if (re.CommissionViewDic.Keys.Count > 0)
+                        {
+                            if (re.CommissionViewDic.ContainsKey(req.AgentID.ToString()))
+                            {
+                                var k = re.CommissionViewDic.Where(x => x.Key == req.AgentID.ToString()).First();
+                                c.CommissionViewDic[k.Key] = k.Value;
+                                c.AgentViewList.Add(re.AgentViewList.Where(x => x.AgentID == req.AgentID).First());
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        c = re;
+                    }
+
+                    Session[COMMISSION_RESULT] = c;
+                }
+
+                re = new CommissionResult();
+
+                int pageSize = Constants.PAGE_SIZE;
+                int pageNumber = (req.Page ?? 1);
+
+                var l = c.AgentViewList.ToPagedList(pageNumber, pageSize);
+                foreach (AgentView k in l)
+                {
+                    re.CommissionViewDic[k.AgentID.ToString()] = c.CommissionViewDic[k.AgentID.ToString()];
+                }
+
+                re.AgentViewList = l.ToList();
+                Pager pager = new Pager(l.TotalItemCount, l.PageNumber, l.PageSize);
+
                 r["success"] = 1;
-                r["result"] = c;
+                r["result"] = re;
+                r["pager"] = pager;
                 Session[COMMISSION_RESULT] = c;
-
-                //Agent a = l.First();
-
-                //Dictionary<string, object> m = new Dictionary<string, object>();
-                //List<int> lk = dic.Keys.ToList();
-                //lk.Sort();
-                //for (int i = 0; i < lk.Count; i++)
-                //{
-                //    List<Agent> la = dic[lk[i]];
-                //    object v = la.Select(x => new
-                //    {
-                //        AgentID = x.AgentID,
-                //        AgentName = x.AgentName,
-                //        AgentTeam = x.AgentTeam,
-                //        AgentType = x.AgentType,
-                //        AgentTeamName = x.ParentAgent == null ? "" : x.ParentAgent.AgentName,
-                //        AgentTeamType = x.ParentAgent == null ? "" : x.ParentAgent.AgentType,
-                //        Amount = x.Amount,
-                //        CommissionRate = x.CommissionRate,
-                //        TierCommissionRate = x.TierCommissionRate,
-                //        TotalCommission = x.TotalCommission,
-                //        CustomerList = x.CustomerList
-                //    });
-                //    m[lk[i].ToString()] = v;
-                //}
-
-                //List<string> ls = m.Keys.ToList();
-                //ls.Sort();
-
-                //r["success"] = 1;
-                //r["commission"] = a.TotalCommission;
-                //r["commissionrate"] = a.CommissionRate;
-                //r["tiercommissionrate"] = a.TierCommissionRate;
-                //r["agentlevels"] = ls;
-                //r["agentlist"] = m;
             }
 
             catch (Exception e)
@@ -136,8 +131,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             finally
             {
-                if (o != null)
-                    o.Dispose();
+                if (fs != null)
+                    fs.Dispose();
             }
 
             return Json(r, JsonRequestBehavior.AllowGet);
@@ -407,6 +402,19 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             }
         }
 
+        private string GetFile(DateTime dt)
+        {
+            string c = HttpContext.Server.MapPath("~/result");
+            string file = Path.Combine(c, string.Format("speed+/{0:yyyy}/{1:MM}/CommResult.bin", dt, dt));
+
+            if (!System.IO.File.Exists(file))
+            {
+                file = null;
+            }
+
+            return file;
+        }
+
         private List<Agent> GetAgents()
         {
             List<Agent> l = new List<Agent>();
@@ -418,8 +426,6 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 d = new DbHelper(DbHelper.GetConStr(Constants.HSBB_BILLING));
                 StringBuilder sb = new StringBuilder();
                 sb.Append("select distinct a.agentid, a.agentname, a.agenttype, a.agentlevel, a.agentteam from agent a ")
-                    .Append("left join customer c on a.agentid = c.agentid ")
-                    .Append("where c.customertype in (2, 3) ")
                     .Append("order by a.agentname");
                 string q = sb.ToString();
 

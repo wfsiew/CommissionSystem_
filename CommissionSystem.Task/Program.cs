@@ -35,12 +35,42 @@ namespace CommissionSystem.Task
                 dateTo = new DateTime(x.Year, x.Month, 1);
             }
 
-            ProcessData(dateFrom, dateTo);
-            ProcessDCS(dateFrom, dateTo);
-            ProcessSIP(dateFrom, dateTo);
-            ProcessE1(dateFrom, dateTo);
+            ProcessFibrePlus(dateFrom, dateTo);
+            ProcessSpeedPlus(dateFrom, dateTo);
+            //ProcessData(dateFrom, dateTo);
+            //ProcessDCS(dateFrom, dateTo);
+            //ProcessSIP(dateFrom, dateTo);
+            //ProcessE1(dateFrom, dateTo);
 
             Console.ReadKey();
+        }
+
+        private static void ProcessFibrePlus(DateTime dateFrom, DateTime dateTo)
+        {
+            FibrePlusTask o = new FibrePlusTask();
+
+            o.DateFrom = dateFrom;
+            o.DateTo = dateTo;
+
+            Action a = new Action(o.Run);
+            AsyncCallback cb = new AsyncCallback(FibrePlusCompleteCallback);
+            Logger.Trace("Fibre+ process started: {0}", DateTime.Now);
+            IAsyncResult ar = a.BeginInvoke(cb, o);
+            ar.AsyncWaitHandle.WaitOne();
+        }
+
+        private static void ProcessSpeedPlus(DateTime dateFrom, DateTime dateTo)
+        {
+            SpeedPlusTask o = new SpeedPlusTask();
+
+            o.DateFrom = dateFrom;
+            o.DateTo = dateTo;
+
+            Action a = new Action(o.Run);
+            AsyncCallback cb = new AsyncCallback(SpeedPlusCompleteCallback);
+            Logger.Trace("Speed+ process started: {0}", DateTime.Now);
+            IAsyncResult ar = a.BeginInvoke(cb, o);
+            ar.AsyncWaitHandle.WaitOne();
         }
 
         private static void ProcessData(DateTime dateFrom, DateTime dateTo)
@@ -97,6 +127,112 @@ namespace CommissionSystem.Task
             Logger.Trace("E1 process started: {0}", DateTime.Now);
             IAsyncResult ar = a.BeginInvoke(cb, o);
             ar.AsyncWaitHandle.WaitOne();
+        }
+
+        private static void FibrePlusCompleteCallback(IAsyncResult ar)
+        {
+            FileStream fs = null;
+            FibrePlusTask o = null;
+
+            try
+            {
+                Action x = (Action)((AsyncResult)ar).AsyncDelegate;
+                x.EndInvoke(ar);
+
+                o = (FibrePlusTask)ar.AsyncState;
+                ar.AsyncWaitHandle.Close();
+
+                string path = "../result/fibre+";
+                CreateDir(path);
+
+                DateTime dt = o.DateFrom;
+                string year = Path.Combine(path, dt.Year.ToString());
+                CreateDir(year);
+
+                string month = Path.Combine(year, string.Format("{0:MM}", dt));
+                CreateDir(month);
+
+                string file = Path.Combine(month, "CommResult.bin");
+
+                CommissionResult re = new CommissionResult();
+                re.CommissionViewDic = o.CommissionViewDic;
+                re.AgentViewList = o.AgentViewList;
+
+                fs = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
+                Serializer.Serialize<CommissionResult>(fs, re);
+                fs.Close();
+
+                Logger.Trace("Fibre+ process ended: {0}", DateTime.Now);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+            }
+
+            finally
+            {
+                if (fs != null)
+                    fs.Dispose();
+
+                if (o != null)
+                    o.Dispose();
+            }
+
+            Console.WriteLine("done fibre+");
+        }
+
+        private static void SpeedPlusCompleteCallback(IAsyncResult ar)
+        {
+            FileStream fs = null;
+            SpeedPlusTask o = null;
+
+            try
+            {
+                Action x = (Action)((AsyncResult)ar).AsyncDelegate;
+                x.EndInvoke(ar);
+
+                o = (SpeedPlusTask)ar.AsyncState;
+                ar.AsyncWaitHandle.Close();
+
+                string path = "../result/speed+";
+                CreateDir(path);
+
+                DateTime dt = o.DateFrom;
+                string year = Path.Combine(path, dt.Year.ToString());
+                CreateDir(year);
+
+                string month = Path.Combine(year, string.Format("{0:MM}", dt));
+                CreateDir(month);
+
+                string file = Path.Combine(month, "CommResult.bin");
+
+                CommissionResult re = new CommissionResult();
+                re.CommissionViewDic = o.CommissionViewDic;
+                re.AgentViewList = o.AgentViewList;
+
+                fs = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
+                Serializer.Serialize<CommissionResult>(fs, re);
+                fs.Close();
+
+                Logger.Trace("Speed+ process ended: {0}", DateTime.Now);
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+            }
+
+            finally
+            {
+                if (fs != null)
+                    fs.Dispose();
+
+                if (o != null)
+                    o.Dispose();
+            }
+
+            Console.WriteLine("done speed+");
         }
 
         private static void DataCompleteCallback(IAsyncResult ar)

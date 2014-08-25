@@ -11,7 +11,7 @@ using NLog;
 
 namespace CommissionSystem.Task.Models
 {
-    public class DataTask
+    public class DataTask : IDisposable
     {
         public DbHelper Db { get; set; }
         public int AgentID { get; set; }

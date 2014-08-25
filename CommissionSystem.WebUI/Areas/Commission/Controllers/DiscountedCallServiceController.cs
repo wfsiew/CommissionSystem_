@@ -39,6 +39,7 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
             try
             {
+                ViewBag.Menu = Constants.AGENT_STRUCTURE_VOICE;
                 Dictionary<int, List<SalesParent>> dic = new Dictionary<int, List<SalesParent>>();
                 List<SalesParent> l = new List<SalesParent>();
                 o = new VoiceTask();
@@ -154,7 +155,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 List<string> l = new List<string>()
                     {
                         "siewwingfei@hotmail.com",
-                        "roshana.bedah@redtone.com"
+                        "roshana.bedah@redtone.com",
+                        "chinchin.lee@redtone.com"
                     };
 
                 EmailInfo emailInfo = new EmailInfo

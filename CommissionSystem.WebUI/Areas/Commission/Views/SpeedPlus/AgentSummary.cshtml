@@ -1,10 +1,8 @@
-﻿@using CommissionSystem.WebUI.Areas.Commission.Models;
+﻿@using CommissionSystem.Domain.ProtoBufModels;
 
 @{
-    ViewBag.Title = "AgentSummary";
+    ViewBag.Title = "Speed+ - Agent Structure";
 }
-
-<h2>AgentSummary</h2>
 
 @if (ViewBag.list != null)
 {
@@ -20,7 +18,7 @@
     <ul>
         @foreach (var o in l)
         {
-            <li>@o.AgentName, @(o.AgentType)</li>
+            <li>@o.AgentName (@(o.AgentType))</li>
             if (o.ChildAgentList.Any())
             {
                 @ShowTree(o.ChildAgentList)

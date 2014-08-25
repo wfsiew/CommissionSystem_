@@ -154,7 +154,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 List<string> l = new List<string>()
                     {
                         "siewwingfei@hotmail.com",
-                        "roshana.bedah@redtone.com"
+                        "roshana.bedah@redtone.com",
+                        "chinchin.lee@redtone.com"
                     };
 
                 EmailInfo emailInfo = new EmailInfo
