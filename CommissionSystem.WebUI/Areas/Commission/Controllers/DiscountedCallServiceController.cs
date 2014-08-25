@@ -129,6 +129,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 r["pager"] = pager;
             }
 
+            catch (UIException e)
+            {
+                r["error"] = 1;
+                r["message"] = e.Message;
+            }
+
             catch (Exception e)
             {
                 Logger.Debug("", e);

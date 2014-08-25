@@ -122,6 +122,12 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
                 Session[COMMISSION_RESULT] = c;
             }
 
+            catch (UIException e)
+            {
+                r["error"] = 1;
+                r["message"] = e.Message;
+            }
+
             catch (Exception e)
             {
                 Logger.Debug("", e);
