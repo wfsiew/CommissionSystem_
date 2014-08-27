@@ -502,7 +502,7 @@ namespace CommissionSystem.Task.Models
                     .Append("where custid in ")
                     .Append("(select custid from customer where customertype = 1 and status = 1 and agentid = @agentid) ")
                     .Append("and productid in ")
-                    .Append("(select productid from producttypes where description like '%Mbps%' and ")
+                    .Append("(select productid from producttypes where (description like '%Mbps%' or description like '%Rebate%') and ")
                     .Append("initialamount > 0)");
                 string q = sb.ToString();
 

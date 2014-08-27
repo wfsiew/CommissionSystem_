@@ -35,12 +35,12 @@ namespace CommissionSystem.Task
                 dateTo = new DateTime(x.Year, x.Month, 1);
             }
 
-            //ProcessFibrePlus(dateFrom, dateTo);
-            //ProcessSpeedPlus(dateFrom, dateTo);
-            ProcessData(dateFrom, dateTo);
-            ProcessDCS(dateFrom, dateTo);
-            ProcessSIP(dateFrom, dateTo);
-            ProcessE1(dateFrom, dateTo);
+            ProcessFibrePlus(dateFrom, dateTo);
+            ProcessSpeedPlus(dateFrom, dateTo);
+            //ProcessData(dateFrom, dateTo);
+            //ProcessDCS(dateFrom, dateTo);
+            //ProcessSIP(dateFrom, dateTo);
+            //ProcessE1(dateFrom, dateTo);
 
             Console.ReadKey();
         }
