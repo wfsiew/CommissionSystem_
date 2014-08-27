@@ -35,12 +35,12 @@ namespace CommissionSystem.Task
                 dateTo = new DateTime(x.Year, x.Month, 1);
             }
 
-            ProcessFibrePlus(dateFrom, dateTo);
-            ProcessSpeedPlus(dateFrom, dateTo);
-            //ProcessData(dateFrom, dateTo);
-            //ProcessDCS(dateFrom, dateTo);
-            //ProcessSIP(dateFrom, dateTo);
-            //ProcessE1(dateFrom, dateTo);
+            //ProcessFibrePlus(dateFrom, dateTo);
+            //ProcessSpeedPlus(dateFrom, dateTo);
+            ProcessData(dateFrom, dateTo);
+            ProcessDCS(dateFrom, dateTo);
+            ProcessSIP(dateFrom, dateTo);
+            ProcessE1(dateFrom, dateTo);
 
             Console.ReadKey();
         }
@@ -80,7 +80,7 @@ namespace CommissionSystem.Task
             o.DateFrom = dateFrom;
             o.DateTo = dateTo;
 
-            Action a = new Action(o.Run);
+            Action a = new Action(o.Run_);
             AsyncCallback cb = new AsyncCallback(DataCompleteCallback);
             Logger.Trace("Data process started: {0}", DateTime.Now);
             IAsyncResult ar = a.BeginInvoke(cb, o);
@@ -94,7 +94,7 @@ namespace CommissionSystem.Task
             o.DateFrom = dateFrom;
             o.DateTo = dateTo;
 
-            Action a = new Action(o.Run);
+            Action a = new Action(o.Run_);
             AsyncCallback cb = new AsyncCallback(DCSCompleteCallback);
             Logger.Trace("DCS process started: {0}", DateTime.Now);
             IAsyncResult ar = a.BeginInvoke(cb, o);
@@ -108,7 +108,7 @@ namespace CommissionSystem.Task
             o.DateFrom = dateFrom;
             o.DateTo = dateTo;
 
-            Action a = new Action(o.Run);
+            Action a = new Action(o.Run_);
             AsyncCallback cb = new AsyncCallback(SIPCompleteCallback);
             Logger.Trace("SIP process started: {0}", DateTime.Now);
             IAsyncResult ar = a.BeginInvoke(cb, o);
@@ -122,7 +122,7 @@ namespace CommissionSystem.Task
             o.DateFrom = dateFrom;
             o.DateTo = dateTo;
 
-            Action a = new Action(o.Run);
+            Action a = new Action(o.Run_);
             AsyncCallback cb = new AsyncCallback(E1CompleteCallback);
             Logger.Trace("E1 process started: {0}", DateTime.Now);
             IAsyncResult ar = a.BeginInvoke(cb, o);

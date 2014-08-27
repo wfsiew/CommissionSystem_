@@ -15,6 +15,11 @@
     margin-top: 0;
 }
 
+.content2 {
+    padding: 20px 15px;
+    background: #f9f9f9;
+}
+
 table td.tdRight,
 table th.tdRight {
     text-align: right;

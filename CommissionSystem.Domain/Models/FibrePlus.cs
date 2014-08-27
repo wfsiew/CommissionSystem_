@@ -15,25 +15,31 @@ namespace CommissionSystem.Domain.Models
 
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public double GetCommissionRate(string agentType)
+        public double GetCommissionRate(int level)
         {
             double a = 0;
 
-            if ("SD".Equals(agentType, StringComparison.OrdinalIgnoreCase))
-                a = Tier2;
+            switch (level)
+            {
+                case 1:
+                    a = Tier1;
+                    break;
 
-            else if ("SM".Equals(agentType, StringComparison.OrdinalIgnoreCase))
-                a = Tier1;
+                case 2:
+                    a = Tier2;
+                    break;
 
-            else
-                a = Commission;
+                default:
+                    a = Commission;
+                    break;
+            }
 
             return a;
         }
 
-        public decimal GetCommission(decimal amt, string agentType)
+        public decimal GetCommission(decimal amt, int level)
         {
-            double a = GetCommissionRate(agentType);
+            double a = GetCommissionRate(level);
             decimal x = Convert.ToDecimal(a) * amt;
             return x;
         }
@@ -98,29 +104,35 @@ namespace CommissionSystem.Domain.Models
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public double GetCommissionRate(string agentType)
+        public double GetCommissionRate(int level)
         {
             double a = 0;
 
-            if ("SD".Equals(agentType, StringComparison.OrdinalIgnoreCase))
-                a = Tier3;
+            switch (level)
+            {
+                case 1:
+                    a = Tier1;
+                    break;
+                
+                case 2:
+                    a = Tier2;
+                    break;
 
-            else if ("SM".Equals(agentType, StringComparison.OrdinalIgnoreCase))
-                a = Tier2;
+                case 3:
+                    a = Tier3;
+                    break;
 
-            else if ("SE".Equals(agentType, StringComparison.OrdinalIgnoreCase) ||
-                "NSE".Equals(agentType, StringComparison.OrdinalIgnoreCase))
-                a = Tier1;
-
-            else
-                a = Commission;
+                default:
+                    a = Commission;
+                    break;
+            }
 
             return a;
         }
 
-        public decimal GetCommission(decimal amt, string agentType)
+        public decimal GetCommission(decimal amt, int level)
         {
-            double a = GetCommissionRate(agentType);
+            double a = GetCommissionRate(level);
             decimal x =  Convert.ToDecimal(a) * amt;
             return x;
         }

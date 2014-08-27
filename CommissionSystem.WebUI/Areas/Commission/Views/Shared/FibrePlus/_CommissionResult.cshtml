@@ -51,9 +51,9 @@
                             {{k.Customer.SettlementList[0].RealDate | datefilter | date:'dd MMM yyyy'}}
                         </div>
                     </td>
-                    <td class="tdRight">{{k.SettlementAmount | mycurrency:'RM'}}</td>
-                    <td>(T x {{k.CommissionRate}})</td>
-                    <td class="tdRight">{{k.Commission | mycurrency:'RM'}}</td>
+                    <td class="tdRight nowrap">{{k.SettlementAmount | mycurrency:'RM'}}</td>
+                    <td class="nowrap">(T x {{k.CommissionRate}})</td>
+                    <td class="tdRight nowrap">{{k.Commission | mycurrency:'RM'}}</td>
                 </tr>
             </tbody>
         </table>

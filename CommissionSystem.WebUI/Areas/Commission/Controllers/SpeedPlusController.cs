@@ -96,7 +96,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
 
                     else
                     {
+                        List<AgentView> agentViewList = re.AgentViewList.OrderBy(x => x.AgentID).ToList();
                         c = re;
+                        c.AgentViewList = agentViewList;
                     }
 
                     Session[COMMISSION_RESULT] = c;

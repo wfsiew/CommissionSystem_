@@ -127,8 +127,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                     CommissionView bv = new CommissionView();
                                     bv.Customer = customer;
-                                    bv.Commission = sf.SpeedPlusInternalSetting.GetCommission(v.SettlementAmount, b.AgentType);
-                                    bv.CommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    //bv.Commission = sf.SpeedPlusInternalSetting.GetCommission(v.SettlementAmount, b.AgentType);
+                                    //bv.CommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
                                     bv.SettlementAmount += v.SettlementAmount;
                                     cv[bagentid].Add(bv);
 
@@ -160,8 +160,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     CommissionView bv = new CommissionView();
                                     type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
                                     bv.Customer = customer;
-                                    bv.Commission = sf.SpeedPlusExternalSetting[type].GetCommission(v.SettlementAmount, b.AgentType);
-                                    bv.CommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    //bv.Commission = sf.SpeedPlusExternalSetting[type].GetCommission(v.SettlementAmount, b.AgentType);
+                                    //bv.CommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                     bv.SettlementAmount += v.SettlementAmount;
                                     cv[bagentid].Add(bv);
 
@@ -281,9 +281,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             {
                                 if (b.IsInternal)
                                 {
-                                    comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    //comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    //b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
                                 }
 
                                 else
@@ -291,9 +291,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     AgentID = b.AgentID;
                                     int numOfCustomers = GetNumOfCustomers();
                                     int type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    //comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    //b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                 }
                             }
                         }
@@ -308,9 +308,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             {
                                 if (b.IsInternal)
                                 {
-                                    comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    //comm = sf.SpeedPlusInternalSetting.GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    //b.TierCommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
                                 }
 
                                 else
@@ -318,9 +318,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     AgentID = b.AgentID;
                                     numOfCustomers = GetNumOfCustomers();
                                     type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
-                                    comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    //comm = sf.SpeedPlusExternalSetting[type].GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    //b.TierCommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                 }
                             }
                         }

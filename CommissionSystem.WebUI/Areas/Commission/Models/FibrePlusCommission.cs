@@ -127,8 +127,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
 
                                     CommissionView bv = new CommissionView();
                                     bv.Customer = customer;
-                                    bv.Commission = sf.FibrePlusInternalSetting.GetCommission(v.SettlementAmount, b.AgentType);
-                                    bv.CommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    //bv.Commission = sf.FibrePlusInternalSetting.GetCommission(v.SettlementAmount, b.AgentType);
+                                    //bv.CommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
                                     bv.SettlementAmount += v.SettlementAmount;
                                     cv[bagentid].Add(bv);
 
@@ -160,8 +160,8 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     CommissionView bv = new CommissionView();
                                     type = FibrePlusExternal.GetCommissionType(numOfCustomers);
                                     bv.Customer = customer;
-                                    bv.Commission = sf.FibrePlusExternalSetting[type].GetCommission(v.SettlementAmount, b.AgentType);
-                                    bv.CommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    //bv.Commission = sf.FibrePlusExternalSetting[type].GetCommission(v.SettlementAmount, b.AgentType);
+                                    //bv.CommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                     bv.SettlementAmount += v.SettlementAmount;
                                     cv[bagentid].Add(bv);
 
@@ -279,9 +279,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             {
                                 if (b.IsInternal)
                                 {
-                                    comm = sf.FibrePlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    //comm = sf.FibrePlusInternalSetting.GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    //b.TierCommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
                                 }
                                 
                                 else
@@ -289,9 +289,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     AgentID = b.AgentID;
                                     int numOfCustomers = GetNumOfCustomers();
                                     int type = FibrePlusExternal.GetCommissionType(numOfCustomers);
-                                    comm = sf.FibrePlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    //comm = sf.FibrePlusExternalSetting[type].GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    //b.TierCommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                 }
                             }
                         }
@@ -306,9 +306,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                             {
                                 if (b.IsInternal)
                                 {
-                                    comm = sf.FibrePlusInternalSetting.GetCommission(amt, b.AgentType);
+                                    //comm = sf.FibrePlusInternalSetting.GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    //b.TierCommissionRate = sf.FibrePlusInternalSetting.GetCommissionRate(b.AgentType);
                                 }
                                 
                                 else
@@ -316,9 +316,9 @@ namespace CommissionSystem.WebUI.Areas.Commission.Models
                                     AgentID = b.AgentID;
                                     numOfCustomers = GetNumOfCustomers();
                                     type = FibrePlusExternal.GetCommissionType(numOfCustomers);
-                                    comm = sf.FibrePlusExternalSetting[type].GetCommission(amt, b.AgentType);
+                                    //comm = sf.FibrePlusExternalSetting[type].GetCommission(amt, b.AgentType);
                                     b.AddToSubCommission(comm);
-                                    b.TierCommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    //b.TierCommissionRate = sf.FibrePlusExternalSetting[type].GetCommissionRate(b.AgentType);
                                 }
                             }
                         }

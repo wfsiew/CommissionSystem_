@@ -369,6 +369,15 @@
                     </tr>
                 }
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4"></td>
+                    <td class="tdRight">Grand Total</td>
+                    <td class="tdRight nowrap">@Utils.FormatCurrency(a.TotalSettlement)</td>
+                    <td></td>
+                    <td class="tdRight nowrap">@Utils.FormatCurrency(a.TotalCommission)</td>
+                </tr>
+            </tfoot>
         </table>
     }
 }

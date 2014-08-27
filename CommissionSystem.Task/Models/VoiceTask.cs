@@ -276,6 +276,95 @@ namespace CommissionSystem.Task.Models
             return dic;
         }
 
+        protected List<CustomerList> GetCustomerList(int agentID)
+        {
+            List<CustomerList> l = new List<CustomerList>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select * from customerlist where clsfid = @agentid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = agentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    CustomerList o = new CustomerList();
+                    o.CLSFID = rd.Get<int>("CLSFID");
+                    o.CLCustListIndex = rd.Get("CLCustListIndex");
+                    o.CLCustID = rd.Get<int>("CLCustID");
+
+                    l.Add(o);
+                }
+
+                rd.Close();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return l;
+        }
+
+        protected List<CustomerListPackage> GetCustomerListPackage(int agentID)
+        {
+            List<CustomerListPackage> l = new List<CustomerListPackage>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select * from customerlistpackage where lpsfid = @agentid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = agentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    CustomerListPackage o = new CustomerListPackage();
+                    o.LPSFID = rd.Get<int>("LPSFID");
+                    o.LPCustListIndex = rd.Get("LPCustListIndex");
+                    o.LPCustListDesc = rd.Get("LPCustListDesc");
+                    o.LPCPackID = rd.Get("LPCPackID");
+
+                    l.Add(o);
+                }
+
+                rd.Close();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return l;
+        }
+
         protected CallRate GetIDDSTDMOBRate(string s)
         {
             CallRate o = new CallRate();

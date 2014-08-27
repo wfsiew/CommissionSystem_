@@ -72,6 +72,7 @@
     <Compile Include="ProtoBufModels\CommissionView.cs" />
     <Compile Include="ProtoBufModels\Customer.cs" />
     <Compile Include="ProtoBufModels\CustomerBillingInfo.cs" />
+    <Compile Include="ProtoBufModels\CustomerList.cs" />
     <Compile Include="ProtoBufModels\CustomerSettlement.cs" />
     <Compile Include="ProtoBufModels\EmailInfo.cs" />
     <Compile Include="ProtoBufModels\Invoice.cs" />

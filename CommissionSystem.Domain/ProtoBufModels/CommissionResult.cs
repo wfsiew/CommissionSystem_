@@ -124,6 +124,17 @@ namespace CommissionSystem.Domain.ProtoBufModels
                         ws.Cells[row, col++].Value = Utils.FormatCurrency(k.Commission);
 
                         ++row;
+
+                        ws.Cells[row, 5].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, 5].Value = "Grand Total";
+                        ws.Cells[row, 6].Style.WrapText = false;
+                        ws.Cells[row, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, 6].Value = Utils.FormatCurrency(a.TotalSettlement);
+                        ws.Cells[row, 8].Style.WrapText = false;
+                        ws.Cells[row, 8].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, 8].Value = Utils.FormatCurrency(a.TotalCommission);
+
+                        ++row;
                     }
 
                     row += space;
@@ -240,9 +251,12 @@ namespace CommissionSystem.Domain.ProtoBufModels
                         else
                             col++;
 
+                        ws.Cells[row, col].Style.WrapText = false;
                         ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                         ws.Cells[row, col++].Value = Utils.FormatCurrency(k.SettlementAmount);
+                        ws.Cells[row, col].Style.WrapText = false;
                         ws.Cells[row, col++].Value = string.Format("(T x {0})", k.CommissionRate);
+                        ws.Cells[row, col].Style.WrapText = false;
                         ws.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                         ws.Cells[row, col++].Value = Utils.FormatCurrency(k.Commission);
 
@@ -452,6 +466,17 @@ namespace CommissionSystem.Domain.ProtoBufModels
                             ws.Cells[row, col + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                             ws.Cells[row++, col + 1].Value = Utils.FormatCurrency(k.CallCharge);
                         }
+
+                        ws.Cells[row, 5].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, 5].Value = "Grand Total";
+                        ws.Cells[row, 6].Style.WrapText = false;
+                        ws.Cells[row, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, 6].Value = Utils.FormatCurrency(a.TotalSettlement);
+                        ws.Cells[row, 8].Style.WrapText = false;
+                        ws.Cells[row, 8].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        ws.Cells[row, 8].Value = Utils.FormatCurrency(a.TotalCommission);
+
+                        ++row;
                     }
 
                     row += space;

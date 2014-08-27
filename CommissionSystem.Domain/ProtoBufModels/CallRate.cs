@@ -15,6 +15,8 @@ namespace CommissionSystem.Domain.ProtoBufModels
         private double std;
         [ProtoMember(3)]
         private double mob;
+        [ProtoMember(4)]
+        private double idd2;
 
         public int IDD
         {
@@ -52,6 +54,19 @@ namespace CommissionSystem.Domain.ProtoBufModels
             set
             {
                 mob = value * 0.01;
+            }
+        }
+
+        public double IDD2
+        {
+            get
+            {
+                return idd2;
+            }
+
+            set
+            {
+                idd2 = value * 0.01;
             }
         }
     }

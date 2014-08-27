@@ -53,11 +53,14 @@ namespace CommissionSystem.Task.Models
 
                 Dictionary<string, List<CommissionView>> cv = new Dictionary<string, List<CommissionView>>();
                 Dictionary<string, AgentView> av = new Dictionary<string, AgentView>();
+                Queue<Agent> qa = new Queue<Agent>();
                 List<int> levels = AgentDic.Keys.ToList();
                 levels.Reverse();
                 SettingFactory sf = SettingFactory.Instance;
                 Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
                 Dictionary<int, int> numCustDic = new Dictionary<int, int>();
+                Dictionary<string, bool> t = new Dictionary<string, bool>();
+                Dictionary<int, bool> ad = new Dictionary<int, bool>();
 
                 for (int i = 0; i < levels.Count; i++)
                 {
@@ -76,11 +79,26 @@ namespace CommissionSystem.Task.Models
                         if (!av.ContainsKey(agentid))
                             av[agentid] = a.GetAgentInfo();
 
+                        if (ad.ContainsKey(AgentID))
+                            continue;
+
                         Dictionary<int, Customer> customerDic = GetCustomers();
                         List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
 
                         foreach (KeyValuePair<int, Customer> d in customerDic)
                         {
+                            string uid = string.Format("{0}-{1}", a.AgentID, d.Key);
+                            if (t.ContainsKey(uid))
+                                break;
+
+                            else
+                                t[uid] = true;
+
+                            qa.Clear();
+
+                            if (a.ParentAgent != null)
+                                qa.Enqueue(a.ParentAgent);
+
                             Customer customer = d.Value;
                             int custID = d.Key;
                             List<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID).ToList();
@@ -129,8 +147,15 @@ namespace CommissionSystem.Task.Models
                                 v.Commission = sf.SpeedPlusInternalSetting.GetDirectCommission(v.SettlementAmount);
                                 av[agentid].TotalCommission += v.Commission;
 
-                                if (b != null && b.Level > 0)
+                                for (int n = 1; n < 3; n++)
                                 {
+                                    b = qa.Count() > 0 ? qa.Dequeue() : null;
+                                    if (b == null)
+                                        break;
+
+                                    if (b.ParentAgent != null)
+                                        qa.Enqueue(b.ParentAgent);
+
                                     bagentid = b.AgentID.ToString();
 
                                     if (!cv.ContainsKey(bagentid))
@@ -138,8 +163,8 @@ namespace CommissionSystem.Task.Models
 
                                     CommissionView bv = new CommissionView();
                                     bv.Customer = customer;
-                                    bv.Commission = sf.SpeedPlusInternalSetting.GetCommission(v.SettlementAmount, b.AgentType);
-                                    bv.CommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(b.AgentType);
+                                    bv.Commission = sf.SpeedPlusInternalSetting.GetCommission(v.SettlementAmount, n);
+                                    bv.CommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(n);
                                     bv.SettlementAmount += v.SettlementAmount;
                                     cv[bagentid].Add(bv);
 
@@ -161,8 +186,15 @@ namespace CommissionSystem.Task.Models
                                 v.Commission = sf.SpeedPlusExternalSetting[type].GetDirectCommission(v.SettlementAmount);
                                 av[agentid].TotalCommission += v.Commission;
 
-                                if (b != null && b.Level > 0)
+                                for (int n = 1; n < 4; n++)
                                 {
+                                    b = qa.Count() > 0  ? qa.Dequeue() : null;
+                                    if (b == null)
+                                        break;
+
+                                    if (b.ParentAgent != null)
+                                        qa.Enqueue(b.ParentAgent);
+
                                     bagentid = b.AgentID.ToString();
 
                                     if (!cv.ContainsKey(bagentid))
@@ -171,8 +203,8 @@ namespace CommissionSystem.Task.Models
                                     CommissionView bv = new CommissionView();
                                     type = SpeedPlusExternal.GetCommissionType(numOfCustomers);
                                     bv.Customer = customer;
-                                    bv.Commission = sf.SpeedPlusExternalSetting[type].GetCommission(v.SettlementAmount, b.AgentType);
-                                    bv.CommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(b.AgentType);
+                                    bv.Commission = sf.SpeedPlusExternalSetting[type].GetCommission(v.SettlementAmount, n);
+                                    bv.CommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(n);
                                     bv.SettlementAmount += v.SettlementAmount;
                                     cv[bagentid].Add(bv);
 

@@ -13,10 +13,10 @@ namespace TestIDDDesc
             string s = "IDD_12-March06-STD15-MOB16(TF)CBD(20sec)-KL/Mel/Ns";
             Regex rx = new Regex("std\\d+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             Regex rn = new Regex("\\d+");
-            var x = rx.Match(s);
-            var y = rn.Match(x.Value);
 
-            Console.WriteLine(y.Value);
+            s = "IDD(3.5)STD(4)MOB(3)";
+            var m = Regex.Match(s, @"-?\d+(?:\.\d+)?");
+            Console.WriteLine(m.Value);
 
             Console.ReadKey();
         }

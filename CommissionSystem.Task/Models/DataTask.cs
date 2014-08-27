@@ -35,6 +35,135 @@ namespace CommissionSystem.Task.Models
                 Db.Dispose();
         }
 
+        public void Run_()
+        {
+            string agentid = null;
+            string bagentid = null;
+
+            try
+            {
+                Dictionary<int, List<SalesParent>> dic = new Dictionary<int, List<SalesParent>>();
+                List<SalesParent> agentlist = new List<SalesParent>();
+                GetAgentHierarchy(0, agentlist, dic);
+
+                AgentDic = dic;
+                AgentList = agentlist;
+
+                Dictionary<string, List<CommissionView>> cv = new Dictionary<string, List<CommissionView>>();
+                Dictionary<string, AgentView> av = new Dictionary<string, AgentView>();
+                List<int> levels = AgentDic.Keys.ToList();
+                levels.Reverse();
+                SettingFactory sf = SettingFactory.Instance;
+                Dictionary<int, ProductTypes> productTypeDic = GetProductTypes();
+                Dictionary<string, bool> t = new Dictionary<string, bool>();
+                Dictionary<int, bool> ad = new Dictionary<int, bool>();
+                Dictionary<int, List<CustomerList>> customerListDic = new Dictionary<int, List<CustomerList>>();
+                Dictionary<int, List<CustomerListPackage>> customerListPackageDic = new Dictionary<int, List<CustomerListPackage>>();
+
+                for (int i = 0; i < levels.Count; i++)
+                {
+                    int k = levels[i];
+                    List<SalesParent> l = AgentDic[k];
+                    for (int j = 0; j < l.Count; j++)
+                    {
+                        SalesParent a = l[j];
+                        List<SalesParent> blist = a.ParentAgentList;
+
+                        AgentID = a.SParentID;
+                        agentid = a.SParentID.ToString();
+
+                        if (!cv.ContainsKey(agentid))
+                            cv[agentid] = new List<CommissionView>();
+
+                        if (!av.ContainsKey(agentid))
+                            av[agentid] = a.GetAgentInfo();
+
+                        if (ad.ContainsKey(AgentID))
+                            continue;
+
+                        Dictionary<int, Customer> customerDic = GetCustomers();
+                        List<CustomerBillingInfo> customerBIlist = GetCustomerBillingInfos();
+                        ad[AgentID] = true;
+
+                        if (!customerListDic.ContainsKey(a.SParentID))
+                        {
+                            List<CustomerList> customerListList = GetCustomerList(a.SParentID);
+                            customerListDic[a.SParentID] = customerListList;
+                        }
+
+                        if (!customerListPackageDic.ContainsKey(a.SParentID))
+                        {
+                            List<CustomerListPackage> customerListPackageList = GetCustomerListPackage(a.SParentID);
+                            customerListPackageDic[a.SParentID] = customerListPackageList;
+                        }
+
+                        foreach (KeyValuePair<int, Customer> d in customerDic)
+                        {
+                            string uid = string.Format("{0}-{1}", a.SParentID, d.Key);
+                            if (t.ContainsKey(uid))
+                                break;
+
+                            else
+                                t[uid] = true;
+
+                            Customer customer = d.Value;
+                            int custID = d.Key;
+
+                            List<CustomerList> customerListList = customerListDic[AgentID];
+                            CustomerList customerList = customerListList.Find(x => x.CLCustID == custID);
+
+                            if (customerList == null)
+                                continue;
+
+                            List<CustomerListPackage> customerListPackageList = customerListPackageDic[AgentID];
+                            CustomerListPackage customerListPackage = customerListPackageList.Find(x => x.LPCustListIndex == customerList.CLCustListIndex);
+
+                            List<CustomerBillingInfo> ebi = customerBIlist.Where(x => x.CustID == custID).ToList();
+                            customer.BillingInfoList = ebi;
+                            a.AddCustomer(customer);
+
+                            CommissionView v = new CommissionView();
+                            v.Customer = customer;
+                            cv[agentid].Add(v);
+
+                            foreach (CustomerBillingInfo bi in ebi)
+                            {
+                                if (productTypeDic.ContainsKey(bi.ProductID))
+                                {
+                                    ProductTypes productType = productTypeDic[bi.ProductID];
+                                    bi.ProductType = productType;
+                                }
+                            }
+
+                            List<Invoice> invoiceList = GetCustomerInvoice(customer);
+                            decimal amount = GetCustomerSettlementAmount(customer, invoiceList);
+                            a.Amount += amount;
+
+                            v.CommissionRate = customerListPackage.GetRateData();
+                            v.SettlementAmount += amount;
+
+                            av[agentid].TotalSettlement += v.SettlementAmount;
+
+                            v.Commission = v.SettlementAmount * Convert.ToDecimal(v.CommissionRate);
+                            if (customer.Status != 1)
+                                v.Commission = 0;
+
+                            av[agentid].TotalCommission += v.Commission;
+                        }
+                    }
+                }
+
+                CommissionViewDic = cv;
+                AgentViewList = av.Values.OrderBy(x => x.AgentName).ToList();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+        }
+
         public void Run()
         {
             string agentid = null;
@@ -470,7 +599,9 @@ namespace CommissionSystem.Task.Models
                     .Append("and custid in (")
                     .Append("select distinct custid from customersettlement where paymenttype = 1 and ")
                     .Append("productid <> 0 and paymenttype <> 3 and productid <> 41 and ")
-                    .Append("realdate >= @datefrom and realdate < @dateto)");
+                    .Append("realdate >= @datefrom and realdate < @dateto) ")
+                    .Append("and custid in (")
+                    .Append("select clcustid from customerlist where clsfid = @agentid)");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
@@ -533,7 +664,8 @@ namespace CommissionSystem.Task.Models
                 sb.Append("select custid, name, billingday, status from customer where agentid = @agentid and custid in (")
                     .Append("select distinct custid from customersettlement where paymenttype = 1 and ")
                     .Append("productid <> 0 and paymenttype <> 3 and productid <> 41 and ")
-                    .Append("realdate >= @datefrom and realdate < @dateto)");
+                    .Append("realdate >= @datefrom and realdate < @dateto) and custid in (")
+                    .Append("select clcustid from customerlist where clsfid = @agentid)");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
@@ -576,6 +708,95 @@ namespace CommissionSystem.Task.Models
             }
 
             return dic;
+        }
+
+        private List<CustomerList> GetCustomerList(int agentID)
+        {
+            List<CustomerList> l = new List<CustomerList>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select * from customerlist where clsfid = @agentid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = agentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    CustomerList o = new CustomerList();
+                    o.CLSFID = rd.Get<int>("CLSFID");
+                    o.CLCustListIndex = rd.Get("CLCustListIndex");
+                    o.CLCustID = rd.Get<int>("CLCustID");
+
+                    l.Add(o);
+                }
+
+                rd.Close();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return l;
+        }
+
+        private List<CustomerListPackage> GetCustomerListPackage(int agentID)
+        {
+            List<CustomerListPackage> l = new List<CustomerListPackage>();
+            SqlDataReader rd = null;
+
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select * from customerlistpackage where lpsfid = @agentid");
+                string q = sb.ToString();
+
+                SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
+                p.Value = agentID;
+                Db.AddParameter(p);
+
+                rd = Db.ExecuteReader(q, CommandType.Text);
+                while (rd.Read())
+                {
+                    CustomerListPackage o = new CustomerListPackage();
+                    o.LPSFID = rd.Get<int>("LPSFID");
+                    o.LPCustListIndex = rd.Get("LPCustListIndex");
+                    o.LPCustListDesc = rd.Get("LPCustListDesc");
+                    o.LPCPackID = rd.Get("LPCPackID");
+
+                    l.Add(o);
+                }
+
+                rd.Close();
+            }
+
+            catch (Exception e)
+            {
+                Logger.Debug("", e);
+                throw e;
+            }
+
+            finally
+            {
+                if (rd != null)
+                    rd.Dispose();
+            }
+
+            return l;
         }
 
         private bool IsCustomerExist(int magentid, int custid)
