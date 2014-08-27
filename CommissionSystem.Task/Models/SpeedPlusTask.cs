@@ -504,8 +504,8 @@ namespace CommissionSystem.Task.Models
                     .Append("where custid in ")
                     .Append("(select custid from customer where customertype in (2, 3) and status = 1 and agentid = @agentid) ")
                     .Append("and productid in ")
-                    .Append("(select productid from producttypes where (description like '%Mbps%' or description like '%Rebate%') and ")
-                    .Append("initialamount > 0)");
+                    .Append("(select productid from producttypes where (description like '%Mbps%' or chargetype = -1) and ")
+                    .Append("initialamount > 0 and productid <> 8)");
                 string q = sb.ToString();
 
                 SqlParameter p = new SqlParameter("@agentid", SqlDbType.Int);
