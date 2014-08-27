@@ -1,7 +1,7 @@
-﻿@model CommissionSystem.WebUI.Areas.Commission.Models.CommissionResult
+﻿@model CommissionSystem.Domain.ProtoBufModels.CommissionResult
 
-@using CommissionSystem.WebUI.Areas.Commission.Models;
-@using CommissionSystem.WebUI.Helpers;
+@using CommissionSystem.Domain.ProtoBufModels;
+@using CommissionSystem.Domain.Helpers;
 
 @{
     Layout = null;
@@ -346,6 +346,15 @@
                     </tr>
                 }
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4"></td>
+                    <td class="tdRight">Grand Total</td>
+                    <td class="tdRight nowrap">@Utils.FormatCurrency(a.TotalSettlement)</td>
+                    <td></td>
+                    <td class="tdRight nowrap">@Utils.FormatCurrency(a.TotalCommission)</td>
+                </tr>
+            </tfoot>
         </table>
     }
 }

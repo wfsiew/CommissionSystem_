@@ -18,7 +18,6 @@ namespace CommissionSystem.Task.Models
         public void Run_()
         {
             string agentid = null;
-            string bagentid = null;
 
             try
             {
@@ -131,7 +130,7 @@ namespace CommissionSystem.Task.Models
                             v.CallChargeSTD += callCharge.STD;
                             v.CallChargeMOB += callCharge.MOB;
 
-                            av[agentid].TotalSettlement += v.CallCharge;
+                            av[agentid].TotalSettlement += callCharge.Total;
 
                             v.CommissionIDD = v.CallChargeIDD * Convert.ToDecimal(v.CommissionRateIDD);
                             v.CommissionSTD = v.CallChargeSTD * Convert.ToDecimal(v.CommissionRateSTD);
@@ -276,7 +275,7 @@ namespace CommissionSystem.Task.Models
                                 v.CallChargeSTD += callCharge.STD;
                                 v.CallChargeMOB += callCharge.MOB;
 
-                                av[agentid].TotalSettlement += v.CallCharge;
+                                av[agentid].TotalSettlement += callCharge.Total;
 
                                 v.CommissionIDD = iddrate > 0 ? sf.IDDInternalSetting[iddrate].GetDirectCommission(v.CallChargeIDD) : 0;
                                 v.CommissionSTD = stdrate > 0 ? sf.E1InternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD) : 0;
@@ -316,7 +315,7 @@ namespace CommissionSystem.Task.Models
                                         bv.CommissionRateSTD = stdrate > 0 ? sf.E1InternalSetting[stdrate].GetCommissionRate(n) : 0;
                                         bv.CommissionRateMOB = mobrate > 0 ? sf.E1InternalSetting[mobrate].GetCommissionRate(n) : 0;
 
-                                        bv.CallCharge += v.CallCharge;
+                                        bv.CallCharge += callCharge.Total;
                                         bv.CallChargeIDD += v.CallChargeIDD;
                                         bv.CallChargeSTD += v.CallChargeSTD;
                                         bv.CallChargeMOB += v.CallChargeMOB;
@@ -334,7 +333,7 @@ namespace CommissionSystem.Task.Models
                                         if (!av.ContainsKey(bagentid))
                                             av[bagentid] = b.GetAgentInfo();
 
-                                        av[bagentid].TotalSettlement += bv.CallCharge;
+                                        av[bagentid].TotalSettlement += callCharge.Total;
                                         av[bagentid].TotalCommission += bv.Commission;
                                     }
                                 }
@@ -364,7 +363,7 @@ namespace CommissionSystem.Task.Models
                                 v.CallChargeSTD += callCharge.STD;
                                 v.CallChargeMOB += callCharge.MOB;
 
-                                av[agentid].TotalSettlement += v.CallCharge;
+                                av[agentid].TotalSettlement += callCharge.Total;
 
                                 v.CommissionIDD = iddrate > 0 ? sf.IDDExternalSetting[iddrate].GetDirectCommission(v.CallChargeIDD) : 0;
                                 v.CommissionSTD = stdrate > 0 ? sf.E1ExternalSetting[stdrate].GetDirectCommission(v.CallChargeSTD) : 0;
@@ -404,7 +403,7 @@ namespace CommissionSystem.Task.Models
                                         bv.CommissionRateSTD = stdrate > 0 ? sf.E1ExternalSetting[stdrate].GetCommissionRate(n) : 0;
                                         bv.CommissionRateMOB = mobrate > 0 ? sf.E1ExternalSetting[mobrate].GetCommissionRate(n) : 0;
 
-                                        bv.CallCharge += v.CallCharge;
+                                        bv.CallCharge += callCharge.Total;
                                         bv.CallChargeIDD += v.CallChargeIDD;
                                         bv.CallChargeSTD += v.CallChargeSTD;
                                         bv.CallChargeMOB += v.CallChargeMOB;
@@ -422,7 +421,7 @@ namespace CommissionSystem.Task.Models
                                         if (!av.ContainsKey(bagentid))
                                             av[bagentid] = b.GetAgentInfo();
 
-                                        av[bagentid].TotalSettlement += bv.CallCharge;
+                                        av[bagentid].TotalSettlement += callCharge.Total;
                                         av[bagentid].TotalCommission += bv.Commission;
                                     }
                                 }

@@ -38,7 +38,6 @@ namespace CommissionSystem.Task.Models
         public void Run_()
         {
             string agentid = null;
-            string bagentid = null;
 
             try
             {
@@ -142,7 +141,7 @@ namespace CommissionSystem.Task.Models
                             v.CommissionRate = customerListPackage.GetRateData();
                             v.SettlementAmount += amount;
 
-                            av[agentid].TotalSettlement += v.SettlementAmount;
+                            av[agentid].TotalSettlement += amount;
 
                             v.Commission = v.SettlementAmount * Convert.ToDecimal(v.CommissionRate);
                             if (customer.Status != 1)
@@ -256,7 +255,7 @@ namespace CommissionSystem.Task.Models
                                 v.CommissionRate = sf.ADSLInternalSetting.Commission;
                                 v.SettlementAmount += amount;
 
-                                av[agentid].TotalSettlement += v.SettlementAmount;
+                                av[agentid].TotalSettlement += amount;
 
                                 v.Commission = sf.ADSLInternalSetting.GetDirectCommission(v.SettlementAmount);
                                 if (customer.Status != 1)
@@ -292,7 +291,7 @@ namespace CommissionSystem.Task.Models
                                             bv.Commission = 0;
 
                                         bv.CommissionRate = sf.ADSLInternalSetting.GetCommissionRate(n);
-                                        bv.SettlementAmount += v.SettlementAmount;
+                                        bv.SettlementAmount += amount;
                                         cv[bagentid].Add(bv);
 
                                         if (!av.ContainsKey(bagentid))
@@ -345,7 +344,7 @@ namespace CommissionSystem.Task.Models
                                             bv.Commission = 0;
 
                                         bv.CommissionRate = sf.ADSLExternalSetting.GetCommissionRate(n);
-                                        bv.SettlementAmount += v.SettlementAmount;
+                                        bv.SettlementAmount += amount;
                                         cv[bagentid].Add(bv);
 
                                         if (!av.ContainsKey(bagentid))

@@ -15,6 +15,8 @@ namespace CommissionSystem.Domain.ProtoBufModels
         public string Description { get; set; }
         [ProtoMember(3)]
         public decimal InitialAmount { get; set; }
+        [ProtoMember(4)]
+        public short ChargeType { get; set; }
 
         public bool IsRebate
         {
@@ -24,6 +26,9 @@ namespace CommissionSystem.Domain.ProtoBufModels
 
                 if (!string.IsNullOrEmpty(Description) &&
                     Description.IndexOf("Rebate", StringComparison.OrdinalIgnoreCase) >= 0)
+                    a = true;
+
+                if (ChargeType == -1 && ProductID != 8)
                     a = true;
 
                 return a;

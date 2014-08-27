@@ -41,6 +41,7 @@ namespace CommissionSystem.Task.Models
         {
             string agentid = null;
             string bagentid = null;
+            decimal amount = 0;
 
             try
             {
@@ -116,7 +117,7 @@ namespace CommissionSystem.Task.Models
                                 {
                                     ProductTypes productType = productTypeDic[bi.ProductID];
                                     bi.ProductType = productType;
-                                    decimal amount = GetCustomerSettlementAmount(customer, productType);
+                                    amount = GetCustomerSettlementAmount(customer, productType);
                                     a.Amount += amount;
 
                                     if (a.IsInternal)
@@ -124,7 +125,7 @@ namespace CommissionSystem.Task.Models
                                         v.CommissionRate = sf.SpeedPlusInternalSetting.Commission;
                                         v.SettlementAmount += amount;
 
-                                        av[agentid].TotalSettlement += v.SettlementAmount;
+                                        av[agentid].TotalSettlement += amount;
                                     }
 
                                     else
@@ -137,7 +138,7 @@ namespace CommissionSystem.Task.Models
                                         v.CommissionRate = sf.SpeedPlusExternalSetting[type].Commission;
                                         v.SettlementAmount += amount;
 
-                                        av[agentid].TotalSettlement += v.SettlementAmount;
+                                        av[agentid].TotalSettlement += amount;
                                     }
                                 }
                             }
@@ -165,13 +166,13 @@ namespace CommissionSystem.Task.Models
                                     bv.Customer = customer;
                                     bv.Commission = sf.SpeedPlusInternalSetting.GetCommission(v.SettlementAmount, n);
                                     bv.CommissionRate = sf.SpeedPlusInternalSetting.GetCommissionRate(n);
-                                    bv.SettlementAmount += v.SettlementAmount;
+                                    bv.SettlementAmount += amount;
                                     cv[bagentid].Add(bv);
 
                                     if (!av.ContainsKey(bagentid))
                                         av[bagentid] = b.GetAgentInfo();
 
-                                    av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                    av[bagentid].TotalSettlement += amount;
                                     av[bagentid].TotalCommission += bv.Commission;
                                 }
                             }
@@ -205,13 +206,13 @@ namespace CommissionSystem.Task.Models
                                     bv.Customer = customer;
                                     bv.Commission = sf.SpeedPlusExternalSetting[type].GetCommission(v.SettlementAmount, n);
                                     bv.CommissionRate = sf.SpeedPlusExternalSetting[type].GetCommissionRate(n);
-                                    bv.SettlementAmount += v.SettlementAmount;
+                                    bv.SettlementAmount += amount;
                                     cv[bagentid].Add(bv);
 
                                     if (!av.ContainsKey(bagentid))
                                         av[bagentid] = b.GetAgentInfo();
 
-                                    av[bagentid].TotalSettlement += bv.SettlementAmount;
+                                    av[bagentid].TotalSettlement += amount;
                                     av[bagentid].TotalCommission += bv.Commission;
                                 }
                             }
@@ -456,7 +457,7 @@ namespace CommissionSystem.Task.Models
             try
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("select productid, description, initialamount from producttypes");
+                sb.Append("select productid, description, initialamount, chargetype from producttypes");
                 string q = sb.ToString();
 
                 rd = Db.ExecuteReader(q, CommandType.Text);
@@ -466,6 +467,7 @@ namespace CommissionSystem.Task.Models
                     o.ProductID = rd.Get<int>("productid");
                     o.Description = rd.Get("description");
                     o.InitialAmount = rd.Get<decimal>("initialamount");
+                    o.ChargeType = rd.Get<short>("chargetype");
 
                     if (o.IsRebate)
                         o.InitialAmount *= -1;

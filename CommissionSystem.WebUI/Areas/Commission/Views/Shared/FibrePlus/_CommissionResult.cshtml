@@ -56,6 +56,15 @@
                     <td class="tdRight nowrap">{{k.Commission | mycurrency:'RM'}}</td>
                 </tr>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4"></td>
+                    <td class="tdRight">Grand Total</td>
+                    <td class="tdRight nowrap">{{o.TotalSettlement | mycurrency:'RM'}}</td>
+                    <td></td>
+                    <td class="tdRight nowrap">{{o.TotalCommission | mycurrency:'RM'}}</td>
+                </tr>
+            </tfoot>
         </table>
     </div>
     <pagination boundary-links="true" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
