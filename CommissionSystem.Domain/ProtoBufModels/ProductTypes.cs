@@ -24,10 +24,6 @@ namespace CommissionSystem.Domain.ProtoBufModels
             {
                 bool a = false;
 
-                if (!string.IsNullOrEmpty(Description) &&
-                    Description.IndexOf("Rebate", StringComparison.OrdinalIgnoreCase) >= 0)
-                    a = true;
-
                 if (ChargeType == -1 && ProductID != 8)
                     a = true;
 

@@ -146,6 +146,22 @@ namespace CommissionSystem.WebUI.Areas.Commission.Controllers
             return Json(r, JsonRequestBehavior.AllowGet);
         }
 
+        public FileContentResult DownLoad(string from, string to)
+        {
+            FileContentResult f = null;
+            string contentType = "application/vnd.ms-excel";
+
+            DateTime dateFrom = Utils.GetDateTimeFMT(from);
+            DateTime dateTo = Utils.GetDateTimeFMT(to);
+
+            CommissionResult c = Session[COMMISSION_RESULT] as CommissionResult;
+            Attachment att = c.GetFibrePlusCommissionResultData(dateFrom, dateTo);
+
+            f = File(att.Data, contentType, att.Filename);
+
+            return f;
+        }
+
         [HttpPost]
         public ActionResult Mail(FibrePlusRequest req)
         {

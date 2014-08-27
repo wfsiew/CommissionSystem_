@@ -35,6 +35,23 @@
         $scope.getResult(o);
     }
 
+    $scope.downloadCommission = function () {
+        var dateFrom = $scope.dateFrom;
+        var dateTo = $scope.dateTo;
+
+        var _dateFrom = utils.getDateStr(dateFrom);
+        var _dateTo = utils.getDateStr(dateTo);
+
+        var a = [
+            'from=' + _dateFrom,
+            'to=' + _dateTo
+        ].join('&');
+        var q = '?' + a;
+
+        var url = route.fibreplus.download + q;
+        $('#exportFrame').attr('src', url);
+    }
+
     $scope.getResult = function (o) {
         var url = route.fibreplus.commission;
         utils.blockUI();

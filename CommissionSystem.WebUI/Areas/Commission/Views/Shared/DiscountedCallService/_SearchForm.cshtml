@@ -37,7 +37,9 @@
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
             <button class="btn btn-primary" ng-click="showCommission()" ng-disabled="form.$invalid">Show Commission</button>
-            <button class="btn btn-success" ng-click="sendMail()" ng-disabled="result == null">Send Mail</button>
+            <button class="btn btn-primary" ng-click="downloadCommission()" ng-disabled="result == null"><i class="glyphicon glyphicon-download"></i> Download Commission</button>
+            <button class="btn btn-success" ng-click="sendMail()" ng-disabled="result == null"><i class="glyphicon glyphicon-send"></i> Send Mail</button>
         </div>
     </div>
 </form>
+<iframe id="exportFrame" style="display: none; width: 0; height: 0"></iframe>
